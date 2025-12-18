@@ -1,0 +1,8 @@
+{
+  "appTitle": "Flutter Agent Panel",
+  "workspace": "Workspace",
+  "terminal": "Terminal",
+  "newTerminal": "New Terminal",
+  "settings": "Settings",
+  "@@locale": "en"
+}
