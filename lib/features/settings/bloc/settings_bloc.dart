@@ -16,6 +16,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     on<UpdateFontSettings>(_onUpdateFontSettings);
     on<UpdateDefaultShell>(_onUpdateDefaultShell);
     on<UpdateLocale>(_onUpdateLocale);
+    on<UpdateTerminalCursorBlink>(_onUpdateTerminalCursorBlink);
   }
 
   void _onUpdateAppTheme(UpdateAppTheme event, Emitter<SettingsState> emit) {
@@ -47,6 +48,13 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
   void _onUpdateLocale(UpdateLocale event, Emitter<SettingsState> emit) {
     emit(state.copyWith(
         settings: state.settings.copyWith(locale: event.locale)));
+  }
+
+  void _onUpdateTerminalCursorBlink(
+      UpdateTerminalCursorBlink event, Emitter<SettingsState> emit) {
+    emit(state.copyWith(
+        settings:
+            state.settings.copyWith(terminalCursorBlink: event.isEnabled)));
   }
 
   @override

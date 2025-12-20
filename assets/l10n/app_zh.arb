@@ -1,5 +1,7 @@
 {
   "appTitle": "Flutter 代理面板",
+  "general": "常规",
+  "search": "搜索",
   "workspace": "工作区",
   "terminal": "终端",
   "newTerminal": "新建终端",
@@ -49,5 +51,12 @@
   "about": "关于",
   "help": "帮助",
   "restartingTerminal": "正在重启终端...",
+  "cursorBlink": "光标闪爍",
+  "cursorBlinkDescription": "允许终端光标闪爍。",
+  "themeDescription": "选择应用程序主题模式。",
+  "terminalSettingsDescription": "配置终端外观和行為。",
+  "fontFamilyDescription": "选择终端使用的字體。",
+  "shellSettingsDescription": "选择默认的 Shell。",
+  "shellPathPlaceholder": "例如: C:\\path\\to\\shell.exe",
   "@@locale": "zh"
 }

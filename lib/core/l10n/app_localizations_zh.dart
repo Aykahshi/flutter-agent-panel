@@ -12,6 +12,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTitle => 'Flutter 代理面板';
 
   @override
+  String get general => '常规';
+
+  @override
+  String get search => '搜索';
+
+  @override
   String get workspace => '工作区';
 
   @override
@@ -158,6 +164,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restartingTerminal => '正在重启终端...';
+
+  @override
+  String get cursorBlink => '光标闪爍';
+
+  @override
+  String get cursorBlinkDescription => '允许终端光标闪爍。';
+
+  @override
+  String get themeDescription => '选择应用程序主题模式。';
+
+  @override
+  String get terminalSettingsDescription => '配置终端外观和行為。';
+
+  @override
+  String get fontFamilyDescription => '选择终端使用的字體。';
+
+  @override
+  String get shellSettingsDescription => '选择默认的 Shell。';
+
+  @override
+  String get shellPathPlaceholder => '例如: C:\\path\\to\\shell.exe';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -166,6 +193,12 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get appTitle => 'Flutter 代理面板';
+
+  @override
+  String get general => '一般';
+
+  @override
+  String get search => '搜尋';
 
   @override
   String get workspace => '工作區';
@@ -314,4 +347,25 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get restartingTerminal => '正在重新啟動終端機...';
+
+  @override
+  String get cursorBlink => '游標閃爍';
+
+  @override
+  String get cursorBlinkDescription => '允許終端機游標閃爍。';
+
+  @override
+  String get themeDescription => '選擇應用程式主題模式。';
+
+  @override
+  String get terminalSettingsDescription => '設定終端機外觀與行為。';
+
+  @override
+  String get fontFamilyDescription => '選擇終端機使用的字型。';
+
+  @override
+  String get shellSettingsDescription => '選擇預設使用的 Shell。';
+
+  @override
+  String get shellPathPlaceholder => '例如: C:\\path\\to\\shell.exe';
 }

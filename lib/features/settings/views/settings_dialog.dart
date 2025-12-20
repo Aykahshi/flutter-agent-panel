@@ -26,7 +26,9 @@ class SettingsDialog extends StatefulWidget {
 
 class _SettingsDialogState extends State<SettingsDialog> {
   late TextEditingController _customShellController;
+  late ScrollController _sidebarScrollController;
   List<String> _uniqueFamilies = [];
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final settings = context.read<SettingsBloc>().state.settings;
     _customShellController =
         TextEditingController(text: settings.customShellPath ?? '');
+    _sidebarScrollController = ScrollController();
     _loadSystemFonts();
   }
 
@@ -100,6 +103,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   void dispose() {
     _customShellController.dispose();
+    _sidebarScrollController.dispose();
     super.dispose();
   }
 
@@ -108,150 +112,314 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final theme = ShadTheme.of(context);
     final l10n = context.t;
 
+    // Define categories
+    final categories = [
+      {'icon': LucideIcons.settings, 'label': l10n.general},
+      {'icon': LucideIcons.palette, 'label': l10n.appearance},
+      {'icon': LucideIcons.terminal, 'label': l10n.terminalSettings},
+    ];
+
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         final settings = state.settings;
 
+        final screenSize = MediaQuery.sizeOf(context);
+        final dialogWidth = screenSize.width * 0.65;
+        final dialogHeight = screenSize.height * 0.65;
+
         return ShadDialog(
-          title: Text(l10n.settings),
-          description: Text(l10n.configureAppDescription),
-          child: SizedBox(
-            width: 600.w,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 16.h),
+          title: const SizedBox.shrink(), // Custom title in sidebar/content
+          description: const SizedBox.shrink(),
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(
+            minWidth: 600.0.clamp(0.0, dialogWidth),
+            maxWidth: dialogWidth,
+            minHeight: 400.0.clamp(0.0, dialogHeight),
+            maxHeight: dialogHeight,
+          ),
+          child: Container(
+            width: dialogWidth,
+            height: dialogHeight,
+            color: theme.colorScheme.background,
+            child: Row(
+              children: [
+                // Sidebar
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.card,
+                      border: Border(
+                        right: BorderSide(color: theme.colorScheme.border),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: ShadInput(
+                            placeholder: Text(l10n.search),
+                            leading: Icon(LucideIcons.search,
+                                size: 16.sp,
+                                color: theme.colorScheme.mutedForeground),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.separated(
+                            controller: _sidebarScrollController,
+                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            itemCount: categories.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 4.h),
+                            itemBuilder: (context, index) {
+                              final cat = categories[index];
+                              final isSelected = _selectedIndex == index;
+                              return ShadButton.ghost(
+                                width: double.infinity,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                backgroundColor: isSelected
+                                    ? theme.colorScheme.secondary
+                                    : Colors.transparent,
+                                hoverBackgroundColor: theme.colorScheme.muted,
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedIndex = index;
+                                  });
+                                },
+                                leading: Icon(
+                                  cat['icon'] as IconData,
+                                  size: 18.sp,
+                                  color: isSelected
+                                      ? theme.colorScheme.foreground
+                                      : theme.colorScheme.mutedForeground,
+                                ),
+                                child: Flexible(
+                                  child: Text(
+                                    cat['label'] as String,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: (theme.textTheme.small).copyWith(
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                      color: isSelected
+                                          ? theme.colorScheme.foreground
+                                          : theme.colorScheme.mutedForeground,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: Row(
+                            children: [
+                              // Footer if needed
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                  // Grid-like layout for key options
-                  Wrap(
-                    spacing: 20.w,
-                    runSpacing: 20.h,
+                // Content Area
+                Expanded(
+                  flex: 7,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Language Section
-                      _buildSmallSection(
-                        width: 280.w,
-                        title: l10n.language,
-                        child: ShadSelect<String>(
-                          key: const ValueKey('settings-language-select'),
-                          initialValue: settings.locale,
-                          placeholder: Text(l10n.selectLanguage),
-                          options: [
-                            ShadOption(value: 'en', child: Text(l10n.english)),
-                            ShadOption(
-                                value: 'zh', child: Text(l10n.chineseHans)),
-                            ShadOption(
-                                value: 'zh_Hant',
-                                child: Text(l10n.chineseHant)),
-                          ],
-                          selectedOptionBuilder: (context, value) {
-                            if (value == 'en') return Text(l10n.english);
-                            if (value == 'zh') return Text(l10n.chineseHans);
-                            if (value == 'zh_Hant')
-                              return Text(l10n.chineseHant);
-                            return Text(value);
-                          },
-                          onChanged: (value) {
-                            if (value != null) {
-                              context
-                                  .read<SettingsBloc>()
-                                  .add(UpdateLocale(value));
-                            }
-                          },
-                        ),
-                      ),
-
-                      // App Theme Section
-                      _buildSmallSection(
-                        width: 280.w,
-                        title: l10n.theme,
-                        child: ShadSelect<AppTheme>(
-                          initialValue: settings.appTheme,
-                          placeholder: Text(l10n.theme),
-                          options: AppTheme.values.map(
-                            (theme) => ShadOption(
-                              value: theme,
-                              child:
-                                  Text(_getAppThemeLocalizedName(theme, l10n)),
-                            ),
+                      // Header
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 32.w, vertical: 24.h),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: theme.colorScheme.border),
                           ),
-                          selectedOptionBuilder: (context, theme) =>
-                              Text(_getAppThemeLocalizedName(theme, l10n)),
-                          onChanged: (theme) {
-                            if (theme != null) {
-                              context
-                                  .read<SettingsBloc>()
-                                  .add(UpdateAppTheme(theme));
-                            }
-                          },
                         ),
-                      ),
-
-                      // Terminal Theme Section
-                      _buildSmallSection(
-                        width: 280.w,
-                        title: l10n.terminalSettings,
-                        child: ShadSelect<TerminalTheme>(
-                          initialValue: settings.terminalTheme,
-                          placeholder: Text(l10n.terminalSettings),
-                          options: TerminalTheme.values.map(
-                            (theme) => ShadOption(
-                              value: theme,
+                        child: Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                  _getTerminalThemeLocalizedName(theme, l10n)),
+                                categories[_selectedIndex]['label'] as String,
+                                style: theme.textTheme.h3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          selectedOptionBuilder: (context, theme) =>
-                              Text(_getTerminalThemeLocalizedName(theme, l10n)),
-                          onChanged: (theme) {
-                            if (theme != null) {
-                              context
-                                  .read<SettingsBloc>()
-                                  .add(UpdateTerminalTheme(theme));
-                            }
-                          },
+                          ],
                         ),
                       ),
 
-                      // Font Family Section
-                      _buildSmallSection(
-                        width: 280.w,
-                        title: l10n.fontFamily,
-                        child: ShadSelect<String>(
-                          initialValue: settings.fontSettings.fontFamily,
-                          placeholder: Text(l10n.fontFamily),
-                          options: _uniqueFamilies.isEmpty
-                              ? [
-                                  ShadOption(
-                                      value: settings.fontSettings.fontFamily,
-                                      child: Text(
-                                          settings.fontSettings.fontFamily))
-                                ]
-                              : _uniqueFamilies
-                                  .map((f) =>
-                                      ShadOption(value: f, child: Text(f)))
-                                  .toList(),
-                          selectedOptionBuilder: (context, value) =>
-                              Text(value),
-                          onChanged: (value) {
-                            if (value != null) {
-                              context
-                                  .read<SettingsBloc>()
-                                  .add(UpdateFontSettings(
-                                    settings.fontSettings
-                                        .copyWith(fontFamily: value),
-                                  ));
-                            }
-                          },
+                      // Scrollable Content
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.all(32.w),
+                          child: _buildContentForIndex(
+                              _selectedIndex, settings, l10n, theme),
                         ),
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-                  SizedBox(height: 20.h),
+  Widget _buildContentForIndex(int index, AppSettings settings,
+      AppLocalizations l10n, ShadThemeData theme) {
+    switch (index) {
+      case 0: // General
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSection(
+              title: l10n.language,
+              description: l10n.selectLanguage,
+              child: ShadSelect<String>(
+                initialValue: settings.locale,
+                placeholder: Text(l10n.selectLanguage),
+                options: [
+                  ShadOption(value: 'en', child: Text(l10n.english)),
+                  ShadOption(value: 'zh', child: Text(l10n.chineseHans)),
+                  ShadOption(value: 'zh_Hant', child: Text(l10n.chineseHant)),
+                ],
+                selectedOptionBuilder: (context, value) {
+                  if (value == 'en') return Text(l10n.english);
+                  if (value == 'zh') return Text(l10n.chineseHans);
+                  if (value == 'zh_Hant') return Text(l10n.chineseHant);
+                  return Text(value);
+                },
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<SettingsBloc>().add(UpdateLocale(value));
+                  }
+                },
+              ),
+            ),
+          ],
+        );
+      case 1: // Appearance
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSection(
+              title: l10n.theme,
+              description: l10n.themeDescription,
+              child: ShadSelect<AppTheme>(
+                initialValue: settings.appTheme,
+                placeholder: Text(l10n.theme),
+                options: AppTheme.values.map(
+                  (theme) => ShadOption(
+                    value: theme,
+                    child: Text(_getAppThemeLocalizedName(theme, l10n)),
+                  ),
+                ),
+                selectedOptionBuilder: (context, theme) =>
+                    Text(_getAppThemeLocalizedName(theme, l10n)),
+                onChanged: (theme) {
+                  if (theme != null) {
+                    context.read<SettingsBloc>().add(UpdateAppTheme(theme));
+                  }
+                },
+              ),
+            ),
+          ],
+        );
+      case 2: // Terminal
+      default:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSection(
+              title: l10n.terminalSettings,
+              description: l10n.terminalSettingsDescription,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShadSelect<TerminalTheme>(
+                    initialValue: settings.terminalTheme,
+                    placeholder: Text(l10n.terminalSettings),
+                    options: TerminalTheme.values.map(
+                      (theme) => ShadOption(
+                        value: theme,
+                        child:
+                            Text(_getTerminalThemeLocalizedName(theme, l10n)),
+                      ),
+                    ),
+                    selectedOptionBuilder: (context, theme) =>
+                        Text(_getTerminalThemeLocalizedName(theme, l10n)),
+                    onChanged: (theme) {
+                      if (theme != null) {
+                        context
+                            .read<SettingsBloc>()
+                            .add(UpdateTerminalTheme(theme));
+                      }
+                    },
+                  ),
+                  SizedBox(height: 24.h),
 
-                  SizedBox(height: 12.h),
-
+                  // Cursor Blink
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.cursorBlink,
+                                style: theme.textTheme.large),
+                            Text(l10n.cursorBlinkDescription,
+                                style: theme.textTheme.small.copyWith(
+                                    color: theme.colorScheme.mutedForeground)),
+                          ],
+                        ),
+                      ),
+                      ShadSwitch(
+                        value: settings.terminalCursorBlink,
+                        onChanged: (value) {
+                          context
+                              .read<SettingsBloc>()
+                              .add(UpdateTerminalCursorBlink(value));
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 48.h, color: theme.colorScheme.border),
+            _buildSection(
+              title: l10n.fontFamily,
+              description: l10n.fontFamilyDescription,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShadSelect<String>(
+                    initialValue: settings.fontSettings.fontFamily,
+                    placeholder: Text(l10n.fontFamily),
+                    options: _uniqueFamilies.isEmpty
+                        ? [
+                            ShadOption(
+                                value: settings.fontSettings.fontFamily,
+                                child: Text(settings.fontSettings.fontFamily))
+                          ]
+                        : _uniqueFamilies
+                            .map((f) => ShadOption(value: f, child: Text(f)))
+                            .toList(),
+                    selectedOptionBuilder: (context, value) => Text(value),
+                    onChanged: (value) {
+                      if (value != null) {
+                        context.read<SettingsBloc>().add(UpdateFontSettings(
+                              settings.fontSettings.copyWith(fontFamily: value),
+                            ));
+                      }
+                    },
+                  ),
+                  SizedBox(height: 16.h),
                   // Font Size
                   Row(
                     children: [
@@ -274,10 +442,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           ));
                     },
                   ),
-
-                  SizedBox(height: 12.h),
-
-                  // Bold / Italic toggles
+                  SizedBox(height: 16.h),
+                  // Bold/Italic
                   Row(
                     children: [
                       ShadCheckbox(
@@ -301,14 +467,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                     ],
                   ),
-
-                  SizedBox(height: 12.h),
-
-                  // Font Preview
-                  Text(l10n.fontPreview,
-                      style: theme.textTheme.small
-                          .copyWith(color: theme.colorScheme.mutedForeground)),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: 16.h),
+                  // Preview
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(12.w),
@@ -332,112 +492,129 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                     ),
                   ),
-
-                  SizedBox(height: 20.h),
-
-                  // Default Shell Section
-                  _buildSectionTitle(theme, l10n.shellSettings),
-                  SizedBox(height: 8.h),
-                  ShadSelect<ShellType>(
-                    initialValue: settings.defaultShell,
-                    placeholder: Text(l10n.defaultShell),
-                    options: ShellType.values
-                        .map((s) => ShadOption(
-                              value: s,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(_getShellIcon(s.icon), size: 16.sp),
-                                  SizedBox(width: 8.w),
-                                  Text(s == ShellType.custom
-                                      ? l10n.custom
-                                      : _getShellTypeLocalizedName(s, l10n)),
-                                ],
-                              ),
-                            ))
-                        .toList(),
-                    selectedOptionBuilder: (context, value) => Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_getShellIcon(value.icon), size: 16.sp),
-                        SizedBox(width: 8.w),
-                        Text(value == ShellType.custom
-                            ? l10n.custom
-                            : _getShellTypeLocalizedName(value, l10n)),
-                      ],
+                ],
+              ),
+            ),
+            Divider(height: 48.h, color: theme.colorScheme.border),
+            _buildSection(
+                title: l10n.shellSettings,
+                description: l10n.shellSettingsDescription,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShadSelect<ShellType>(
+                      initialValue: settings.defaultShell,
+                      placeholder: Text(l10n.defaultShell),
+                      options: ShellType.values
+                          .map((s) => ShadOption(
+                                value: s,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(_getShellIcon(s.icon), size: 16.sp),
+                                    SizedBox(width: 8.w),
+                                    Text(s == ShellType.custom
+                                        ? l10n.custom
+                                        : _getShellTypeLocalizedName(s, l10n)),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                      selectedOptionBuilder: (context, value) => Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(_getShellIcon(value.icon), size: 16.sp),
+                          SizedBox(width: 8.w),
+                          Text(value == ShellType.custom
+                              ? l10n.custom
+                              : _getShellTypeLocalizedName(value, l10n)),
+                        ],
+                      ),
+                      onChanged: (value) {
+                        if (value != null) {
+                          context.read<SettingsBloc>().add(UpdateDefaultShell(
+                                value,
+                                customShellPath: value == ShellType.custom
+                                    ? _customShellController.text
+                                    : null,
+                              ));
+                        }
+                      },
                     ),
-                    onChanged: (value) {
-                      if (value != null) {
-                        context.read<SettingsBloc>().add(UpdateDefaultShell(
-                              value,
-                              customShellPath: value == ShellType.custom
-                                  ? _customShellController.text
-                                  : null,
-                            ));
-                      }
-                    },
-                  ),
 
-                  // Custom Shell Path (visible only when Custom is selected)
-                  if (settings.defaultShell == ShellType.custom) ...[
-                    SizedBox(height: 12.h),
-                    Text(l10n.customShellPath,
-                        style: theme.textTheme.small.copyWith(
-                            color: theme.colorScheme.mutedForeground)),
-                    SizedBox(height: 4.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ShadInput(
-                            controller: _customShellController,
-                            placeholder:
-                                const Text('e.g., C:\\path\\to\\shell.exe'),
-                            onChanged: (value) {
-                              context
-                                  .read<SettingsBloc>()
-                                  .add(UpdateDefaultShell(
-                                    ShellType.custom,
-                                    customShellPath: value,
-                                  ));
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        ShadButton.outline(
-                          onPressed: () async {
-                            final result = await FilePicker.platform.pickFiles(
-                              type: FileType.custom,
-                              allowedExtensions: PlatformUtils.isWindows
-                                  ? ['exe', 'bat', 'cmd']
-                                  : [],
-                            );
-                            if (result != null &&
-                                result.files.single.path != null) {
-                              final path = result.files.single.path!;
-                              _customShellController.text = path;
-                              if (context.mounted) {
+                    // Custom Shell Path (visible only when Custom is selected)
+                    if (settings.defaultShell == ShellType.custom) ...[
+                      SizedBox(height: 12.h),
+                      Text(l10n.customShellPath,
+                          style: theme.textTheme.small.copyWith(
+                              color: theme.colorScheme.mutedForeground)),
+                      SizedBox(height: 4.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ShadInput(
+                              controller: _customShellController,
+                              placeholder: Text(l10n.shellPathPlaceholder),
+                              onChanged: (value) {
                                 context
                                     .read<SettingsBloc>()
                                     .add(UpdateDefaultShell(
                                       ShellType.custom,
-                                      customShellPath: path,
+                                      customShellPath: value,
                                     ));
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          ShadButton.outline(
+                            onPressed: () async {
+                              final result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: PlatformUtils.isWindows
+                                    ? ['exe', 'bat', 'cmd']
+                                    : [],
+                              );
+                              if (result != null &&
+                                  result.files.single.path != null) {
+                                final path = result.files.single.path!;
+                                _customShellController.text = path;
+                                if (context.mounted) {
+                                  context
+                                      .read<SettingsBloc>()
+                                      .add(UpdateDefaultShell(
+                                        ShellType.custom,
+                                        customShellPath: path,
+                                      ));
+                                }
                               }
-                            }
-                          },
-                          child: Text(l10n.browse),
-                        ),
-                      ],
-                    ),
+                            },
+                            child: Text(l10n.browse),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
-
-                  SizedBox(height: 24.h),
-                ],
-              ),
-            ),
-          ),
+                )),
+          ],
         );
-      },
+    }
+  }
+
+  Widget _buildSection(
+      {required String title, String? description, required Widget child}) {
+    final theme = ShadTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: theme.textTheme.large),
+        if (description != null)
+          Text(description,
+              style: theme.textTheme.small
+                  .copyWith(color: theme.colorScheme.mutedForeground)),
+        SizedBox(height: 16.h),
+        child,
+      ],
     );
   }
 
@@ -489,35 +666,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
       case ShellType.custom:
         return l10n.custom;
     }
-  }
-
-  Widget _buildSmallSection({
-    required double width,
-    required String title,
-    required Widget child,
-  }) {
-    final theme = ShadTheme.of(context);
-    return SizedBox(
-      width: width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle(theme, title),
-          SizedBox(height: 8.h),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(ShadThemeData theme, String title) {
-    return Text(
-      title,
-      style: theme.textTheme.small.copyWith(
-        fontWeight: FontWeight.w600,
-        color: theme.colorScheme.mutedForeground,
-      ),
-    );
   }
 
   IconData _getShellIcon(String iconName) {

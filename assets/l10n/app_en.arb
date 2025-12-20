@@ -1,5 +1,7 @@
 {
   "appTitle": "Flutter Agent Panel",
+  "general": "General",
+  "search": "Search",
   "workspace": "Workspace",
   "terminal": "Terminal",
   "newTerminal": "New Terminal",
@@ -48,5 +50,12 @@
   "help": "Help",
   "configureAppDescription": "Configure application preferences",
   "selectLanguage": "Select Language",
-  "restartingTerminal": "Restarting Terminal..."
+  "restartingTerminal": "Restarting Terminal...",
+  "cursorBlink": "Cursor Blink",
+  "cursorBlinkDescription": "Allow the terminal cursor to blink.",
+  "themeDescription": "Select the application theme mode.",
+  "terminalSettingsDescription": "Configure terminal appearance and behavior.",
+  "fontFamilyDescription": "Choose which font to use in the terminal.",
+  "shellSettingsDescription": "Select the default shell to use.",
+  "shellPathPlaceholder": "e.g., C:\\path\\to\\shell.exe"
 }

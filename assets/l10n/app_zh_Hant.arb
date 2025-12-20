@@ -1,5 +1,7 @@
 {
   "appTitle": "Flutter 代理面板",
+  "general": "一般",
+  "search": "搜尋",
   "workspace": "工作區",
   "terminal": "終端機",
   "newTerminal": "新建終端",
@@ -49,5 +51,12 @@
   "about": "關於",
   "help": "幫助",
   "restartingTerminal": "正在重新啟動終端機...",
+  "cursorBlink": "游標閃爍",
+  "cursorBlinkDescription": "允許終端機游標閃爍。",
+  "themeDescription": "選擇應用程式主題模式。",
+  "terminalSettingsDescription": "設定終端機外觀與行為。",
+  "fontFamilyDescription": "選擇終端機使用的字型。",
+  "shellSettingsDescription": "選擇預設使用的 Shell。",
+  "shellPathPlaceholder": "例如: C:\\path\\to\\shell.exe",
   "@@locale": "zh_Hant"
 }

@@ -98,6 +98,7 @@ class AppSettings extends Equatable {
   final ShellType defaultShell;
   final String? customShellPath;
   final String locale;
+  final bool terminalCursorBlink;
 
   const AppSettings({
     this.appTheme = AppTheme.slateDark,
@@ -106,6 +107,7 @@ class AppSettings extends Equatable {
     this.defaultShell = ShellType.pwsh7,
     this.customShellPath,
     this.locale = 'en',
+    this.terminalCursorBlink = true,
   });
 
   AppSettings copyWith({
@@ -115,6 +117,7 @@ class AppSettings extends Equatable {
     ShellType? defaultShell,
     String? customShellPath,
     String? locale,
+    bool? terminalCursorBlink,
   }) {
     return AppSettings(
       appTheme: appTheme ?? this.appTheme,
@@ -123,6 +126,7 @@ class AppSettings extends Equatable {
       defaultShell: defaultShell ?? this.defaultShell,
       customShellPath: customShellPath ?? this.customShellPath,
       locale: locale ?? this.locale,
+      terminalCursorBlink: terminalCursorBlink ?? this.terminalCursorBlink,
     );
   }
 
@@ -145,6 +149,7 @@ class AppSettings extends Equatable {
       ),
       customShellPath: json['customShellPath'] as String?,
       locale: json['locale'] as String? ?? 'en',
+      terminalCursorBlink: json['terminalCursorBlink'] as bool? ?? true,
     );
   }
 
@@ -156,6 +161,7 @@ class AppSettings extends Equatable {
       'defaultShell': defaultShell.name,
       'customShellPath': customShellPath,
       'locale': locale,
+      'terminalCursorBlink': terminalCursorBlink,
     };
   }
 
@@ -175,5 +181,6 @@ class AppSettings extends Equatable {
         defaultShell,
         customShellPath,
         locale,
+        terminalCursorBlink,
       ];
 }

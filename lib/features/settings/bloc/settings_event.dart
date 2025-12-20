@@ -51,3 +51,11 @@ class UpdateLocale extends SettingsEvent {
   @override
   List<Object?> get props => [locale];
 }
+
+class UpdateTerminalCursorBlink extends SettingsEvent {
+  final bool isEnabled;
+  const UpdateTerminalCursorBlink(this.isEnabled);
+
+  @override
+  List<Object?> get props => [isEnabled];
+}

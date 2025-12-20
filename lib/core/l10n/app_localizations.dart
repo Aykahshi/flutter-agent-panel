@@ -105,6 +105,18 @@ abstract class AppLocalizations {
   /// **'Flutter Agent Panel'**
   String get appTitle;
 
+  /// No description provided for @general.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get general;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
   /// No description provided for @workspace.
   ///
   /// In en, this message translates to:
@@ -398,6 +410,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restarting Terminal...'**
   String get restartingTerminal;
+
+  /// No description provided for @cursorBlink.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor Blink'**
+  String get cursorBlink;
+
+  /// No description provided for @cursorBlinkDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the terminal cursor to blink.'**
+  String get cursorBlinkDescription;
+
+  /// No description provided for @themeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the application theme mode.'**
+  String get themeDescription;
+
+  /// No description provided for @terminalSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure terminal appearance and behavior.'**
+  String get terminalSettingsDescription;
+
+  /// No description provided for @fontFamilyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which font to use in the terminal.'**
+  String get fontFamilyDescription;
+
+  /// No description provided for @shellSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the default shell to use.'**
+  String get shellSettingsDescription;
+
+  /// No description provided for @shellPathPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., C:\\path\\to\\shell.exe'**
+  String get shellPathPlaceholder;
 }
 
 class _AppLocalizationsDelegate

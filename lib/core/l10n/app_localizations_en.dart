@@ -12,6 +12,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Flutter Agent Panel';
 
   @override
+  String get general => 'General';
+
+  @override
+  String get search => 'Search';
+
+  @override
   String get workspace => 'Workspace';
 
   @override
@@ -158,4 +164,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restartingTerminal => 'Restarting Terminal...';
+
+  @override
+  String get cursorBlink => 'Cursor Blink';
+
+  @override
+  String get cursorBlinkDescription => 'Allow the terminal cursor to blink.';
+
+  @override
+  String get themeDescription => 'Select the application theme mode.';
+
+  @override
+  String get terminalSettingsDescription =>
+      'Configure terminal appearance and behavior.';
+
+  @override
+  String get fontFamilyDescription =>
+      'Choose which font to use in the terminal.';
+
+  @override
+  String get shellSettingsDescription => 'Select the default shell to use.';
+
+  @override
+  String get shellPathPlaceholder => 'e.g., C:\\path\\to\\shell.exe';
 }

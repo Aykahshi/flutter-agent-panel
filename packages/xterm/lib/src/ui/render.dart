@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' show max;
 import 'dart:ui';
 
@@ -49,6 +50,11 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
           textStyle: textStyle,
           textScaler: textScaler,
         );
+
+  // Cursor blink state
+  bool _cursorVisible = true;
+  Timer? _cursorBlinkTimer;
+  static const _cursorBlinkDuration = Duration(milliseconds: 530);
 
   Terminal _terminal;
   set terminal(Terminal terminal) {
@@ -183,15 +189,43 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
     _terminal.addListener(_onTerminalChange);
     _controller.addListener(_onControllerUpdate);
     _focusNode.addListener(_onFocusChange);
+    _startCursorBlinkTimer();
   }
 
   @override
   void detach() {
     super.detach();
+    _stopCursorBlinkTimer();
     _offset.removeListener(_onScroll);
     _terminal.removeListener(_onTerminalChange);
     _controller.removeListener(_onControllerUpdate);
     _focusNode.removeListener(_onFocusChange);
+  }
+
+  void _startCursorBlinkTimer() {
+    _stopCursorBlinkTimer();
+    _cursorBlinkTimer = Timer.periodic(_cursorBlinkDuration, (_) {
+      if (attached && _terminal.cursorBlinkMode && _focusNode.hasFocus) {
+        _cursorVisible = !_cursorVisible;
+        markNeedsPaint();
+      } else if (attached) {
+        // Ensure cursor is visible when blink is disabled or unfocused
+        if (!_cursorVisible) {
+          _cursorVisible = true;
+          markNeedsPaint();
+        }
+      }
+    });
+  }
+
+  void _stopCursorBlinkTimer() {
+    _cursorBlinkTimer?.cancel();
+    _cursorBlinkTimer = null;
+  }
+
+  void resetCursorBlink() {
+    _cursorVisible = true;
+    markNeedsPaint();
   }
 
   @override
@@ -369,7 +403,12 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
   }
 
   bool get _shouldShowCursor {
-    return _terminal.cursorVisibleMode || _alwaysShowCursor || _isComposingText;
+    // Show cursor if: not in blink mode OR cursor is currently visible in blink cycle
+    final blinkAllowsCursor = !_terminal.cursorBlinkMode || _cursorVisible;
+    return (_terminal.cursorVisibleMode ||
+            _alwaysShowCursor ||
+            _isComposingText) &&
+        blinkAllowsCursor;
   }
 
   double get _viewportHeight {

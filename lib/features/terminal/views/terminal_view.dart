@@ -67,6 +67,12 @@ class _TerminalViewState extends State<TerminalView> {
 
         final xtermTheme = _getTerminalTheme(settings.terminalTheme, theme);
 
+        if (settings.terminalCursorBlink !=
+            widget.terminalNode.terminal.cursorBlinkMode) {
+          widget.terminalNode.terminal
+              .setCursorBlinkMode(settings.terminalCursorBlink);
+        }
+
         if (widget.interactive) {
           // Fix Layout: Some xterm versions have a race condition on the first layout.
           Future.delayed(const Duration(milliseconds: 200), () {
