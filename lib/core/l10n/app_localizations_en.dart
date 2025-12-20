@@ -187,4 +187,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellPathPlaceholder => 'e.g., C:\\path\\to\\shell.exe';
+
+  @override
+  String get customShells => 'Custom Shells';
+
+  @override
+  String get customShellsDescription =>
+      'Manage custom shell configurations for external terminal apps.';
+
+  @override
+  String get manageCustomShells => 'Manage Custom Shells';
+
+  @override
+  String get addCustomShell => 'Add Custom Shell';
+
+  @override
+  String get editCustomShell => 'Edit Custom Shell';
+
+  @override
+  String get deleteCustomShell => 'Delete Custom Shell';
+
+  @override
+  String get shellName => 'Shell Name';
+
+  @override
+  String get shellNamePlaceholder => 'e.g., Warp Terminal';
+
+  @override
+  String get shellIcon => 'Shell Icon';
+
+  @override
+  String get isExternalTerminal => 'External Terminal App';
+
+  @override
+  String get isExternalTerminalDescription =>
+      'Launch as a separate window (for apps like Warp, Windows Terminal)';
+
+  @override
+  String get noCustomShells => 'No custom shells configured';
+
+  @override
+  String get addYourFirstCustomShell =>
+      'Add your first custom shell to get started';
+
+  @override
+  String get confirmDeleteShell =>
+      'Are you sure you want to delete this custom shell?';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
 }

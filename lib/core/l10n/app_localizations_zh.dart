@@ -185,6 +185,58 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get shellPathPlaceholder => '例如: C:\\path\\to\\shell.exe';
+
+  @override
+  String get customShells => '自定义 Shell';
+
+  @override
+  String get customShellsDescription => '管理自定义 Shell 配置，用于外部终端应用。';
+
+  @override
+  String get manageCustomShells => '管理自定义 Shell';
+
+  @override
+  String get addCustomShell => '添加自定义 Shell';
+
+  @override
+  String get editCustomShell => '编辑自定义 Shell';
+
+  @override
+  String get deleteCustomShell => '删除自定义 Shell';
+
+  @override
+  String get shellName => 'Shell 名称';
+
+  @override
+  String get shellNamePlaceholder => '例如: Warp Terminal';
+
+  @override
+  String get shellIcon => 'Shell 图标';
+
+  @override
+  String get isExternalTerminal => '外部终端应用';
+
+  @override
+  String get isExternalTerminalDescription =>
+      '作为独立窗口启动（适用于 Warp、Windows Terminal 等应用）';
+
+  @override
+  String get noCustomShells => '尚未配置自定义 Shell';
+
+  @override
+  String get addYourFirstCustomShell => '添加您的第一个自定义 Shell 开始使用';
+
+  @override
+  String get confirmDeleteShell => '确定要删除此自定义 Shell 吗？';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get delete => '删除';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -368,4 +420,56 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get shellPathPlaceholder => '例如: C:\\path\\to\\shell.exe';
+
+  @override
+  String get customShells => '自定義 Shell';
+
+  @override
+  String get customShellsDescription => '管理自定義 Shell 設定，用於外部終端機應用程式。';
+
+  @override
+  String get manageCustomShells => '管理自定義 Shell';
+
+  @override
+  String get addCustomShell => '新增自定義 Shell';
+
+  @override
+  String get editCustomShell => '編輯自定義 Shell';
+
+  @override
+  String get deleteCustomShell => '刪除自定義 Shell';
+
+  @override
+  String get shellName => 'Shell 名稱';
+
+  @override
+  String get shellNamePlaceholder => '例如: Warp Terminal';
+
+  @override
+  String get shellIcon => 'Shell 圖示';
+
+  @override
+  String get isExternalTerminal => '外部終端機應用程式';
+
+  @override
+  String get isExternalTerminalDescription =>
+      '作為獨立視窗啟動（適用於 Warp、Windows Terminal 等應用程式）';
+
+  @override
+  String get noCustomShells => '尚未設定自定義 Shell';
+
+  @override
+  String get addYourFirstCustomShell => '新增您的第一個自定義 Shell 以開始使用';
+
+  @override
+  String get confirmDeleteShell => '確定要刪除此自定義 Shell 嗎？';
+
+  @override
+  String get save => '儲存';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get delete => '刪除';
 }

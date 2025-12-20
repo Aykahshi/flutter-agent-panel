@@ -58,5 +58,23 @@
   "fontFamilyDescription": "選擇終端機使用的字型。",
   "shellSettingsDescription": "選擇預設使用的 Shell。",
   "shellPathPlaceholder": "例如: C:\\path\\to\\shell.exe",
+  "customShells": "自定義 Shell",
+  "customShellsDescription": "管理自定義 Shell 設定，用於外部終端機應用程式。",
+  "manageCustomShells": "管理自定義 Shell",
+  "addCustomShell": "新增自定義 Shell",
+  "editCustomShell": "編輯自定義 Shell",
+  "deleteCustomShell": "刪除自定義 Shell",
+  "shellName": "Shell 名稱",
+  "shellNamePlaceholder": "例如: Warp Terminal",
+  "shellIcon": "Shell 圖示",
+  "isExternalTerminal": "外部終端機應用程式",
+  "isExternalTerminalDescription": "作為獨立視窗啟動（適用於 Warp、Windows Terminal 等應用程式）",
+  "noCustomShells": "尚未設定自定義 Shell",
+  "addYourFirstCustomShell": "新增您的第一個自定義 Shell 以開始使用",
+  "confirmDeleteShell": "確定要刪除此自定義 Shell 嗎？",
+  "save": "儲存",
+  "cancel": "取消",
+  "delete": "刪除",
   "@@locale": "zh_Hant"
 }
+

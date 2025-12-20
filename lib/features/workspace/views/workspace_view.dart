@@ -197,14 +197,35 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     final settings = context.read<SettingsBloc>().state.settings;
     final l10n = context.t;
 
-    String effectiveShellCmd = shellCmd ?? 'pwsh';
+    String effectiveShellCmd = shellCmd ?? settings.defaultShell.command;
+    String terminalTitle = l10n.terminal;
 
-    if (effectiveShellCmd == 'custom') {
-      effectiveShellCmd = settings.customShellPath ?? 'pwsh';
+    // Handle custom shell selection with ID format (custom:${id})
+    if (shellCmd != null && shellCmd.startsWith('custom:')) {
+      final shellId = shellCmd.substring(7);
+      final customShell =
+          settings.customShells.where((s) => s.id == shellId).firstOrNull;
+      if (customShell != null) {
+        effectiveShellCmd = customShell.path;
+        terminalTitle = customShell.name;
+      }
+    }
+    // Handle legacy 'custom' command or default custom shell selection
+    else if (shellCmd == 'custom' ||
+        (shellCmd == null && settings.defaultShell == ShellType.custom)) {
+      if (settings.selectedCustomShellId != null) {
+        final customShell = settings.customShells
+            .where((s) => s.id == settings.selectedCustomShellId)
+            .firstOrNull;
+        if (customShell != null) {
+          effectiveShellCmd = customShell.path;
+          terminalTitle = customShell.name;
+        }
+      }
     }
 
     final config = TerminalConfig.create(
-      title: l10n.terminal,
+      title: terminalTitle,
       cwd: context.read<WorkspaceBloc>().state.selectedWorkspace?.path ?? '',
       shellCmd: effectiveShellCmd,
     );
@@ -599,7 +620,10 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                               ),
                               Divider(
                                   height: 1, color: theme.colorScheme.border),
-                              ...ShellType.values.map((shell) {
+                              // Built-in shells (excluding custom type)
+                              ...ShellType.values
+                                  .where((s) => s != ShellType.custom)
+                                  .map((shell) {
                                 final shellDisplayName =
                                     _getShellTypeLocalizedName(
                                         shell, context.t);
@@ -607,14 +631,14 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                   onTap: () {
                                     _popoverController.hide();
                                     _addNewTerminal(context, workspace.id,
-                                        shellCmd: shell.command.isEmpty
-                                            ? 'custom'
-                                            : shell.command);
+                                        shellCmd: shell.command);
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 8),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         Icon(_getShellIcon(shell.icon),
                                             size: 16),
@@ -625,6 +649,44 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                   ),
                                 );
                               }),
+                              // Custom shells from settings
+                              if (context
+                                  .read<SettingsBloc>()
+                                  .state
+                                  .settings
+                                  .customShells
+                                  .isNotEmpty) ...[
+                                Divider(
+                                    height: 1, color: theme.colorScheme.border),
+                                ...context
+                                    .read<SettingsBloc>()
+                                    .state
+                                    .settings
+                                    .customShells
+                                    .map((customShell) {
+                                  return InkWell(
+                                    onTap: () {
+                                      _popoverController.hide();
+                                      _addNewTerminal(context, workspace.id,
+                                          shellCmd: 'custom:${customShell.id}');
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Icon(_getShellIcon(customShell.icon),
+                                              size: 16),
+                                          const SizedBox(width: 8),
+                                          Text(customShell.name),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
                             ],
                           ),
                         ),

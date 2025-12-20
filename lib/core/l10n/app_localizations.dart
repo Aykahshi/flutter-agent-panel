@@ -452,6 +452,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g., C:\\path\\to\\shell.exe'**
   String get shellPathPlaceholder;
+
+  /// No description provided for @customShells.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Shells'**
+  String get customShells;
+
+  /// No description provided for @customShellsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage custom shell configurations for external terminal apps.'**
+  String get customShellsDescription;
+
+  /// No description provided for @manageCustomShells.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Custom Shells'**
+  String get manageCustomShells;
+
+  /// No description provided for @addCustomShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Shell'**
+  String get addCustomShell;
+
+  /// No description provided for @editCustomShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Custom Shell'**
+  String get editCustomShell;
+
+  /// No description provided for @deleteCustomShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Custom Shell'**
+  String get deleteCustomShell;
+
+  /// No description provided for @shellName.
+  ///
+  /// In en, this message translates to:
+  /// **'Shell Name'**
+  String get shellName;
+
+  /// No description provided for @shellNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Warp Terminal'**
+  String get shellNamePlaceholder;
+
+  /// No description provided for @shellIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Shell Icon'**
+  String get shellIcon;
+
+  /// No description provided for @isExternalTerminal.
+  ///
+  /// In en, this message translates to:
+  /// **'External Terminal App'**
+  String get isExternalTerminal;
+
+  /// No description provided for @isExternalTerminalDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch as a separate window (for apps like Warp, Windows Terminal)'**
+  String get isExternalTerminalDescription;
+
+  /// No description provided for @noCustomShells.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom shells configured'**
+  String get noCustomShells;
+
+  /// No description provided for @addYourFirstCustomShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first custom shell to get started'**
+  String get addYourFirstCustomShell;
+
+  /// No description provided for @confirmDeleteShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this custom shell?'**
+  String get confirmDeleteShell;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
 }
 
 class _AppLocalizationsDelegate

@@ -25,7 +25,6 @@ class SettingsDialog extends StatefulWidget {
 }
 
 class _SettingsDialogState extends State<SettingsDialog> {
-  late TextEditingController _customShellController;
   late ScrollController _sidebarScrollController;
   List<String> _uniqueFamilies = [];
   int _selectedIndex = 0;
@@ -33,9 +32,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   void initState() {
     super.initState();
-    final settings = context.read<SettingsBloc>().state.settings;
-    _customShellController =
-        TextEditingController(text: settings.customShellPath ?? '');
     _sidebarScrollController = ScrollController();
     _loadSystemFonts();
   }
@@ -102,7 +98,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   @override
   void dispose() {
-    _customShellController.dispose();
     _sidebarScrollController.dispose();
     super.dispose();
   }
@@ -112,11 +107,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final theme = ShadTheme.of(context);
     final l10n = context.t;
 
-    // Define categories
+    // Define categories - Custom Shells as independent category
     final categories = [
       {'icon': LucideIcons.settings, 'label': l10n.general},
       {'icon': LucideIcons.palette, 'label': l10n.appearance},
       {'icon': LucideIcons.terminal, 'label': l10n.terminalSettings},
+      {'icon': LucideIcons.squareTerminal, 'label': l10n.customShells},
     ];
 
     return BlocBuilder<SettingsBloc, SettingsState>(
@@ -331,7 +327,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
           ],
         );
       case 2: // Terminal
-      default:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -502,103 +497,377 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ShadSelect<ShellType>(
-                      initialValue: settings.defaultShell,
+                    // Built-in shells
+                    Text(l10n.defaultShell,
+                        style: theme.textTheme.small.copyWith(
+                            color: theme.colorScheme.mutedForeground)),
+                    SizedBox(height: 8.h),
+                    ShadSelect<String>(
+                      initialValue: settings.defaultShell == ShellType.custom
+                          ? 'custom:${settings.selectedCustomShellId ?? ''}'
+                          : settings.defaultShell.name,
                       placeholder: Text(l10n.defaultShell),
-                      options: ShellType.values
-                          .map((s) => ShadOption(
-                                value: s,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(_getShellIcon(s.icon), size: 16.sp),
-                                    SizedBox(width: 8.w),
-                                    Text(s == ShellType.custom
-                                        ? l10n.custom
-                                        : _getShellTypeLocalizedName(s, l10n)),
-                                  ],
-                                ),
-                              ))
-                          .toList(),
-                      selectedOptionBuilder: (context, value) => Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(_getShellIcon(value.icon), size: 16.sp),
-                          SizedBox(width: 8.w),
-                          Text(value == ShellType.custom
-                              ? l10n.custom
-                              : _getShellTypeLocalizedName(value, l10n)),
-                        ],
-                      ),
+                      options: [
+                        // Built-in shells (excluding custom)
+                        ...ShellType.values
+                            .where((s) => s != ShellType.custom)
+                            .map((s) => ShadOption(
+                                  value: s.name,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(_getShellIcon(s.icon), size: 16.sp),
+                                      SizedBox(width: 8.w),
+                                      Text(_getShellTypeLocalizedName(s, l10n)),
+                                    ],
+                                  ),
+                                )),
+                        // Custom shells
+                        ...settings.customShells.map((shell) => ShadOption(
+                              value: 'custom:${shell.id}',
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(_getShellIcon(shell.icon), size: 16.sp),
+                                  SizedBox(width: 8.w),
+                                  Text(shell.name),
+                                ],
+                              ),
+                            )),
+                      ],
+                      selectedOptionBuilder: (context, value) {
+                        if (value.startsWith('custom:')) {
+                          final shellId = value.substring(7);
+                          final shell = settings.customShells
+                              .where((s) => s.id == shellId)
+                              .firstOrNull;
+                          if (shell != null) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(_getShellIcon(shell.icon), size: 16.sp),
+                                SizedBox(width: 8.w),
+                                Text(shell.name),
+                              ],
+                            );
+                          }
+                        }
+                        final shellType = ShellType.values
+                            .where((s) => s.name == value)
+                            .firstOrNull;
+                        if (shellType != null) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(_getShellIcon(shellType.icon), size: 16.sp),
+                              SizedBox(width: 8.w),
+                              Text(_getShellTypeLocalizedName(shellType, l10n)),
+                            ],
+                          );
+                        }
+                        return Text(value);
+                      },
                       onChanged: (value) {
-                        if (value != null) {
-                          context.read<SettingsBloc>().add(UpdateDefaultShell(
-                                value,
-                                customShellPath: value == ShellType.custom
-                                    ? _customShellController.text
-                                    : null,
-                              ));
+                        if (value == null) return;
+                        if (value.startsWith('custom:')) {
+                          final shellId = value.substring(7);
+                          context
+                              .read<SettingsBloc>()
+                              .add(SelectCustomShell(shellId));
+                        } else {
+                          final shellType = ShellType.values
+                              .firstWhere((s) => s.name == value);
+                          context
+                              .read<SettingsBloc>()
+                              .add(UpdateDefaultShell(shellType));
                         }
                       },
                     ),
-
-                    // Custom Shell Path (visible only when Custom is selected)
-                    if (settings.defaultShell == ShellType.custom) ...[
-                      SizedBox(height: 12.h),
-                      Text(l10n.customShellPath,
-                          style: theme.textTheme.small.copyWith(
-                              color: theme.colorScheme.mutedForeground)),
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ShadInput(
-                              controller: _customShellController,
-                              placeholder: Text(l10n.shellPathPlaceholder),
-                              onChanged: (value) {
-                                context
-                                    .read<SettingsBloc>()
-                                    .add(UpdateDefaultShell(
-                                      ShellType.custom,
-                                      customShellPath: value,
-                                    ));
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          ShadButton.outline(
-                            onPressed: () async {
-                              final result =
-                                  await FilePicker.platform.pickFiles(
-                                type: FileType.custom,
-                                allowedExtensions: PlatformUtils.isWindows
-                                    ? ['exe', 'bat', 'cmd']
-                                    : [],
-                              );
-                              if (result != null &&
-                                  result.files.single.path != null) {
-                                final path = result.files.single.path!;
-                                _customShellController.text = path;
-                                if (context.mounted) {
-                                  context
-                                      .read<SettingsBloc>()
-                                      .add(UpdateDefaultShell(
-                                        ShellType.custom,
-                                        customShellPath: path,
-                                      ));
-                                }
-                              }
-                            },
-                            child: Text(l10n.browse),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
                 )),
           ],
         );
+      case 3: // Custom Shells
+        return _buildCustomShellsContent(settings, l10n, theme);
+      default:
+        return const SizedBox.shrink();
     }
+  }
+
+  Widget _buildCustomShellsContent(
+      AppSettings settings, AppLocalizations l10n, ShadThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSection(
+          title: l10n.customShells,
+          description: l10n.customShellsDescription,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Add new custom shell button
+              ShadButton.outline(
+                onPressed: () => _showAddEditShellDialog(context, l10n, theme),
+                leading: Icon(LucideIcons.plus, size: 16.sp),
+                child: Text(l10n.addCustomShell),
+              ),
+              SizedBox(height: 16.h),
+              // List of custom shells
+              if (settings.customShells.isEmpty)
+                Container(
+                  padding: EdgeInsets.all(24.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.border),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(LucideIcons.terminal,
+                            size: 48.sp,
+                            color: theme.colorScheme.mutedForeground),
+                        SizedBox(height: 12.h),
+                        Text(l10n.noCustomShells, style: theme.textTheme.large),
+                        SizedBox(height: 4.h),
+                        Text(l10n.addYourFirstCustomShell,
+                            style: theme.textTheme.small.copyWith(
+                                color: theme.colorScheme.mutedForeground)),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                ...settings.customShells.map((shell) => Container(
+                      margin: EdgeInsets.only(bottom: 8.h),
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: theme.colorScheme.border),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(_getShellIcon(shell.icon),
+                              size: 24.sp, color: theme.colorScheme.primary),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(shell.name, style: theme.textTheme.p),
+                                  ],
+                                ),
+                                SizedBox(height: 2.h),
+                                Text(shell.path,
+                                    style: theme.textTheme.small.copyWith(
+                                        color:
+                                            theme.colorScheme.mutedForeground),
+                                    overflow: TextOverflow.ellipsis),
+                              ],
+                            ),
+                          ),
+                          // Edit button
+                          ShadButton.ghost(
+                            padding: EdgeInsets.zero,
+                            width: 32.w,
+                            height: 32.h,
+                            onPressed: () => _showAddEditShellDialog(
+                                context, l10n, theme,
+                                existingShell: shell),
+                            child: Icon(LucideIcons.pencil, size: 16.sp),
+                          ),
+                          // Delete button
+                          ShadButton.ghost(
+                            padding: EdgeInsets.zero,
+                            width: 32.w,
+                            height: 32.h,
+                            onPressed: () =>
+                                _confirmDeleteShell(context, shell, l10n),
+                            child: Icon(LucideIcons.trash2,
+                                size: 16.sp,
+                                color: theme.colorScheme.destructive),
+                          ),
+                        ],
+                      ),
+                    )),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showAddEditShellDialog(
+      BuildContext context, AppLocalizations l10n, ShadThemeData theme,
+      {CustomShellConfig? existingShell}) {
+    final nameController =
+        TextEditingController(text: existingShell?.name ?? '');
+    final pathController =
+        TextEditingController(text: existingShell?.path ?? '');
+    String selectedIcon = existingShell?.icon ?? 'terminal';
+
+    showShadDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return ShadDialog(
+            title: Text(existingShell != null
+                ? l10n.editCustomShell
+                : l10n.addCustomShell),
+            description: const SizedBox.shrink(),
+            child: Container(
+              width: 400.w,
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Shell Name
+                  Text(l10n.shellName, style: theme.textTheme.small),
+                  SizedBox(height: 8.h),
+                  ShadInput(
+                    controller: nameController,
+                    placeholder: Text(l10n.shellNamePlaceholder),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // Shell Path
+                  Text(l10n.customShellPath, style: theme.textTheme.small),
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ShadInput(
+                          controller: pathController,
+                          placeholder: Text(l10n.shellPathPlaceholder),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      ShadButton.outline(
+                        onPressed: () async {
+                          final result = await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: PlatformUtils.isWindows
+                                ? ['exe', 'bat', 'cmd']
+                                : [],
+                          );
+                          if (result != null &&
+                              result.files.single.path != null) {
+                            pathController.text = result.files.single.path!;
+                          }
+                        },
+                        child: Text(l10n.browse),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // Shell Icon
+                  Text(l10n.shellIcon, style: theme.textTheme.small),
+                  SizedBox(height: 8.h),
+                  Wrap(
+                    spacing: 4.w,
+                    runSpacing: 4.h,
+                    children: [
+                      'terminal',
+                      'command',
+                      'server',
+                      'gitBranch',
+                      'code',
+                      'box',
+                      'zap',
+                      'monitor',
+                    ]
+                        .map((icon) => ShadButton(
+                              padding: EdgeInsets.all(8.w),
+                              backgroundColor: selectedIcon == icon
+                                  ? theme.colorScheme.primary
+                                  : Colors.transparent,
+                              onPressed: () {
+                                setDialogState(() => selectedIcon = icon);
+                              },
+                              child: Icon(
+                                _getShellIcon(icon),
+                                size: 20.sp,
+                                color: selectedIcon == icon
+                                    ? theme.colorScheme.primaryForeground
+                                    : theme.colorScheme.foreground,
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                  SizedBox(height: 24.h),
+
+                  // Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ShadButton.ghost(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(l10n.cancel),
+                      ),
+                      SizedBox(width: 8.w),
+                      ShadButton(
+                        onPressed: () {
+                          final name = nameController.text.trim();
+                          final path = pathController.text.trim();
+                          if (name.isEmpty || path.isEmpty) return;
+
+                          if (existingShell != null) {
+                            context.read<SettingsBloc>().add(UpdateCustomShell(
+                                  existingShell.copyWith(
+                                    name: name,
+                                    path: path,
+                                    icon: selectedIcon,
+                                  ),
+                                ));
+                          } else {
+                            context.read<SettingsBloc>().add(AddCustomShell(
+                                  CustomShellConfig.create(
+                                    name: name,
+                                    path: path,
+                                    icon: selectedIcon,
+                                  ),
+                                ));
+                          }
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(l10n.save),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _confirmDeleteShell(
+      BuildContext context, CustomShellConfig shell, AppLocalizations l10n) {
+    showShadDialog(
+      context: context,
+      builder: (context) => ShadDialog.alert(
+        title: Text(l10n.deleteCustomShell),
+        description: Text(l10n.confirmDeleteShell),
+        actions: [
+          ShadButton.ghost(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.cancel),
+          ),
+          ShadButton.destructive(
+            onPressed: () {
+              context.read<SettingsBloc>().add(RemoveCustomShell(shell.id));
+              Navigator.of(context).pop();
+            },
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSection(

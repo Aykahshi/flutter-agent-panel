@@ -17,6 +17,10 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     on<UpdateDefaultShell>(_onUpdateDefaultShell);
     on<UpdateLocale>(_onUpdateLocale);
     on<UpdateTerminalCursorBlink>(_onUpdateTerminalCursorBlink);
+    on<AddCustomShell>(_onAddCustomShell);
+    on<UpdateCustomShell>(_onUpdateCustomShell);
+    on<RemoveCustomShell>(_onRemoveCustomShell);
+    on<SelectCustomShell>(_onSelectCustomShell);
   }
 
   void _onUpdateAppTheme(UpdateAppTheme event, Emitter<SettingsState> emit) {
@@ -41,7 +45,8 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(
         settings: state.settings.copyWith(
       defaultShell: event.defaultShell,
-      customShellPath: event.customShellPath,
+      selectedCustomShellId: event.selectedCustomShellId,
+      clearSelectedCustomShellId: event.defaultShell != ShellType.custom,
     )));
   }
 
@@ -55,6 +60,45 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(
         settings:
             state.settings.copyWith(terminalCursorBlink: event.isEnabled)));
+  }
+
+  void _onAddCustomShell(AddCustomShell event, Emitter<SettingsState> emit) {
+    final updatedShells = [...state.settings.customShells, event.config];
+    emit(state.copyWith(
+        settings: state.settings.copyWith(customShells: updatedShells)));
+  }
+
+  void _onUpdateCustomShell(
+      UpdateCustomShell event, Emitter<SettingsState> emit) {
+    final updatedShells = state.settings.customShells.map((s) {
+      return s.id == event.config.id ? event.config : s;
+    }).toList();
+    emit(state.copyWith(
+        settings: state.settings.copyWith(customShells: updatedShells)));
+  }
+
+  void _onRemoveCustomShell(
+      RemoveCustomShell event, Emitter<SettingsState> emit) {
+    final updatedShells = state.settings.customShells
+        .where((s) => s.id != event.shellId)
+        .toList();
+    // Also clear selectedCustomShellId if we're removing the selected shell
+    final shouldClearSelection =
+        state.settings.selectedCustomShellId == event.shellId;
+    emit(state.copyWith(
+        settings: state.settings.copyWith(
+      customShells: updatedShells,
+      clearSelectedCustomShellId: shouldClearSelection,
+    )));
+  }
+
+  void _onSelectCustomShell(
+      SelectCustomShell event, Emitter<SettingsState> emit) {
+    emit(state.copyWith(
+        settings: state.settings.copyWith(
+      defaultShell: ShellType.custom,
+      selectedCustomShellId: event.shellId,
+    )));
   }
 
   @override

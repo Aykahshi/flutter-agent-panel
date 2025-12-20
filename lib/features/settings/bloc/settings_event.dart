@@ -37,11 +37,11 @@ class UpdateFontSettings extends SettingsEvent {
 
 class UpdateDefaultShell extends SettingsEvent {
   final ShellType defaultShell;
-  final String? customShellPath;
-  const UpdateDefaultShell(this.defaultShell, {this.customShellPath});
+  final String? selectedCustomShellId;
+  const UpdateDefaultShell(this.defaultShell, {this.selectedCustomShellId});
 
   @override
-  List<Object?> get props => [defaultShell, customShellPath];
+  List<Object?> get props => [defaultShell, selectedCustomShellId];
 }
 
 class UpdateLocale extends SettingsEvent {
@@ -58,4 +58,36 @@ class UpdateTerminalCursorBlink extends SettingsEvent {
 
   @override
   List<Object?> get props => [isEnabled];
+}
+
+class AddCustomShell extends SettingsEvent {
+  final CustomShellConfig config;
+  const AddCustomShell(this.config);
+
+  @override
+  List<Object?> get props => [config];
+}
+
+class UpdateCustomShell extends SettingsEvent {
+  final CustomShellConfig config;
+  const UpdateCustomShell(this.config);
+
+  @override
+  List<Object?> get props => [config];
+}
+
+class RemoveCustomShell extends SettingsEvent {
+  final String shellId;
+  const RemoveCustomShell(this.shellId);
+
+  @override
+  List<Object?> get props => [shellId];
+}
+
+class SelectCustomShell extends SettingsEvent {
+  final String shellId;
+  const SelectCustomShell(this.shellId);
+
+  @override
+  List<Object?> get props => [shellId];
 }
