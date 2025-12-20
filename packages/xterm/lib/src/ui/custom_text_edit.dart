@@ -54,10 +54,25 @@ class CustomTextEdit extends StatefulWidget {
 class CustomTextEditState extends State<CustomTextEdit> with TextInputClient {
   TextInputConnection? _connection;
 
+  bool _isInputReady = false;
+
   @override
   void initState() {
     widget.focusNode.addListener(_onFocusChange);
     super.initState();
+    // Warm-up delay: Wait for the window/view to be fully ready before allowing IME connection.
+    // This prevents "view ID is null" errors on Windows startup.
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) {
+        setState(() {
+          _isInputReady = true;
+        });
+        // If we have focus, retry connection now that we are ready
+        if (widget.focusNode.hasFocus) {
+          _openInputConnection();
+        }
+      }
+    });
   }
 
   @override
@@ -116,16 +131,30 @@ class CustomTextEditState extends State<CustomTextEdit> with TextInputClient {
     _connection?.setEditingState(value);
   }
 
+  Rect? _cachedRect;
+  Rect? _cachedCaretRect;
+
   void setEditableRect(Rect rect, Rect caretRect) {
+    _cachedRect = rect;
+    _cachedCaretRect = caretRect;
+
     if (!hasInputConnection) {
       return;
     }
 
+    _applyEditableRect(rect, caretRect);
+  }
+
+  void _applyEditableRect(Rect rect, Rect caretRect) {
+    if (!mounted) return;
+
+    // RenderTerminal now sends LOCAL coordinates.
+    // With explicit viewId, the engine knows the view's global position.
+    // We pass local coords directly with zero transform.
     _connection?.setEditableSizeAndTransform(
       rect.size,
       Matrix4.translationValues(0, 0, 0),
     );
-
     _connection?.setCaretRect(caretRect);
   }
 
@@ -135,18 +164,7 @@ class CustomTextEditState extends State<CustomTextEdit> with TextInputClient {
 
   KeyEventResult _onKeyEvent(FocusNode focusNode, KeyEvent event) {
     if (_currentEditingState.composing.isCollapsed) {
-      final handled = widget.onKeyEvent(focusNode, event);
-      if (handled == KeyEventResult.ignored) {
-        // Fallback for regular characters not in keytab (a-z, 0-9, symbols)
-        // This is needed on Desktop where character input comes through KeyEvent
-        if (event is KeyDownEvent || event is KeyRepeatEvent) {
-          if (event.character != null && event.character!.isNotEmpty) {
-            widget.onInsert(event.character!);
-            return KeyEventResult.handled;
-          }
-        }
-      }
-      return handled;
+      return widget.onKeyEvent(focusNode, event);
     }
 
     return KeyEventResult.skipRemainingHandlers;
@@ -163,14 +181,26 @@ class CustomTextEditState extends State<CustomTextEdit> with TextInputClient {
   bool get _shouldCreateInputConnection => kIsWeb || !widget.readOnly;
 
   void _openInputConnection() {
-    if (!_shouldCreateInputConnection) {
+    if (!_shouldCreateInputConnection || !mounted || !_isInputReady) {
       return;
     }
 
     if (hasInputConnection) {
       _connection!.show();
     } else {
+      // Ensure we have a valid view before attaching.
+      final view = View.maybeOf(context);
+      if (view == null) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted && widget.focusNode.hasFocus) {
+            _openInputConnection();
+          }
+        });
+        return;
+      }
+
       final config = TextInputConfiguration(
+        viewId: view.viewId, // CRITICAL FIX: Explicitly pass viewId
         inputType: widget.inputType,
         inputAction: widget.inputAction,
         keyboardAppearance: widget.keyboardAppearance,
@@ -179,13 +209,33 @@ class CustomTextEditState extends State<CustomTextEdit> with TextInputClient {
         enableIMEPersonalizedLearning: false,
       );
 
-      _connection = TextInput.attach(this, config);
+      try {
+        _connection = TextInput.attach(this, config);
 
-      _connection!.show();
+        // We can now call these immediately as we provided a valid viewId
+        _connection!.show();
+        _connection!.setEditingState(_initEditingState);
 
-      // setEditableRect(Rect.zero, Rect.zero);
-
-      _connection!.setEditingState(_initEditingState);
+        // Resend the cached editable rects so the IME knows where to appear.
+        if (_cachedRect != null && _cachedCaretRect != null) {
+          _applyEditableRect(_cachedRect!, _cachedCaretRect!);
+        }
+      } catch (e) {
+        if (e is PlatformException &&
+            (e.message?.contains('view ID') == true ||
+                e.message?.contains('client') == true)) {
+          // Failure to attach (View not ready). Reset connection and retry.
+          _connection = null;
+          Future.delayed(const Duration(milliseconds: 200), () {
+            if (mounted && widget.focusNode.hasFocus) {
+              _openInputConnection();
+            }
+          });
+        } else {
+          // Rethrow other exceptions (dev errors)
+          rethrow;
+        }
+      }
     }
   }
 

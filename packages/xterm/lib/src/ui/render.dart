@@ -34,21 +34,21 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
     required bool alwaysShowCursor,
     EditableRectCallback? onEditableRect,
     String? composingText,
-  }) : _terminal = terminal,
-       _controller = controller,
-       _offset = offset,
-       _padding = padding,
-       _autoResize = autoResize,
-       _focusNode = focusNode,
-       _cursorType = cursorType,
-       _alwaysShowCursor = alwaysShowCursor,
-       _onEditableRect = onEditableRect,
-       _composingText = composingText,
-       _painter = TerminalPainter(
-         theme: theme,
-         textStyle: textStyle,
-         textScaler: textScaler,
-       );
+  })  : _terminal = terminal,
+        _controller = controller,
+        _offset = offset,
+        _padding = padding,
+        _autoResize = autoResize,
+        _focusNode = focusNode,
+        _cursorType = cursorType,
+        _alwaysShowCursor = alwaysShowCursor,
+        _onEditableRect = onEditableRect,
+        _composingText = composingText,
+        _painter = TerminalPainter(
+          theme: theme,
+          textStyle: textStyle,
+          textScaler: textScaler,
+        );
 
   Terminal _terminal;
   set terminal(Terminal terminal) {
@@ -154,7 +154,8 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
   var _stickToBottom = true;
 
   void _onScroll() {
-    _stickToBottom = _scrollOffset >= _maxScrollExtent;
+    final lineHeight = _painter.cellSize.height;
+    _stickToBottom = (_maxScrollExtent - _offset.pixels).abs() < lineHeight / 2;
     markNeedsLayout();
     _notifyEditableRect();
   }
@@ -209,12 +210,13 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
     size = constraints.biggest;
 
     _updateViewportSize();
-
     _updateScrollOffset();
 
     if (_stickToBottom) {
-      _offset.correctBy(_maxScrollExtent - _scrollOffset);
+      _offset.correctBy(_maxScrollExtent - _offset.pixels);
     }
+
+    _notifyEditableRect();
   }
 
   /// Total height of the terminal in pixels. Includes scrollback buffer.
@@ -222,10 +224,10 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
       _terminal.buffer.lines.length * _painter.cellSize.height;
 
   /// The distance from the top of the terminal to the top of the viewport.
-  // double get _scrollOffset => _offset.pixels;
   double get _scrollOffset {
-    // return _offset.pixels ~/ _painter.cellSize.height * _painter.cellSize.height;
-    return _offset.pixels;
+    final lineHeight = _painter.cellSize.height;
+    // Snap the scroll offset to the nearest multiple of lineHeight
+    return (_offset.pixels ~/ lineHeight) * lineHeight;
   }
 
   /// The height of a terminal line in pixels. This includes the line spacing.
@@ -309,16 +311,18 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
   }
 
   void _notifyEditableRect() {
-    final cursor = localToGlobal(cursorOffset);
+    // FIXED: Pass LOCAL coordinates, not global.
+    // CustomTextEdit will apply the correct global transform.
+    final localCursor = cursorOffset;
 
     final rect = Rect.fromLTRB(
-      cursor.dx,
-      cursor.dy,
+      localCursor.dx,
+      localCursor.dy,
       size.width,
-      cursor.dy + _painter.cellSize.height,
+      localCursor.dy + _painter.cellSize.height,
     );
 
-    final caretRect = cursor & _painter.cellSize;
+    final caretRect = localCursor & _painter.cellSize;
 
     _onEditableRect?.call(rect, caretRect);
   }
@@ -373,7 +377,15 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
   }
 
   double get _maxScrollExtent {
-    return max(_terminalHeight - _viewportHeight, 0.0);
+    final totalLines = _terminal.buffer.lines.length;
+    final totalHeight = totalLines * _painter.cellSize.height;
+    final viewportHeight = _viewportHeight;
+    final maxExtent = totalHeight - viewportHeight;
+
+    final lineHeight = _painter.cellSize.height;
+    final adjustedMaxExtent = (maxExtent / lineHeight).ceil() * lineHeight;
+
+    return max(0.0, adjustedMaxExtent);
   }
 
   double get _lineOffset {
@@ -400,15 +412,14 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
 
   void _paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
-
     final lines = _terminal.buffer.lines;
     final charHeight = _painter.cellSize.height;
 
     final firstLineOffset = _scrollOffset - _padding.top;
-    final lastLineOffset = _scrollOffset + size.height + _padding.bottom;
+    final lastLineOffset = _scrollOffset + size.height - _padding.bottom;
 
-    final firstLine = firstLineOffset ~/ charHeight;
-    final lastLine = lastLineOffset ~/ charHeight;
+    final firstLine = (firstLineOffset / charHeight).ceil();
+    final lastLine = (lastLineOffset / charHeight).floor() - 1;
 
     final effectFirstLine = firstLine.clamp(0, lines.length - 1);
     final effectLastLine = lastLine.clamp(0, lines.length - 1);

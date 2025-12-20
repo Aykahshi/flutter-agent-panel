@@ -9,19 +9,152 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'Flutter Agent Panel';
+  String get appTitle => 'Flutter 代理面板';
 
   @override
-  String get workspace => '工作區';
+  String get workspace => '工作区';
 
   @override
-  String get terminal => '終端機';
+  String get terminal => '终端';
 
   @override
-  String get newTerminal => '新增終端機';
+  String get newTerminal => '新建终端';
 
   @override
-  String get settings => '設定';
+  String get settings => '设置';
+
+  @override
+  String get selectWorkspacePrompt => '选择或建立工作区以开始';
+
+  @override
+  String get noTerminalsOpen => '没有开启的终端';
+
+  @override
+  String get selectShell => '选择 Shell';
+
+  @override
+  String get workspaces => '工作区';
+
+  @override
+  String get noWorkspaces => '没有工作区';
+
+  @override
+  String get addWorkspace => '新增工作区';
+
+  @override
+  String get slateDark => '板岩黑';
+
+  @override
+  String get zincDark => '锌黑';
+
+  @override
+  String get neutralDark => '中性黑';
+
+  @override
+  String get stoneDark => '石黑';
+
+  @override
+  String get grayDark => '灰色黑';
+
+  @override
+  String get oneDark => 'One Dark';
+
+  @override
+  String get dracula => 'Dracula';
+
+  @override
+  String get monokai => 'Monokai';
+
+  @override
+  String get nord => 'Nord';
+
+  @override
+  String get solarizedDark => 'Solarized Dark';
+
+  @override
+  String get githubDark => 'GitHub Dark';
+
+  @override
+  String get pwsh7 => 'PowerShell 7';
+
+  @override
+  String get powershell => 'Windows PowerShell';
+
+  @override
+  String get cmd => '命令提示符';
+
+  @override
+  String get wsl => 'WSL (默认)';
+
+  @override
+  String get gitBash => 'Git Bash';
+
+  @override
+  String get appearance => '外观';
+
+  @override
+  String get theme => '主题';
+
+  @override
+  String get terminalSettings => '终端设置';
+
+  @override
+  String get fontFamily => '字体系列';
+
+  @override
+  String get fontSize => '字体大小';
+
+  @override
+  String get bold => '粗体';
+
+  @override
+  String get italic => '斜体';
+
+  @override
+  String get shellSettings => 'Shell 设置';
+
+  @override
+  String get defaultShell => '默认 Shell';
+
+  @override
+  String get customShellPath => '自定义 Shell 路径';
+
+  @override
+  String get browse => '浏览';
+
+  @override
+  String get custom => '自定义';
+
+  @override
+  String get language => '语言';
+
+  @override
+  String get english => '英文';
+
+  @override
+  String get chineseHant => '繁體中文';
+
+  @override
+  String get chineseHans => '简体中文';
+
+  @override
+  String get fontPreview => '字体预览';
+
+  @override
+  String get fontPreviewText =>
+      'Build beautiful, natively compiled applications from a single codebase.';
+
+  @override
+  String get about => '关于';
+
+  @override
+  String get help => '帮助';
+
+  @override
+  String get configureAppDescription => '配置应用程序偏好设置';
+
+  @override
+  String get selectLanguage => '选择语言';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -29,7 +162,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   AppLocalizationsZhHant() : super('zh_Hant');
 
   @override
-  String get appTitle => 'Flutter Agent Panel';
+  String get appTitle => 'Flutter 代理面板';
 
   @override
   String get workspace => '工作區';
@@ -38,8 +171,141 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get terminal => '終端機';
 
   @override
-  String get newTerminal => '新增終端機';
+  String get newTerminal => '新建終端';
 
   @override
   String get settings => '設定';
+
+  @override
+  String get selectWorkspacePrompt => '選擇或建立工作區以開始';
+
+  @override
+  String get noTerminalsOpen => '沒有開啟的終端';
+
+  @override
+  String get selectShell => '選擇 Shell';
+
+  @override
+  String get workspaces => '工作區';
+
+  @override
+  String get noWorkspaces => '沒有工作區';
+
+  @override
+  String get addWorkspace => '新增工作區';
+
+  @override
+  String get slateDark => '板岩黑';
+
+  @override
+  String get zincDark => '鋅黑';
+
+  @override
+  String get neutralDark => '中性黑';
+
+  @override
+  String get stoneDark => '石黑';
+
+  @override
+  String get grayDark => '灰色黑';
+
+  @override
+  String get oneDark => 'One Dark';
+
+  @override
+  String get dracula => 'Dracula';
+
+  @override
+  String get monokai => 'Monokai';
+
+  @override
+  String get nord => 'Nord';
+
+  @override
+  String get solarizedDark => 'Solarized Dark';
+
+  @override
+  String get githubDark => 'GitHub Dark';
+
+  @override
+  String get pwsh7 => 'PowerShell 7';
+
+  @override
+  String get powershell => 'Windows PowerShell';
+
+  @override
+  String get cmd => '命令提示字元';
+
+  @override
+  String get wsl => 'WSL (預設)';
+
+  @override
+  String get gitBash => 'Git Bash';
+
+  @override
+  String get appearance => '外觀';
+
+  @override
+  String get theme => '主題';
+
+  @override
+  String get terminalSettings => '終端機設定';
+
+  @override
+  String get fontFamily => '字型系列';
+
+  @override
+  String get fontSize => '字型大小';
+
+  @override
+  String get bold => '粗體';
+
+  @override
+  String get italic => '斜體';
+
+  @override
+  String get shellSettings => 'Shell 設定';
+
+  @override
+  String get defaultShell => '預設 Shell';
+
+  @override
+  String get customShellPath => '自定義 Shell 路徑';
+
+  @override
+  String get browse => '瀏覽';
+
+  @override
+  String get custom => '自定義';
+
+  @override
+  String get language => '語言';
+
+  @override
+  String get english => '英文';
+
+  @override
+  String get chineseHant => '繁體中文';
+
+  @override
+  String get chineseHans => '簡體中文';
+
+  @override
+  String get fontPreview => '字型預覽';
+
+  @override
+  String get fontPreviewText =>
+      'Build beautiful, natively compiled applications from a single codebase.';
+
+  @override
+  String get about => '關於';
+
+  @override
+  String get help => '幫助';
+
+  @override
+  String get configureAppDescription => '設定應用程式偏好設定';
+
+  @override
+  String get selectLanguage => '選擇語言';
 }

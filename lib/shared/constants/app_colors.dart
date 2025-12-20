@@ -1,12 +1,10 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primary = Color(0xFF007AFF);
-  static const Color background = Color(0xFF1E1E1E);
-  static const Color surface = Color(0xFF2C2C2C);
-  static const Color error = Color(0xFFFF3B30);
-
-  // Terminal Colors
+  // Terminal specific colors
   static const Color terminalBackground = Color(0xFF1E1E1E);
-  static const Color borderColor = Color(0xFF3F4145); // Added border color
+  static const Color borderColor = Color(0xFF3F4145);
+  static const Color border = Color(0xFF3F4145);
+  static const Color textPrimary = Colors.white;
+  static const Color textSecondary = Color(0xFF888888);
 }

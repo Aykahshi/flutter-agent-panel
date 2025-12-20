@@ -1,22 +1,63 @@
+import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
+import '../../terminal/models/terminal_config.dart';
 
-class Workspace {
+class Workspace extends Equatable {
   final String id;
-  final String name;
   final String path;
+  final String name;
+  final List<TerminalConfig> terminals;
 
-  Workspace({required this.id, required this.name, required this.path});
+  const Workspace({
+    required this.id,
+    required this.path,
+    required this.name,
+    this.terminals = const [],
+  });
 
-  factory Workspace.create({required String name, required String path}) {
-    return Workspace(id: const Uuid().v4(), name: name, path: path);
+  factory Workspace.create({required String path, required String name}) {
+    return Workspace(
+      id: const Uuid().v4(),
+      path: path,
+      name: name,
+    );
   }
 
-  // Support for equality and copyWith if needed
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Workspace && runtimeType == other.runtimeType && id == other.id;
+  Workspace copyWith({
+    String? id,
+    String? path,
+    String? name,
+    List<TerminalConfig>? terminals,
+  }) {
+    return Workspace(
+      id: id ?? this.id,
+      path: path ?? this.path,
+      name: name ?? this.name,
+      terminals: terminals ?? this.terminals,
+    );
+  }
+
+  factory Workspace.fromJson(Map<String, dynamic> json) {
+    return Workspace(
+      id: json['id'] as String,
+      path: json['path'] as String,
+      name: json['name'] as String,
+      terminals: (json['terminals'] as List<dynamic>?)
+              ?.map((e) => TerminalConfig.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'path': path,
+      'name': name,
+      'terminals': terminals.map((e) => e.toJson()).toList(),
+    };
+  }
 
   @override
-  int get hashCode => id.hashCode;
+  List<Object?> get props => [id, path, name, terminals];
 }

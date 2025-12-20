@@ -128,6 +128,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @selectWorkspacePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Select or create a workspace to begin'**
+  String get selectWorkspacePrompt;
+
+  /// No description provided for @noTerminalsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'No Terminals Open'**
+  String get noTerminalsOpen;
+
+  /// No description provided for @selectShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Shell'**
+  String get selectShell;
+
+  /// No description provided for @workspaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspaces'**
+  String get workspaces;
+
+  /// No description provided for @noWorkspaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No workspaces'**
+  String get noWorkspaces;
+
+  /// No description provided for @addWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Workspace'**
+  String get addWorkspace;
+
+  /// No description provided for @slateDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate Dark'**
+  String get slateDark;
+
+  /// No description provided for @zincDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Zinc Dark'**
+  String get zincDark;
+
+  /// No description provided for @neutralDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral Dark'**
+  String get neutralDark;
+
+  /// No description provided for @stoneDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Stone Dark'**
+  String get stoneDark;
+
+  /// No description provided for @grayDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Gray Dark'**
+  String get grayDark;
+
+  /// No description provided for @oneDark.
+  ///
+  /// In en, this message translates to:
+  /// **'One Dark'**
+  String get oneDark;
+
+  /// No description provided for @dracula.
+  ///
+  /// In en, this message translates to:
+  /// **'Dracula'**
+  String get dracula;
+
+  /// No description provided for @monokai.
+  ///
+  /// In en, this message translates to:
+  /// **'Monokai'**
+  String get monokai;
+
+  /// No description provided for @nord.
+  ///
+  /// In en, this message translates to:
+  /// **'Nord'**
+  String get nord;
+
+  /// No description provided for @solarizedDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Solarized Dark'**
+  String get solarizedDark;
+
+  /// No description provided for @githubDark.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub Dark'**
+  String get githubDark;
+
+  /// No description provided for @pwsh7.
+  ///
+  /// In en, this message translates to:
+  /// **'PowerShell 7'**
+  String get pwsh7;
+
+  /// No description provided for @powershell.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows PowerShell'**
+  String get powershell;
+
+  /// No description provided for @cmd.
+  ///
+  /// In en, this message translates to:
+  /// **'Command Prompt'**
+  String get cmd;
+
+  /// No description provided for @wsl.
+  ///
+  /// In en, this message translates to:
+  /// **'WSL (Default)'**
+  String get wsl;
+
+  /// No description provided for @gitBash.
+  ///
+  /// In en, this message translates to:
+  /// **'Git Bash'**
+  String get gitBash;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @terminalSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Terminal Settings'**
+  String get terminalSettings;
+
+  /// No description provided for @fontFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Family'**
+  String get fontFamily;
+
+  /// No description provided for @fontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Size'**
+  String get fontSize;
+
+  /// No description provided for @bold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get bold;
+
+  /// No description provided for @italic.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get italic;
+
+  /// No description provided for @shellSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Shell Settings'**
+  String get shellSettings;
+
+  /// No description provided for @defaultShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Shell'**
+  String get defaultShell;
+
+  /// No description provided for @customShellPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Shell Path'**
+  String get customShellPath;
+
+  /// No description provided for @browse.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get browse;
+
+  /// No description provided for @custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @chineseHant.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional Chinese'**
+  String get chineseHant;
+
+  /// No description provided for @chineseHans.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplified Chinese'**
+  String get chineseHans;
+
+  /// No description provided for @fontPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Preview'**
+  String get fontPreview;
+
+  /// No description provided for @fontPreviewText.
+  ///
+  /// In en, this message translates to:
+  /// **'Build beautiful, natively compiled applications from a single codebase.'**
+  String get fontPreviewText;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help;
+
+  /// No description provided for @configureAppDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure application preferences'**
+  String get configureAppDescription;
+
+  /// No description provided for @selectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get selectLanguage;
 }
 
 class _AppLocalizationsDelegate

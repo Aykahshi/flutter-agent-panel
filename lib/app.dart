@@ -1,77 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' hide Colors;
-import 'package:macos_ui/macos_ui.dart';
-import 'package:yaru/yaru.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/l10n/app_localizations.dart';
 
-import 'shared/utils/platform_utils.dart';
-import 'package:signals/signals_flutter.dart';
-import 'features/workspace/views/workspace_view.dart';
-import 'core/viewmodels/theme_viewmodel.dart';
+import 'features/home/views/app_shell.dart';
+import 'features/workspace/bloc/workspace_bloc.dart';
+import 'features/settings/bloc/settings_bloc.dart';
+import 'features/settings/models/app_settings.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(1280, 800), // Default design size
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (_, child) {
-        return Watch((context) {
-          final themeMode = ThemeViewModel().themeMode.value;
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => WorkspaceBloc()),
+        BlocProvider(create: (_) => SettingsBloc()..add(const LoadSettings())),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(1280, 800),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (_, child) {
+          return BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, state) {
+              final appTheme = state.settings.appTheme;
 
-          if (PlatformUtils.isWindows) {
-            return FluentApp(
-              title: 'Flutter Agent Panel',
-              themeMode: themeMode,
-              theme: FluentThemeData.light(),
-              darkTheme: FluentThemeData.dark(),
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                FluentLocalizations.delegate,
-              ],
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const WorkspaceView(),
-            );
-          } else if (PlatformUtils.isMacOS) {
-            return MacosApp(
-              title: 'Flutter Agent Panel',
-              themeMode: themeMode,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const WorkspaceView(),
-            );
-          } else {
-            // Linux (Yaru) / Default
-            return MaterialApp(
-              title: 'Flutter Agent Panel',
-              themeMode: themeMode,
-              theme: yaruLight,
-              darkTheme: yaruDark,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const WorkspaceView(),
-            );
-          }
-        });
-      },
+              return ShadApp.custom(
+                themeMode: ThemeMode.dark,
+                darkTheme: ShadThemeData(
+                  brightness: Brightness.dark,
+                  colorScheme: _getColorScheme(appTheme),
+                ),
+                appBuilder: (context) {
+                  return MaterialApp(
+                    title: 'Flutter Agent Panel',
+                    theme: Theme.of(context),
+                    debugShowCheckedModeBanner: false,
+                    localizationsDelegates: const [
+                      AppLocalizations.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    supportedLocales: const [
+                      Locale('en'),
+                      Locale('zh'),
+                      Locale.fromSubtags(
+                          languageCode: 'zh', scriptCode: 'Hant'),
+                    ],
+                    locale: Locale(state.settings.locale),
+                    home: const AppShell(),
+                    builder: (context, child) => ShadAppBuilder(child: child!),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
+  }
+
+  ShadColorScheme _getColorScheme(AppTheme theme) {
+    switch (theme) {
+      case AppTheme.slateDark:
+        return const ShadSlateColorScheme.dark();
+      case AppTheme.zincDark:
+        return const ShadZincColorScheme.dark();
+      case AppTheme.neutralDark:
+        return const ShadNeutralColorScheme.dark();
+      case AppTheme.stoneDark:
+        return const ShadStoneColorScheme.dark();
+      case AppTheme.grayDark:
+        return const ShadGrayColorScheme.dark();
+    }
   }
 }
