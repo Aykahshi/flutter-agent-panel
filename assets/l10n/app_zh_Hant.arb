@@ -48,5 +48,6 @@
   "selectLanguage": "選擇語言",
   "about": "關於",
   "help": "幫助",
+  "restartingTerminal": "正在重新啟動終端機...",
   "@@locale": "zh_Hant"
 }

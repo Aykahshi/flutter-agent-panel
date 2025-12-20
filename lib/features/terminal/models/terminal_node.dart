@@ -15,6 +15,9 @@ enum TerminalStatus {
 
   /// Terminal process terminated (gray)
   disconnected,
+
+  /// Terminal is restarting (blue glow)
+  restarting,
 }
 
 class TerminalNode {

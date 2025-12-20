@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/extensions/context_extension.dart';
 import '../../workspace/bloc/workspace_bloc.dart';
@@ -48,25 +48,25 @@ class WorkspaceDrawer extends StatelessWidget {
         children: [
           // Header / Toggle
           Container(
-            height: 48.h,
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             alignment: isCollapsed ? Alignment.center : Alignment.centerLeft,
             child: Row(
               mainAxisAlignment: isCollapsed
                   ? MainAxisAlignment.center
                   : MainAxisAlignment.start,
               children: [
-                if (!isCollapsed) SizedBox(width: 8.w),
+                if (!isCollapsed) const SizedBox(width: 8),
                 ShadButton.ghost(
                   padding: EdgeInsets.zero,
-                  width: 32.w,
-                  height: 32.h,
+                  width: 32,
+                  height: 32,
                   onPressed: onToggle,
                   child: Icon(LucideIcons.menu,
-                      color: theme.colorScheme.foreground, size: 18.sp),
+                      color: theme.colorScheme.foreground, size: 18),
                 ),
                 if (!isCollapsed) ...[
-                  SizedBox(width: 8.w),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.t.workspaces,
@@ -91,10 +91,10 @@ class WorkspaceDrawer extends StatelessWidget {
                 if (state.workspaces.isEmpty && !isCollapsed) {
                   return Center(
                     child: Padding(
-                      padding: EdgeInsets.all(16.w),
+                      padding: const EdgeInsets.all(16),
                       child: Text(
                         context.t.noWorkspaces,
-                        style: theme.textTheme.muted.copyWith(fontSize: 12.sp),
+                        style: theme.textTheme.muted.copyWith(fontSize: 12),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -117,7 +117,7 @@ class WorkspaceDrawer extends StatelessWidget {
                               .add(SelectWorkspace(workspace.id));
                         },
                         child: Container(
-                          height: 40.h,
+                          height: 40,
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? theme.colorScheme.primary.withOpacity(0.1)
@@ -126,13 +126,13 @@ class WorkspaceDrawer extends StatelessWidget {
                                 ? Border(
                                     left: BorderSide(
                                       color: theme.colorScheme.primary,
-                                      width: 2.w,
+                                      width: 2,
                                     ),
                                   )
                                 : null,
                           ),
                           padding: EdgeInsets.symmetric(
-                              horizontal: isCollapsed ? 0 : 12.w),
+                              horizontal: isCollapsed ? 0 : 12),
                           alignment: isCollapsed
                               ? Alignment.center
                               : Alignment.centerLeft,
@@ -151,12 +151,12 @@ class WorkspaceDrawer extends StatelessWidget {
                               : Row(
                                   children: [
                                     Icon(LucideIcons.folder,
-                                        size: 16.sp,
+                                        size: 16,
                                         color: isSelected
                                             ? theme.colorScheme.primary
                                             : Colors.grey
                                                 .withValues(alpha: 0.5)),
-                                    SizedBox(width: 8.w),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         workspace.name,
@@ -164,7 +164,7 @@ class WorkspaceDrawer extends StatelessWidget {
                                           color: isSelected
                                               ? theme.colorScheme.primary
                                               : theme.colorScheme.foreground,
-                                          fontSize: 14.sp,
+                                          fontSize: 14,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
@@ -172,9 +172,9 @@ class WorkspaceDrawer extends StatelessWidget {
                                     ),
                                     if (isSelected)
                                       Padding(
-                                        padding: EdgeInsets.only(left: 4.w),
+                                        padding: const EdgeInsets.only(left: 4),
                                         child: Icon(LucideIcons.check,
-                                            size: 14.sp,
+                                            size: 14,
                                             color: theme.colorScheme.primary),
                                       ),
                                   ],
@@ -192,31 +192,31 @@ class WorkspaceDrawer extends StatelessWidget {
           // Add Workspace Button
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 8.h),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             alignment: Alignment.center,
             child: ShadButton.ghost(
               onPressed: () => _addWorkspace(context),
-              width: isCollapsed ? 32.w : null,
-              height: 32.h,
+              width: isCollapsed ? 32 : null,
+              height: 32,
               padding: isCollapsed
                   ? EdgeInsets.zero
-                  : EdgeInsets.symmetric(horizontal: 16.w),
+                  : const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(LucideIcons.plus,
-                      color: theme.colorScheme.primary, size: 18.sp),
+                      color: theme.colorScheme.primary, size: 18),
                   if (!isCollapsed) ...[
-                    SizedBox(width: 8.w),
+                    const SizedBox(width: 8),
                     Padding(
-                      padding: EdgeInsets.only(
-                          bottom: 1.h), // Tiny adjustment for alignment
+                      padding: const EdgeInsets.only(
+                          bottom: 1), // Tiny adjustment for alignment
                       child: Text(
                         context.t.addWorkspace,
                         style: theme.textTheme.small.copyWith(
                           color: theme.colorScheme.primary,
-                          fontSize: 13.sp,
+                          fontSize: 13,
                         ),
                       ),
                     ),
@@ -226,7 +226,7 @@ class WorkspaceDrawer extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 8.h),
+          const SizedBox(height: 8),
         ],
       ),
     ));

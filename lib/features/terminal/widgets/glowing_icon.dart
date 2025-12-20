@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/terminal_node.dart';
 
-class ActivityIndicator extends StatefulWidget {
+class GlowingIcon extends StatefulWidget {
+  final IconData icon;
   final TerminalStatus status;
   final double size;
+  final Color? baseColor;
 
-  const ActivityIndicator({
+  const GlowingIcon({
     super.key,
+    required this.icon,
     required this.status,
-    this.size = 8.0,
+    this.size = 16.0,
+    this.baseColor,
   });
 
   @override
-  State<ActivityIndicator> createState() => _ActivityIndicatorState();
+  State<GlowingIcon> createState() => _GlowingIconState();
 }
 
-class _ActivityIndicatorState extends State<ActivityIndicator>
+class _GlowingIconState extends State<GlowingIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _glowAnimation;
@@ -28,25 +32,27 @@ class _ActivityIndicatorState extends State<ActivityIndicator>
       duration: const Duration(milliseconds: 1500),
     );
 
-    _glowAnimation = Tween<double>(begin: 0.2, end: 1.0).animate(
+    _glowAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    if (widget.status == TerminalStatus.running) {
+    if (widget.status == TerminalStatus.running ||
+        widget.status == TerminalStatus.restarting) {
       _controller.repeat(reverse: true);
     }
   }
 
   @override
-  void didUpdateWidget(ActivityIndicator oldWidget) {
+  void didUpdateWidget(GlowingIcon oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.status == TerminalStatus.running) {
+    if (widget.status == TerminalStatus.running ||
+        widget.status == TerminalStatus.restarting) {
       if (!_controller.isAnimating) {
         _controller.repeat(reverse: true);
       }
     } else {
       _controller.stop();
-      _controller.value = 1.0; // Solid circle when not running
+      _controller.value = 1.0;
     }
   }
 
@@ -58,34 +64,35 @@ class _ActivityIndicatorState extends State<ActivityIndicator>
 
   @override
   Widget build(BuildContext context) {
-    final color = _getStatusColor(widget.status);
+    // If baseColor is provided, use it (e.g. for disconnected/idle if we want specific overrides),
+    // otherwise fallback to status color logic
+    final statusColor = _getStatusColor(widget.status);
+    final color = widget.baseColor ?? statusColor;
 
     return AnimatedBuilder(
       animation: _glowAnimation,
       builder: (context, child) {
-        final opacity = widget.status == TerminalStatus.running
-            ? _glowAnimation.value
-            : 1.0;
+        final isAnimating = widget.status == TerminalStatus.running ||
+            widget.status == TerminalStatus.restarting;
 
-        // Assuming 'withValues' is an extension method on Color that takes an alpha parameter.
-        // If it's not, this code will cause a compilation error.
-        // For standard Flutter Color, you would use 'withAlpha((255 * opacity).round())'
-        // or 'withOpacity(opacity)'.
-        // The instruction specifically asks for 'withValues(alpha: ...)', so we're applying it directly.
+        final opacity = isAnimating ? _glowAnimation.value : 1.0;
+
         return Container(
-          width: widget.size,
-          height: widget.size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withValues(alpha: opacity),
             boxShadow: [
               if (widget.status != TerminalStatus.disconnected)
                 BoxShadow(
-                  color: color.withValues(alpha: opacity * 0.6),
-                  blurRadius: 4,
-                  spreadRadius: 1,
+                  color: statusColor.withValues(alpha: opacity * 0.6),
+                  blurRadius: 8,
+                  spreadRadius: 2,
                 ),
             ],
+          ),
+          child: Icon(
+            widget.icon,
+            size: widget.size,
+            color: color.withValues(alpha: opacity),
           ),
         );
       },

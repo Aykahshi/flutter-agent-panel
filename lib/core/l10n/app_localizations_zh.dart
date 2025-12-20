@@ -155,6 +155,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get selectLanguage => '选择语言';
+
+  @override
+  String get restartingTerminal => '正在重启终端...';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -308,4 +311,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get selectLanguage => '選擇語言';
+
+  @override
+  String get restartingTerminal => '正在重新啟動終端機...';
 }

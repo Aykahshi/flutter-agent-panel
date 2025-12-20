@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Language'**
   String get selectLanguage;
+
+  /// No description provided for @restartingTerminal.
+  ///
+  /// In en, this message translates to:
+  /// **'Restarting Terminal...'**
+  String get restartingTerminal;
 }
 
 class _AppLocalizationsDelegate

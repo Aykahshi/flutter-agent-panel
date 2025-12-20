@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../workspace/views/workspace_drawer.dart';
 import '../../workspace/views/workspace_view.dart';
@@ -53,7 +53,7 @@ class _AppShellState extends State<AppShell> {
                 return Row(
                   children: [
                     SizedBox(
-                      width: collapsed ? _collapsedWidth.w : width.w,
+                      width: collapsed ? _collapsedWidth : width,
                       child: WorkspaceDrawer(
                         isCollapsed: collapsed,
                         onToggle: _toggleDrawer,
@@ -78,7 +78,7 @@ class _AppShellState extends State<AppShell> {
                         child: MouseRegion(
                           cursor: SystemMouseCursors.resizeLeftRight,
                           child: Container(
-                            width: 2.w,
+                            width: 2,
                             color: theme.colorScheme.border,
                           ),
                         ),

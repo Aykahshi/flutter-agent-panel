@@ -47,5 +47,6 @@
   "about": "About",
   "help": "Help",
   "configureAppDescription": "Configure application preferences",
-  "selectLanguage": "Select Language"
+  "selectLanguage": "Select Language",
+  "restartingTerminal": "Restarting Terminal..."
 }

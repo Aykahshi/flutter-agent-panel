@@ -48,5 +48,6 @@
   "selectLanguage": "选择语言",
   "about": "关于",
   "help": "帮助",
+  "restartingTerminal": "正在重启终端...",
   "@@locale": "zh"
 }
