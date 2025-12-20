@@ -3,6 +3,8 @@ import 'package:window_manager/window_manager.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../core/extensions/context_extension.dart';
 import '../../features/settings/views/settings_dialog.dart';
+import '../../features/info/views/about_dialog.dart';
+import '../../features/info/views/help_dialog.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget body;
@@ -68,11 +70,11 @@ class AppScaffold extends StatelessWidget {
                     child: Text(context.t.settings),
                   ),
                   ShadButton.link(
-                    onPressed: () {},
+                    onPressed: () => HelpDialog.show(context),
                     child: Text(context.t.help),
                   ),
                   ShadButton.link(
-                    onPressed: () {},
+                    onPressed: () => AppAboutDialog.show(context),
                     child: Text(context.t.about),
                   ),
                 ],

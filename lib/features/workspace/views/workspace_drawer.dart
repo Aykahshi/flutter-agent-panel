@@ -56,7 +56,7 @@ class WorkspaceDrawer extends StatelessWidget {
                   ? MainAxisAlignment.center
                   : MainAxisAlignment.start,
               children: [
-                SizedBox(width: 8.w),
+                if (!isCollapsed) SizedBox(width: 8.w),
                 ShadButton.ghost(
                   padding: EdgeInsets.zero,
                   width: 32.w,
@@ -190,44 +190,37 @@ class WorkspaceDrawer extends StatelessWidget {
 
           // Add Workspace Button
           // Add Workspace Button
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            alignment: Alignment.center,
+            child: ShadButton.ghost(
+              onPressed: () => _addWorkspace(context),
+              width: isCollapsed ? 32.w : null,
+              height: 32.h,
+              padding: isCollapsed
+                  ? EdgeInsets.zero
+                  : EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ShadButton.ghost(
-                    onPressed: () => _addWorkspace(context),
-                    width: isCollapsed ? 32.w : null,
-                    height: 32.h,
-                    padding: isCollapsed
-                        ? EdgeInsets.zero
-                        : EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(LucideIcons.plus,
-                            color: theme.colorScheme.primary, size: 18.sp),
-                        if (!isCollapsed) ...[
-                          SizedBox(width: 8.w),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 1.h), // Tiny adjustment for alignment
-                            child: Text(
-                              context.t.addWorkspace,
-                              style: theme.textTheme.small.copyWith(
-                                color: theme.colorScheme.primary,
-                                fontSize: 13.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                  Icon(LucideIcons.plus,
+                      color: theme.colorScheme.primary, size: 18.sp),
+                  if (!isCollapsed) ...[
+                    SizedBox(width: 8.w),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          bottom: 1.h), // Tiny adjustment for alignment
+                      child: Text(
+                        context.t.addWorkspace,
+                        style: theme.textTheme.small.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontSize: 13.sp,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),

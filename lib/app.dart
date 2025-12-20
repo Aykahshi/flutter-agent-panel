@@ -52,7 +52,7 @@ class App extends StatelessWidget {
                       Locale.fromSubtags(
                           languageCode: 'zh', scriptCode: 'Hant'),
                     ],
-                    locale: Locale(state.settings.locale),
+                    locale: _parseLocale(state.settings.locale),
                     home: const AppShell(),
                     builder: (context, child) => ShadAppBuilder(child: child!),
                   );
@@ -63,6 +63,17 @@ class App extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Locale _parseLocale(String localeStr) {
+    if (localeStr.contains('_')) {
+      final parts = localeStr.split('_');
+      if (parts.length > 1 && parts[1] == 'Hant') {
+        return Locale.fromSubtags(languageCode: parts[0], scriptCode: parts[1]);
+      }
+      return Locale(parts[0], parts[1]);
+    }
+    return Locale(localeStr);
   }
 
   ShadColorScheme _getColorScheme(AppTheme theme) {
