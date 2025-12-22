@@ -23,7 +23,7 @@ class HelpDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = context.theme;
     final l10n = context.t;
 
     return ShadDialog(

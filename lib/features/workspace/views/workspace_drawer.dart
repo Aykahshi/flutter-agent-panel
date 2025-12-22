@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:gap/gap.dart';
 import '../../../../core/extensions/context_extension.dart';
 import '../../workspace/bloc/workspace_bloc.dart';
 
@@ -34,7 +35,7 @@ class WorkspaceDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = context.theme;
 
     return ClipRect(
         child: Container(
@@ -56,7 +57,7 @@ class WorkspaceDrawer extends StatelessWidget {
                   ? MainAxisAlignment.center
                   : MainAxisAlignment.start,
               children: [
-                if (!isCollapsed) const SizedBox(width: 8),
+                if (!isCollapsed) const Gap(8),
                 ShadButton.ghost(
                   padding: EdgeInsets.zero,
                   width: 32,
@@ -66,7 +67,7 @@ class WorkspaceDrawer extends StatelessWidget {
                       color: theme.colorScheme.foreground, size: 18),
                 ),
                 if (!isCollapsed) ...[
-                  const SizedBox(width: 8),
+                  const Gap(8),
                   Expanded(
                     child: Text(
                       context.t.workspaces,
@@ -120,7 +121,8 @@ class WorkspaceDrawer extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? theme.colorScheme.primary.withOpacity(0.1)
+                                ? theme.colorScheme.primary
+                                    .withValues(alpha: 0.1)
                                 : null,
                             border: isSelected
                                 ? Border(
@@ -156,7 +158,7 @@ class WorkspaceDrawer extends StatelessWidget {
                                             ? theme.colorScheme.primary
                                             : Colors.grey
                                                 .withValues(alpha: 0.5)),
-                                    const SizedBox(width: 8),
+                                    const Gap(8),
                                     Expanded(
                                       child: Text(
                                         workspace.name,
@@ -208,7 +210,7 @@ class WorkspaceDrawer extends StatelessWidget {
                   Icon(LucideIcons.plus,
                       color: theme.colorScheme.primary, size: 18),
                   if (!isCollapsed) ...[
-                    const SizedBox(width: 8),
+                    const Gap(8),
                     Padding(
                       padding: const EdgeInsets.only(
                           bottom: 1), // Tiny adjustment for alignment
@@ -226,7 +228,7 @@ class WorkspaceDrawer extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 8),
+          const Gap(8),
         ],
       ),
     ));

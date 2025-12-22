@@ -1,3 +1,8 @@
+analyzer:
+  exclude:
+    - packages/flutter_pty/**
+    - packages/xterm/**
+
 # This file configures the analyzer, which statically analyzes Dart code to
 # check for errors, warnings, and lints.
 #

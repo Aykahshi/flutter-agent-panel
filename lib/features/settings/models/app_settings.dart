@@ -1,142 +1,15 @@
 import 'package:equatable/equatable.dart';
-import 'package:uuid/uuid.dart';
 
-/// Terminal font configuration settings
-class TerminalFontSettings extends Equatable {
-  final String fontFamily;
-  final double fontSize;
-  final bool isBold;
-  final bool isItalic;
+import 'app_theme.dart';
+import 'custom_shell_config.dart';
+import 'shell_type.dart';
+import 'terminal_font_settings.dart';
 
-  const TerminalFontSettings({
-    this.fontFamily = 'Cascadia Code',
-    this.fontSize = 14.0,
-    this.isBold = false,
-    this.isItalic = false,
-  });
-
-  TerminalFontSettings copyWith({
-    String? fontFamily,
-    double? fontSize,
-    bool? isBold,
-    bool? isItalic,
-  }) {
-    return TerminalFontSettings(
-      fontFamily: fontFamily ?? this.fontFamily,
-      fontSize: fontSize ?? this.fontSize,
-      isBold: isBold ?? this.isBold,
-      isItalic: isItalic ?? this.isItalic,
-    );
-  }
-
-  factory TerminalFontSettings.fromJson(Map<String, dynamic> json) {
-    return TerminalFontSettings(
-      fontFamily: json['fontFamily'] as String? ?? 'Cascadia Code',
-      fontSize: (json['fontSize'] as num?)?.toDouble() ?? 14.0,
-      isBold: json['isBold'] as bool? ?? false,
-      isItalic: json['isItalic'] as bool? ?? false,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'fontFamily': fontFamily,
-      'fontSize': fontSize,
-      'isBold': isBold,
-      'isItalic': isItalic,
-    };
-  }
-
-  @override
-  List<Object?> get props => [fontFamily, fontSize, isBold, isItalic];
-}
-
-/// Available app color schemes
-enum AppTheme {
-  dark('Dark'),
-  light('Light');
-
-  final String displayName;
-  const AppTheme(this.displayName);
-}
-
-/// Shell types available for terminal creation
-enum ShellType {
-  pwsh7('PowerShell 7', 'pwsh', 'terminal'),
-  powershell('Windows PowerShell', 'powershell', 'terminal'),
-  cmd('Command Prompt', 'cmd', 'command'),
-  wsl('WSL (Default)', 'wsl', 'server'),
-  gitBash('Git Bash', 'C:\\Program Files\\Git\\bin\\bash.exe', 'gitBranch'),
-  custom('Custom...', '', 'settings');
-
-  final String displayName;
-  final String command;
-  final String icon;
-  const ShellType(this.displayName, this.command, this.icon);
-}
-
-/// Custom shell configuration for user-defined shells
-class CustomShellConfig extends Equatable {
-  final String id;
-  final String name;
-  final String path;
-  final String icon;
-
-  const CustomShellConfig({
-    required this.id,
-    required this.name,
-    required this.path,
-    this.icon = 'terminal',
-  });
-
-  /// Create a new custom shell config with a generated ID
-  factory CustomShellConfig.create({
-    required String name,
-    required String path,
-    String icon = 'terminal',
-  }) {
-    return CustomShellConfig(
-      id: const Uuid().v4(),
-      name: name,
-      path: path,
-      icon: icon,
-    );
-  }
-
-  CustomShellConfig copyWith({
-    String? name,
-    String? path,
-    String? icon,
-  }) {
-    return CustomShellConfig(
-      id: id,
-      name: name ?? this.name,
-      path: path ?? this.path,
-      icon: icon ?? this.icon,
-    );
-  }
-
-  factory CustomShellConfig.fromJson(Map<String, dynamic> json) {
-    return CustomShellConfig(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      path: json['path'] as String,
-      icon: json['icon'] as String? ?? 'terminal',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'path': path,
-      'icon': icon,
-    };
-  }
-
-  @override
-  List<Object?> get props => [id, name, path, icon];
-}
+// Re-export for backwards compatibility
+export 'app_theme.dart';
+export 'custom_shell_config.dart';
+export 'shell_type.dart';
+export 'terminal_font_settings.dart';
 
 /// Migrate old TerminalTheme enum names to new theme names.
 String? _migrateTerminalThemeName(String? oldName) {

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:shadcn_ui/shadcn_ui.dart';
+import '../../../core/extensions/context_extension.dart';
 import '../../workspace/views/workspace_drawer.dart';
 import '../../workspace/views/workspace_view.dart';
 import '../../../shared/widgets/app_scaffold.dart';
@@ -38,7 +38,7 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = context.theme;
 
     return AppScaffold(
       body: Scaffold(

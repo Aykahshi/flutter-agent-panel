@@ -4,12 +4,16 @@ import 'package:xterm/xterm.dart' hide TerminalView;
 import 'package:flutter_pty/flutter_pty.dart';
 import 'dart:convert';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:gap/gap.dart';
+
+import '../widgets/icon_option.dart';
+import '../widgets/main_terminal_content.dart';
 
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../shared/utils/platform_utils.dart';
 import '../../../core/extensions/context_extension.dart';
 import '../../../core/l10n/app_localizations.dart';
-import '../../terminal/views/terminal_view.dart';
+
 import '../../terminal/models/terminal_node.dart';
 import '../../terminal/models/terminal_config.dart';
 import '../../terminal/widgets/activity_indicator.dart';
@@ -276,7 +280,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = context.theme;
 
     return BlocConsumer<WorkspaceBloc, WorkspaceState>(
       listener: (context, state) {
@@ -339,48 +343,16 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                               child: GridView.count(
                                 crossAxisCount: 5,
                                 children: [
-                                  _buildIconOption(context, 'terminal',
-                                      activeNode, workspace),
-                                  _buildIconOption(context, 'command',
-                                      activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'bug', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'server', activeNode, workspace),
-                                  _buildIconOption(context, 'database',
-                                      activeNode, workspace),
-                                  _buildIconOption(context, 'activity',
-                                      activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'shield', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'code', activeNode, workspace),
-                                  _buildIconOption(context, 'monitor',
-                                      activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'cpu', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'flask', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'globe', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'box', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'cloud', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'layout', activeNode, workspace),
-                                  _buildIconOption(context, 'gitBranch',
-                                      activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'docker', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'blocks', activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'search', activeNode, workspace),
-                                  _buildIconOption(context, 'settings',
-                                      activeNode, workspace),
-                                  _buildIconOption(
-                                      context, 'zap', activeNode, workspace),
+                                  ..._iconMapping.keys.map(
+                                    (iconName) => IconOption(
+                                      iconName: iconName,
+                                      node: activeNode,
+                                      workspace: workspace,
+                                      iconMapping: _iconMapping,
+                                      onClose: () =>
+                                          _iconPopoverController.toggle(),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -396,7 +368,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const Gap(4),
                           Expanded(
                             child: Focus(
                               onFocusChange: (hasFocus) {
@@ -418,15 +390,15 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const SizedBox(width: 8),
-                          const SizedBox(width: 8),
+                          const Gap(8),
+                          const Gap(8),
+                          const Gap(8),
                           ActivityIndicator(
                             status: activeNode.status,
                             size: 8,
                           ),
-                          const SizedBox(width: 8),
-                          const SizedBox(width: 8),
+                          const Gap(8),
+                          const Gap(8),
                           ShadButton.ghost(
                             width: 32,
                             height: 32,
@@ -459,7 +431,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
             // Main Terminal Area (No outer padding here)
             Expanded(
-              child: _buildMainContent(context, activeNode, theme),
+              child: MainTerminalContent(
+                activeNode: activeNode,
+                isRestarting: _activeTerminalId != null &&
+                    _restartingIds.contains(_activeTerminalId),
+              ),
             ),
 
             // Bottom Thumbnail Bar
@@ -530,7 +506,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                           horizontal: 4, vertical: 2),
                                       child: Row(
                                         children: [
-                                          const SizedBox(width: 4),
+                                          const Gap(4),
                                           Expanded(
                                             child: Text(
                                               config.title,
@@ -642,7 +618,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                       children: [
                                         Icon(_getShellIcon(shell.icon),
                                             size: 16),
-                                        const SizedBox(width: 8),
+                                        const Gap(8),
                                         Text(shellDisplayName),
                                       ],
                                     ),
@@ -679,7 +655,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                         children: [
                                           Icon(_getShellIcon(customShell.icon),
                                               size: 16),
-                                          const SizedBox(width: 8),
+                                          const Gap(8),
                                           Text(customShell.name),
                                         ],
                                       ),
@@ -731,26 +707,6 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     } catch (_) {
       return LucideIcons.terminal;
     }
-  }
-
-  Widget _buildIconOption(BuildContext context, String iconName,
-      TerminalNode node, Workspace workspace) {
-    final iconData = _iconMapping[iconName] ?? LucideIcons.terminal;
-
-    return ShadButton.ghost(
-      padding: EdgeInsets.zero,
-      width: 40,
-      height: 40,
-      onPressed: () {
-        final config = workspace.terminals.firstWhere((t) => t.id == node.id);
-        context.read<WorkspaceBloc>().add(UpdateTerminalInWorkspace(
-              workspaceId: workspace.id,
-              config: config.copyWith(icon: iconName),
-            ));
-        _iconPopoverController.hide();
-      },
-      child: Icon(iconData, size: 20),
-    );
   }
 
   static final Map<String, IconData> _iconMapping = {
@@ -816,46 +772,5 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       case ShellType.custom:
         return l10n.custom;
     }
-  }
-
-  Widget _buildMainContent(
-      BuildContext context, TerminalNode? activeNode, ShadThemeData theme) {
-    if (activeNode != null) {
-      return TerminalView(
-        key: ValueKey(activeNode.id),
-        terminalNode: activeNode,
-      );
-    }
-
-    if (_activeTerminalId != null &&
-        _restartingIds.contains(_activeTerminalId)) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GlowingIcon(
-              icon: LucideIcons.refreshCw,
-              status: TerminalStatus.restarting,
-              size: 48,
-              baseColor: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.t.restartingTerminal,
-              style: theme.textTheme.h4.copyWith(
-                color: theme.colorScheme.mutedForeground,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Center(
-      child: Text(
-        context.t.noTerminalsOpen,
-        style: theme.textTheme.muted,
-      ),
-    );
   }
 }

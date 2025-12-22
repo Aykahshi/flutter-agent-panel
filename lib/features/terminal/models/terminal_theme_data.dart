@@ -93,7 +93,7 @@ class TerminalThemeData extends Equatable {
   /// Convert to JSON map.
   Map<String, dynamic> toJson() {
     String colorToHex(Color c) =>
-        '#${c.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+        '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     return {
       'name': name,
       'black': colorToHex(black),

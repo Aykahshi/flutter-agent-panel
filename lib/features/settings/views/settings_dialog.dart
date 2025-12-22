@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:gap/gap.dart';
 import 'package:system_fonts/system_fonts.dart';
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/extensions/context_extension.dart';
@@ -12,6 +13,7 @@ import '../../../../core/services/user_config_service.dart';
 import '../../../../shared/utils/platform_utils.dart';
 import '../bloc/settings_bloc.dart';
 import '../models/app_settings.dart';
+import '../widgets/settings_section.dart';
 import '../../terminal/models/terminal_theme_data.dart';
 import '../../terminal/services/terminal_theme_service.dart';
 
@@ -87,7 +89,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = context.theme;
     final l10n = context.t;
 
     // Define categories - Custom Shells as independent category
@@ -139,7 +141,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             controller: _sidebarScrollController,
                             padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 0),
                             itemCount: categories.length,
-                            separatorBuilder: (_, __) => SizedBox(height: 4.h),
+                            separatorBuilder: (_, __) => Gap(4.h),
                             itemBuilder: (context, index) {
                               final cat = categories[index];
                               final isSelected = _selectedIndex == index;
@@ -239,7 +241,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSection(
+            SettingsSection(
               title: l10n.language,
               description: l10n.selectLanguage,
               child: ShadSelect<String>(
@@ -269,7 +271,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSection(
+            SettingsSection(
               title: l10n.theme,
               description: l10n.themeDescription,
               child: ShadSelect<AppTheme>(
@@ -303,7 +305,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSection(
+            SettingsSection(
               title: l10n.terminalSettings,
               description: l10n.terminalSettingsDescription,
               child: Column(
@@ -335,25 +337,25 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         }
                       },
                     ),
-                  SizedBox(height: 24.h),
+                  Gap(24.h),
 
                   // Custom Theme JSON
                   Text(l10n.customTheme, style: theme.textTheme.large),
-                  SizedBox(height: 8.h),
+                  Gap(8.h),
                   Text(
                     l10n.customThemeDescription,
                     style: theme.textTheme.small.copyWith(
                       color: theme.colorScheme.mutedForeground,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  Gap(4.h),
                   Text(
                     l10n.customThemeFolderHint,
                     style: theme.textTheme.muted.copyWith(
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  SizedBox(height: 12.h),
+                  Gap(12.h),
                   ShadInput(
                     controller: _customThemeJsonController,
                     placeholder: const Text(
@@ -362,7 +364,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     maxLines: 6,
                   ),
                   if (_customThemeError != null) ...[
-                    SizedBox(height: 8.h),
+                    Gap(8.h),
                     Text(
                       _customThemeError!,
                       style: theme.textTheme.small.copyWith(
@@ -370,7 +372,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                     ),
                   ],
-                  SizedBox(height: 12.h),
+                  Gap(12.h),
                   Row(
                     children: [
                       ShadButton.outline(
@@ -406,6 +408,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
                           // Save theme to user folder
                           final isDark = settings.appTheme == AppTheme.dark;
+                          final settingsBloc = context.read<SettingsBloc>();
+
                           final savedPath = await UserConfigService.instance
                               .saveCustomTheme(json, isDark);
 
@@ -419,9 +423,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               final themeJson =
                                   jsonDecode(json) as Map<String, dynamic>;
                               final themeName = themeJson['name'] as String;
-                              context.read<SettingsBloc>().add(
-                                    UpdateTerminalTheme(themeName),
-                                  );
+
+                              if (!mounted) return;
+                              settingsBloc.add(
+                                UpdateTerminalTheme(themeName),
+                              );
                             } catch (_) {}
 
                             _customThemeJsonController.clear();
@@ -430,7 +436,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         },
                         child: Text(l10n.applyCustomTheme),
                       ),
-                      SizedBox(width: 12.w),
+                      Gap(12.w),
                       ShadButton.ghost(
                         onPressed: () {
                           _customThemeJsonController.clear();
@@ -440,7 +446,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 24.h),
+                  Gap(24.h),
 
                   // Cursor Blink
                   Row(
@@ -471,7 +477,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
               ),
             ),
             Divider(height: 48.h, color: theme.colorScheme.border),
-            _buildSection(
+            SettingsSection(
               title: l10n.fontFamily,
               description: l10n.fontFamilyDescription,
               child: Column(
@@ -498,7 +504,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       }
                     },
                   ),
-                  SizedBox(height: 16.h),
+                  Gap(16.h),
                   // Font Size
                   Row(
                     children: [
@@ -510,7 +516,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           style: theme.textTheme.small),
                     ],
                   ),
-                  SizedBox(height: 4.h),
+                  Gap(4.h),
                   ShadSlider(
                     initialValue: settings.fontSettings.fontSize,
                     min: 10,
@@ -521,7 +527,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           ));
                     },
                   ),
-                  SizedBox(height: 16.h),
+                  Gap(16.h),
                   // Bold/Italic
                   Row(
                     children: [
@@ -534,7 +540,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         },
                         label: Text(l10n.bold),
                       ),
-                      SizedBox(width: 16.w),
+                      Gap(16.w),
                       ShadCheckbox(
                         value: settings.fontSettings.isItalic,
                         onChanged: (value) {
@@ -546,7 +552,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.h),
+                  Gap(16.h),
                   // Preview
                   Container(
                     width: double.infinity,
@@ -575,7 +581,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
               ),
             ),
             Divider(height: 48.h, color: theme.colorScheme.border),
-            _buildSection(
+            SettingsSection(
                 title: l10n.shellSettings,
                 description: l10n.shellSettingsDescription,
                 child: Column(
@@ -585,7 +591,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     Text(l10n.defaultShell,
                         style: theme.textTheme.small.copyWith(
                             color: theme.colorScheme.mutedForeground)),
-                    SizedBox(height: 8.h),
+                    Gap(8.h),
                     ShadSelect<String>(
                       initialValue: settings.defaultShell == ShellType.custom
                           ? 'custom:${settings.selectedCustomShellId ?? ''}'
@@ -601,7 +607,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(_getShellIcon(s.icon), size: 16.sp),
-                                      SizedBox(width: 8.w),
+                                      Gap(8.w),
                                       Text(_getShellTypeLocalizedName(s, l10n)),
                                     ],
                                   ),
@@ -613,7 +619,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(_getShellIcon(shell.icon), size: 16.sp),
-                                  SizedBox(width: 8.w),
+                                  Gap(8.w),
                                   Text(shell.name),
                                 ],
                               ),
@@ -630,7 +636,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(_getShellIcon(shell.icon), size: 16.sp),
-                                SizedBox(width: 8.w),
+                                Gap(8.w),
                                 Text(shell.name),
                               ],
                             );
@@ -644,7 +650,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(_getShellIcon(shellType.icon), size: 16.sp),
-                              SizedBox(width: 8.w),
+                              Gap(8.w),
                               Text(_getShellTypeLocalizedName(shellType, l10n)),
                             ],
                           );
@@ -683,7 +689,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSection(
+        SettingsSection(
           title: l10n.customShells,
           description: l10n.customShellsDescription,
           child: Column(
@@ -695,7 +701,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 leading: Icon(LucideIcons.plus, size: 16.sp),
                 child: Text(l10n.addCustomShell),
               ),
-              SizedBox(height: 16.h),
+              Gap(16.h),
               // List of custom shells
               if (settings.customShells.isEmpty)
                 Container(
@@ -710,9 +716,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         Icon(LucideIcons.terminal,
                             size: 48.sp,
                             color: theme.colorScheme.mutedForeground),
-                        SizedBox(height: 12.h),
+                        Gap(12.h),
                         Text(l10n.noCustomShells, style: theme.textTheme.large),
-                        SizedBox(height: 4.h),
+                        Gap(4.h),
                         Text(l10n.addYourFirstCustomShell,
                             style: theme.textTheme.small.copyWith(
                                 color: theme.colorScheme.mutedForeground)),
@@ -732,7 +738,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         children: [
                           Icon(_getShellIcon(shell.icon),
                               size: 24.sp, color: theme.colorScheme.primary),
-                          SizedBox(width: 12.w),
+                          Gap(12.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -809,16 +815,16 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 children: [
                   // Shell Name
                   Text(l10n.shellName, style: theme.textTheme.small),
-                  SizedBox(height: 8.h),
+                  Gap(8.h),
                   ShadInput(
                     controller: nameController,
                     placeholder: Text(l10n.shellNamePlaceholder),
                   ),
-                  SizedBox(height: 16.h),
+                  Gap(16.h),
 
                   // Shell Path
                   Text(l10n.customShellPath, style: theme.textTheme.small),
-                  SizedBox(height: 8.h),
+                  Gap(8.h),
                   Row(
                     children: [
                       Expanded(
@@ -827,7 +833,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           placeholder: Text(l10n.shellPathPlaceholder),
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      Gap(8.w),
                       ShadButton.outline(
                         onPressed: () async {
                           final result = await FilePicker.platform.pickFiles(
@@ -845,11 +851,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.h),
+                  Gap(16.h),
 
                   // Shell Icon
                   Text(l10n.shellIcon, style: theme.textTheme.small),
-                  SizedBox(height: 8.h),
+                  Gap(8.h),
                   Wrap(
                     spacing: 4.w,
                     runSpacing: 4.h,
@@ -881,7 +887,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                             ))
                         .toList(),
                   ),
-                  SizedBox(height: 24.h),
+                  Gap(24.h),
 
                   // Buttons
                   Row(
@@ -891,7 +897,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(l10n.cancel),
                       ),
-                      SizedBox(width: 8.w),
+                      Gap(8.w),
                       ShadButton(
                         onPressed: () {
                           final name = nameController.text.trim();
@@ -951,23 +957,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSection(
-      {required String title, String? description, required Widget child}) {
-    final theme = ShadTheme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: theme.textTheme.large),
-        if (description != null)
-          Text(description,
-              style: theme.textTheme.small
-                  .copyWith(color: theme.colorScheme.mutedForeground)),
-        SizedBox(height: 16.h),
-        child,
-      ],
     );
   }
 

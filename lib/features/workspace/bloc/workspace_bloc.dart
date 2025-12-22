@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/workspace.dart';
 import '../../terminal/models/terminal_config.dart';
 

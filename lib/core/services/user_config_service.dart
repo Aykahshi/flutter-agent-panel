@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import '../../features/terminal/models/terminal_theme_data.dart';
 
 /// Service to manage user configuration folder at ~/.flutter-agent-panel/
@@ -53,7 +55,7 @@ class UserConfigService {
       final directory = Directory(dir);
       if (!await directory.exists()) {
         await directory.create(recursive: true);
-        print('Created directory: $dir');
+        debugPrint('Created directory: $dir');
       }
     }
 
@@ -181,7 +183,7 @@ class UserConfigService {
 }
 ''';
       await schemaFile.writeAsString(schemaContent);
-      print('Created schema file: ${schemaFile.path}');
+      debugPrint('Created schema file: ${schemaFile.path}');
     }
   }
 
@@ -206,14 +208,14 @@ class UserConfigService {
           final json = jsonDecode(content) as Map<String, dynamic>;
           final theme = TerminalThemeData.fromJson(json);
           themes.add(theme);
-          print('Loaded user theme: ${theme.name} from ${file.path}');
+          debugPrint('Loaded user theme: ${theme.name} from ${file.path}');
         } catch (e) {
-          print('Error loading user theme ${file.path}: $e');
+          debugPrint('Error loading user theme ${file.path}: $e');
           continue;
         }
       }
     } catch (e) {
-      print('Error scanning user themes directory: $e');
+      debugPrint('Error scanning user themes directory: $e');
     }
 
     return themes;
@@ -230,7 +232,7 @@ class UserConfigService {
       final themeName = json['name'] as String?;
 
       if (themeName == null || themeName.isEmpty) {
-        print('Error: Theme name is missing');
+        debugPrint('Error: Theme name is missing');
         return null;
       }
 
@@ -248,11 +250,11 @@ class UserConfigService {
       final formattedJson = encoder.convert(json);
 
       await File(filePath).writeAsString(formattedJson);
-      print('Saved custom theme to: $filePath');
+      debugPrint('Saved custom theme to: $filePath');
 
       return filePath;
     } catch (e) {
-      print('Error saving custom theme: $e');
+      debugPrint('Error saving custom theme: $e');
       return null;
     }
   }
@@ -268,7 +270,7 @@ class UserConfigService {
       final content = await file.readAsString();
       return jsonDecode(content) as Map<String, dynamic>;
     } catch (e) {
-      print('Error loading settings: $e');
+      debugPrint('Error loading settings: $e');
       return null;
     }
   }
@@ -282,7 +284,7 @@ class UserConfigService {
       await file.writeAsString(formattedJson);
       return true;
     } catch (e) {
-      print('Error saving settings: $e');
+      debugPrint('Error saving settings: $e');
       return false;
     }
   }
@@ -313,7 +315,7 @@ class UserConfigService {
 
       return true;
     } catch (e) {
-      print('Error opening settings file: $e');
+      debugPrint('Error opening settings file: $e');
       return false;
     }
   }

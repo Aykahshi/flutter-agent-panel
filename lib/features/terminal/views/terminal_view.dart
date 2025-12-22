@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:xterm/xterm.dart' as xterm;
 import 'package:shadcn_ui/shadcn_ui.dart';
+import '../../../core/extensions/context_extension.dart';
 import '../models/terminal_node.dart';
 import '../models/terminal_theme_data.dart';
 import '../services/terminal_theme_service.dart';
@@ -55,7 +56,7 @@ class _TerminalViewState extends State<TerminalView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
+    final theme = context.theme;
 
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
