@@ -31,7 +31,11 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
   void _onUpdateTerminalTheme(
       UpdateTerminalTheme event, Emitter<SettingsState> emit) {
     emit(state.copyWith(
-        settings: state.settings.copyWith(terminalTheme: event.terminalTheme)));
+        settings: state.settings.copyWith(
+      terminalThemeName: event.themeName,
+      customTerminalThemeJson: event.customThemeJson,
+      clearCustomTerminalThemeJson: event.customThemeJson == null,
+    )));
   }
 
   void _onUpdateFontSettings(

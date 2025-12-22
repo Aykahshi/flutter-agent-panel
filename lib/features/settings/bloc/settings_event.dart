@@ -20,11 +20,12 @@ class UpdateAppTheme extends SettingsEvent {
 }
 
 class UpdateTerminalTheme extends SettingsEvent {
-  final TerminalTheme terminalTheme;
-  const UpdateTerminalTheme(this.terminalTheme);
+  final String themeName;
+  final String? customThemeJson;
+  const UpdateTerminalTheme(this.themeName, {this.customThemeJson});
 
   @override
-  List<Object?> get props => [terminalTheme];
+  List<Object?> get props => [themeName, customThemeJson];
 }
 
 class UpdateFontSettings extends SettingsEvent {

@@ -1,7 +1,7 @@
 {
   "appTitle": "Flutter Agent Panel",
   "general": "General",
-  "search": "Search",
+
   "workspace": "Workspace",
   "terminal": "Terminal",
   "newTerminal": "New Terminal",
@@ -12,11 +12,10 @@
   "workspaces": "Workspaces",
   "noWorkspaces": "No workspaces",
   "addWorkspace": "Add Workspace",
-  "slateDark": "Slate Dark",
-  "zincDark": "Zinc Dark",
-  "neutralDark": "Neutral Dark",
-  "stoneDark": "Stone Dark",
-  "grayDark": "Gray Dark",
+
+  "dark": "Dark",
+  "light": "Light",
+
   "oneDark": "One Dark",
   "dracula": "Dracula",
   "monokai": "Monokai",
@@ -26,7 +25,7 @@
   "pwsh7": "PowerShell 7",
   "powershell": "Windows PowerShell",
   "cmd": "Command Prompt",
-  "wsl": "WSL (Default)",
+  "wsl": "WSL",
   "gitBash": "Git Bash",
   "appearance": "Appearance",
   "theme": "Theme",
@@ -74,6 +73,15 @@
   "confirmDeleteShell": "Are you sure you want to delete this custom shell?",
   "save": "Save",
   "cancel": "Cancel",
-  "delete": "Delete"
+  "delete": "Delete",
+  "customTheme": "Custom Theme",
+  "customThemeDescription": "Paste a JSON theme configuration to customize terminal colors.",
+  "applyCustomTheme": "Add Custom Theme",
+  "clearCustomTheme": "Clear",
+  "customThemeFolderHint": "Imported themes are saved to ~/.flutter-agent-panel/themes/",
+  "jsonMustBeObject": "JSON must be an object",
+  "missingRequiredField": "Missing required field: {field}",
+  "invalidJson": "Invalid JSON: {message}",
+  "errorParsingTheme": "Error parsing theme: {message}"
 }
 

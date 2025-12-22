@@ -15,9 +15,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get general => 'General';
 
   @override
-  String get search => 'Search';
-
-  @override
   String get workspace => 'Workspace';
 
   @override
@@ -48,19 +45,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addWorkspace => 'Add Workspace';
 
   @override
-  String get slateDark => 'Slate Dark';
+  String get dark => 'Dark';
 
   @override
-  String get zincDark => 'Zinc Dark';
-
-  @override
-  String get neutralDark => 'Neutral Dark';
-
-  @override
-  String get stoneDark => 'Stone Dark';
-
-  @override
-  String get grayDark => 'Gray Dark';
+  String get light => 'Light';
 
   @override
   String get oneDark => 'One Dark';
@@ -90,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmd => 'Command Prompt';
 
   @override
-  String get wsl => 'WSL (Default)';
+  String get wsl => 'WSL';
 
   @override
   String get gitBash => 'Git Bash';
@@ -242,4 +230,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get customTheme => 'Custom Theme';
+
+  @override
+  String get customThemeDescription =>
+      'Paste a JSON theme configuration to customize terminal colors.';
+
+  @override
+  String get applyCustomTheme => 'Add Custom Theme';
+
+  @override
+  String get clearCustomTheme => 'Clear';
+
+  @override
+  String get customThemeFolderHint =>
+      'Imported themes are saved to ~/.flutter-agent-panel/themes/';
+
+  @override
+  String get jsonMustBeObject => 'JSON must be an object';
+
+  @override
+  String missingRequiredField(Object field) {
+    return 'Missing required field: $field';
+  }
+
+  @override
+  String invalidJson(Object message) {
+    return 'Invalid JSON: $message';
+  }
+
+  @override
+  String errorParsingTheme(Object message) {
+    return 'Error parsing theme: $message';
+  }
 }

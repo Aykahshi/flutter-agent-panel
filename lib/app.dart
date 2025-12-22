@@ -30,9 +30,15 @@ class App extends StatelessWidget {
               final appTheme = state.settings.appTheme;
 
               return ShadApp.custom(
-                themeMode: ThemeMode.dark,
+                themeMode: appTheme == AppTheme.light
+                    ? ThemeMode.light
+                    : ThemeMode.dark,
                 darkTheme: ShadThemeData(
                   brightness: Brightness.dark,
+                  colorScheme: _getColorScheme(appTheme),
+                ),
+                theme: ShadThemeData(
+                  brightness: Brightness.light,
                   colorScheme: _getColorScheme(appTheme),
                 ),
                 appBuilder: (context) {
@@ -78,16 +84,11 @@ class App extends StatelessWidget {
 
   ShadColorScheme _getColorScheme(AppTheme theme) {
     switch (theme) {
-      case AppTheme.slateDark:
-        return const ShadSlateColorScheme.dark();
-      case AppTheme.zincDark:
+      case AppTheme.dark:
         return const ShadZincColorScheme.dark();
-      case AppTheme.neutralDark:
-        return const ShadNeutralColorScheme.dark();
-      case AppTheme.stoneDark:
-        return const ShadStoneColorScheme.dark();
-      case AppTheme.grayDark:
-        return const ShadGrayColorScheme.dark();
+
+      case AppTheme.light:
+        return const ShadZincColorScheme.light();
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app.dart';
+import 'core/services/user_config_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +13,9 @@ void main() async {
     storageDirectory: HydratedStorageDirectory(
         (await getApplicationDocumentsDirectory()).path),
   );
+
+  // Initialize user config folder
+  await UserConfigService.instance.ensureDirectoriesExist();
 
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1280, 800),

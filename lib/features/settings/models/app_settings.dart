@@ -51,26 +51,10 @@ class TerminalFontSettings extends Equatable {
   List<Object?> get props => [fontFamily, fontSize, isBold, isItalic];
 }
 
-/// Available terminal color themes
-enum TerminalTheme {
-  oneDark('One Dark'),
-  dracula('Dracula'),
-  monokai('Monokai'),
-  nord('Nord'),
-  solarizedDark('Solarized Dark'),
-  githubDark('GitHub Dark');
-
-  final String displayName;
-  const TerminalTheme(this.displayName);
-}
-
 /// Available app color schemes
 enum AppTheme {
-  slateDark('Slate Dark'),
-  zincDark('Zinc Dark'),
-  neutralDark('Neutral Dark'),
-  stoneDark('Stone Dark'),
-  grayDark('Gray Dark');
+  dark('Dark'),
+  light('Light');
 
   final String displayName;
   const AppTheme(this.displayName);
@@ -154,10 +138,25 @@ class CustomShellConfig extends Equatable {
   List<Object?> get props => [id, name, path, icon];
 }
 
+/// Migrate old TerminalTheme enum names to new theme names.
+String? _migrateTerminalThemeName(String? oldName) {
+  if (oldName == null) return null;
+  const migration = {
+    'oneDark': 'OneDark',
+    'dracula': 'Dracula',
+    'monokai': 'Monokai',
+    'nord': 'DefaultDark',
+    'solarizedDark': 'DefaultDark',
+    'githubDark': 'GithubDark',
+  };
+  return migration[oldName];
+}
+
 /// Application settings model
 class AppSettings extends Equatable {
   final AppTheme appTheme;
-  final TerminalTheme terminalTheme;
+  final String terminalThemeName;
+  final String? customTerminalThemeJson;
   final TerminalFontSettings fontSettings;
   final ShellType defaultShell;
   final List<CustomShellConfig> customShells;
@@ -166,8 +165,9 @@ class AppSettings extends Equatable {
   final bool terminalCursorBlink;
 
   const AppSettings({
-    this.appTheme = AppTheme.slateDark,
-    this.terminalTheme = TerminalTheme.oneDark,
+    this.appTheme = AppTheme.dark,
+    this.terminalThemeName = 'OneDark',
+    this.customTerminalThemeJson,
     this.fontSettings = const TerminalFontSettings(),
     this.defaultShell = ShellType.pwsh7,
     this.customShells = const [],
@@ -178,7 +178,9 @@ class AppSettings extends Equatable {
 
   AppSettings copyWith({
     AppTheme? appTheme,
-    TerminalTheme? terminalTheme,
+    String? terminalThemeName,
+    String? customTerminalThemeJson,
+    bool clearCustomTerminalThemeJson = false,
     TerminalFontSettings? fontSettings,
     ShellType? defaultShell,
     List<CustomShellConfig>? customShells,
@@ -189,7 +191,10 @@ class AppSettings extends Equatable {
   }) {
     return AppSettings(
       appTheme: appTheme ?? this.appTheme,
-      terminalTheme: terminalTheme ?? this.terminalTheme,
+      terminalThemeName: terminalThemeName ?? this.terminalThemeName,
+      customTerminalThemeJson: clearCustomTerminalThemeJson
+          ? null
+          : (customTerminalThemeJson ?? this.customTerminalThemeJson),
       fontSettings: fontSettings ?? this.fontSettings,
       defaultShell: defaultShell ?? this.defaultShell,
       customShells: customShells ?? this.customShells,
@@ -222,12 +227,12 @@ class AppSettings extends Equatable {
     return AppSettings(
       appTheme: AppTheme.values.firstWhere(
         (e) => e.name == json['appTheme'],
-        orElse: () => AppTheme.slateDark,
+        orElse: () => AppTheme.dark,
       ),
-      terminalTheme: TerminalTheme.values.firstWhere(
-        (e) => e.name == json['terminalTheme'],
-        orElse: () => TerminalTheme.oneDark,
-      ),
+      terminalThemeName:
+          _migrateTerminalThemeName(json['terminalTheme'] as String?) ??
+              (json['terminalThemeName'] as String? ?? 'OneDark'),
+      customTerminalThemeJson: json['customTerminalThemeJson'] as String?,
       fontSettings: json['fontSettings'] != null
           ? TerminalFontSettings.fromJson(json['fontSettings'])
           : const TerminalFontSettings(),
@@ -245,7 +250,8 @@ class AppSettings extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'appTheme': appTheme.name,
-      'terminalTheme': terminalTheme.name,
+      'terminalThemeName': terminalThemeName,
+      'customTerminalThemeJson': customTerminalThemeJson,
       'fontSettings': fontSettings.toJson(),
       'defaultShell': defaultShell.name,
       'customShells': customShells.map((e) => e.toJson()).toList(),
@@ -281,7 +287,8 @@ class AppSettings extends Equatable {
   @override
   List<Object?> get props => [
         appTheme,
-        terminalTheme,
+        terminalThemeName,
+        customTerminalThemeJson,
         fontSettings,
         defaultShell,
         customShells,

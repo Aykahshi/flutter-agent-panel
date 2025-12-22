@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,9 +8,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:system_fonts/system_fonts.dart';
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/extensions/context_extension.dart';
+import '../../../../core/services/user_config_service.dart';
 import '../../../../shared/utils/platform_utils.dart';
 import '../bloc/settings_bloc.dart';
 import '../models/app_settings.dart';
+import '../../terminal/models/terminal_theme_data.dart';
+import '../../terminal/services/terminal_theme_service.dart';
 
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({super.key});
@@ -28,70 +33,47 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late ScrollController _sidebarScrollController;
   List<String> _uniqueFamilies = [];
   int _selectedIndex = 0;
+  List<TerminalThemeData> _darkThemes = [];
+  List<TerminalThemeData> _lightThemes = [];
+  bool _themesLoading = true;
+  final TextEditingController _customThemeJsonController =
+      TextEditingController();
+  String? _customThemeError;
 
   @override
   void initState() {
     super.initState();
     _sidebarScrollController = ScrollController();
     _loadSystemFonts();
+    TerminalThemeService.instance.clearCache();
+    _loadTerminalThemes();
   }
 
   Future<void> _loadSystemFonts() async {
     final systemFonts = SystemFonts();
     final fonts = systemFonts.getFontList();
     if (mounted) {
-      // Robust filtering for unique family names
-      final styleKeywords = {
-        'light',
-        'thin',
-        'thinitalic',
-        'lightitalic',
-        'regular',
-        'italic',
-        'oblique',
-        'medium',
-        'mediumitalic',
-        'semibold',
-        'demibold',
-        'semibolditalic',
-        'bold',
-        'bolditalic',
-        'extrabold',
-        'ultrabold',
-        'black',
-        'heavy',
-        'extra',
-        'ultra',
-        'condensed',
-        'expanded',
-        'monospaced',
-        'sans',
-        'serif'
-      };
-
-      final families = fonts
-          .map((f) {
-            // Split by non-alphanumeric characters or camelCase boundaries
-            // But let's keep it simple: split by space, dash, or underscore
-            final parts = f.split(RegExp(r'[ \-_]'));
-            final familyParts = <String>[];
-
-            for (final part in parts) {
-              final lowerPart = part.toLowerCase();
-              if (styleKeywords.contains(lowerPart)) {
-                break; // Stop at first style keyword
-              }
-              familyParts.add(part);
-            }
-
-            return familyParts.isEmpty ? f : familyParts.join(' ');
-          })
-          .toSet()
-          .toList()
-        ..sort();
-
       setState(() {
-        _uniqueFamilies = families;
+        _uniqueFamilies = fonts..sort();
+      });
+    }
+  }
+
+  Future<void> _loadTerminalThemes() async {
+    final service = TerminalThemeService.instance;
+    final settings = context.read<SettingsBloc>().state.settings;
+
+    final darkThemes = await service.getDarkThemes();
+    final lightThemes = await service.getLightThemes();
+
+    if (mounted) {
+      setState(() {
+        _darkThemes = darkThemes;
+        _lightThemes = lightThemes;
+        _themesLoading = false;
+        if (settings.customTerminalThemeJson != null) {
+          _customThemeJsonController.text = settings.customTerminalThemeJson!;
+        }
       });
     }
   }
@@ -99,6 +81,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   void dispose() {
     _sidebarScrollController.dispose();
+    _customThemeJsonController.dispose();
     super.dispose();
   }
 
@@ -151,19 +134,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     ),
                     child: Column(
                       children: [
-                        Padding(
-                          padding: EdgeInsets.all(16.w),
-                          child: ShadInput(
-                            placeholder: Text(l10n.search),
-                            leading: Icon(LucideIcons.search,
-                                size: 16.sp,
-                                color: theme.colorScheme.mutedForeground),
-                          ),
-                        ),
                         Expanded(
                           child: ListView.separated(
                             controller: _sidebarScrollController,
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
+                            padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 0),
                             itemCount: categories.length,
                             separatorBuilder: (_, __) => SizedBox(height: 4.h),
                             itemBuilder: (context, index) {
@@ -204,14 +178,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                 ),
                               );
                             },
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(16.w),
-                          child: Row(
-                            children: [
-                              // Footer if needed
-                            ],
                           ),
                         ),
                       ],
@@ -320,6 +286,13 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 onChanged: (theme) {
                   if (theme != null) {
                     context.read<SettingsBloc>().add(UpdateAppTheme(theme));
+                    // Auto-select default terminal theme for the new app theme
+                    final defaultTerminalTheme = theme == AppTheme.light
+                        ? 'DefaultLight'
+                        : 'DefaultDark';
+                    context.read<SettingsBloc>().add(
+                          UpdateTerminalTheme(defaultTerminalTheme),
+                        );
                   }
                 },
               ),
@@ -336,25 +309,136 @@ class _SettingsDialogState extends State<SettingsDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ShadSelect<TerminalTheme>(
-                    initialValue: settings.terminalTheme,
-                    placeholder: Text(l10n.terminalSettings),
-                    options: TerminalTheme.values.map(
-                      (theme) => ShadOption(
-                        value: theme,
-                        child:
-                            Text(_getTerminalThemeLocalizedName(theme, l10n)),
+                  // Theme dropdown
+                  if (_themesLoading)
+                    const Center(child: ShadProgress())
+                  else
+                    ShadSelect<String>(
+                      initialValue: settings.terminalThemeName,
+                      placeholder: Text(l10n.terminalSettings),
+                      options: (settings.appTheme == AppTheme.light
+                              ? _lightThemes
+                              : _darkThemes)
+                          .map(
+                        (themeData) => ShadOption(
+                          value: themeData.name,
+                          child: Text(themeData.name),
+                        ),
+                      ),
+                      selectedOptionBuilder: (context, themeName) =>
+                          Text(themeName),
+                      onChanged: (themeName) {
+                        if (themeName != null) {
+                          context
+                              .read<SettingsBloc>()
+                              .add(UpdateTerminalTheme(themeName));
+                        }
+                      },
+                    ),
+                  SizedBox(height: 24.h),
+
+                  // Custom Theme JSON
+                  Text(l10n.customTheme, style: theme.textTheme.large),
+                  SizedBox(height: 8.h),
+                  Text(
+                    l10n.customThemeDescription,
+                    style: theme.textTheme.small.copyWith(
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    l10n.customThemeFolderHint,
+                    style: theme.textTheme.muted.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  ShadInput(
+                    controller: _customThemeJsonController,
+                    placeholder: const Text(
+                        '{"name": "Custom", "background": "#1e1e1e", ...}'),
+                    minLines: 3,
+                    maxLines: 6,
+                  ),
+                  if (_customThemeError != null) ...[
+                    SizedBox(height: 8.h),
+                    Text(
+                      _customThemeError!,
+                      style: theme.textTheme.small.copyWith(
+                        color: theme.colorScheme.destructive,
                       ),
                     ),
-                    selectedOptionBuilder: (context, theme) =>
-                        Text(_getTerminalThemeLocalizedName(theme, l10n)),
-                    onChanged: (theme) {
-                      if (theme != null) {
-                        context
-                            .read<SettingsBloc>()
-                            .add(UpdateTerminalTheme(theme));
-                      }
-                    },
+                  ],
+                  SizedBox(height: 12.h),
+                  Row(
+                    children: [
+                      ShadButton.outline(
+                        onPressed: () async {
+                          final json = _customThemeJsonController.text.trim();
+                          if (json.isEmpty) {
+                            setState(() => _customThemeError = null);
+                            return;
+                          }
+
+                          final validationResult = TerminalThemeService.instance
+                              .validateCustomThemeJson(json);
+                          if (validationResult != null) {
+                            final (errorType, details) = validationResult;
+                            String errorMessage;
+                            switch (errorType) {
+                              case 'jsonMustBeObject':
+                                errorMessage = l10n.jsonMustBeObject;
+                              case 'missingRequiredField':
+                                errorMessage =
+                                    l10n.missingRequiredField(details ?? '');
+                              case 'invalidJson':
+                                errorMessage = l10n.invalidJson(details ?? '');
+                              case 'errorParsingTheme':
+                                errorMessage =
+                                    l10n.errorParsingTheme(details ?? '');
+                              default:
+                                errorMessage = details ?? errorType;
+                            }
+                            setState(() => _customThemeError = errorMessage);
+                            return;
+                          }
+
+                          // Save theme to user folder
+                          final isDark = settings.appTheme == AppTheme.dark;
+                          final savedPath = await UserConfigService.instance
+                              .saveCustomTheme(json, isDark);
+
+                          if (savedPath != null) {
+                            // Clear cache and reload themes
+                            TerminalThemeService.instance.clearCache();
+                            await _loadTerminalThemes();
+
+                            // Select the new theme
+                            try {
+                              final themeJson =
+                                  jsonDecode(json) as Map<String, dynamic>;
+                              final themeName = themeJson['name'] as String;
+                              context.read<SettingsBloc>().add(
+                                    UpdateTerminalTheme(themeName),
+                                  );
+                            } catch (_) {}
+
+                            _customThemeJsonController.clear();
+                            setState(() => _customThemeError = null);
+                          }
+                        },
+                        child: Text(l10n.applyCustomTheme),
+                      ),
+                      SizedBox(width: 12.w),
+                      ShadButton.ghost(
+                        onPressed: () {
+                          _customThemeJsonController.clear();
+                          setState(() => _customThemeError = null);
+                        },
+                        child: Text(l10n.clearCustomTheme),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 24.h),
 
@@ -889,34 +973,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   String _getAppThemeLocalizedName(AppTheme theme, AppLocalizations l10n) {
     switch (theme) {
-      case AppTheme.slateDark:
-        return l10n.slateDark;
-      case AppTheme.zincDark:
-        return l10n.zincDark;
-      case AppTheme.neutralDark:
-        return l10n.neutralDark;
-      case AppTheme.stoneDark:
-        return l10n.stoneDark;
-      case AppTheme.grayDark:
-        return l10n.grayDark;
-    }
-  }
+      case AppTheme.dark:
+        return l10n.dark;
 
-  String _getTerminalThemeLocalizedName(
-      TerminalTheme theme, AppLocalizations l10n) {
-    switch (theme) {
-      case TerminalTheme.oneDark:
-        return l10n.oneDark;
-      case TerminalTheme.dracula:
-        return l10n.dracula;
-      case TerminalTheme.monokai:
-        return l10n.monokai;
-      case TerminalTheme.nord:
-        return l10n.nord;
-      case TerminalTheme.solarizedDark:
-        return l10n.solarizedDark;
-      case TerminalTheme.githubDark:
-        return l10n.githubDark;
+      case AppTheme.light:
+        return l10n.light;
     }
   }
 

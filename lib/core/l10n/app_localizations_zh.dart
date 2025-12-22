@@ -15,9 +15,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get general => '常规';
 
   @override
-  String get search => '搜索';
-
-  @override
   String get workspace => '工作区';
 
   @override
@@ -48,19 +45,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addWorkspace => '新增工作区';
 
   @override
-  String get slateDark => '板岩黑';
+  String get dark => '深色';
 
   @override
-  String get zincDark => '锌黑';
-
-  @override
-  String get neutralDark => '中性黑';
-
-  @override
-  String get stoneDark => '石黑';
-
-  @override
-  String get grayDark => '灰色黑';
+  String get light => '亮色';
 
   @override
   String get oneDark => 'One Dark';
@@ -90,7 +78,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cmd => '命令提示符';
 
   @override
-  String get wsl => 'WSL (默认)';
+  String get wsl => 'WSL';
 
   @override
   String get gitBash => 'Git Bash';
@@ -237,6 +225,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get delete => '删除';
+
+  @override
+  String get customTheme => '自定义主题';
+
+  @override
+  String get customThemeDescription => '粘贴JSON主题配置以自定义终端颜色。';
+
+  @override
+  String get applyCustomTheme => '添加自定义主题';
+
+  @override
+  String get clearCustomTheme => '清除';
+
+  @override
+  String get customThemeFolderHint => '导入的主题保存到 ~/.flutter-agent-panel/themes/';
+
+  @override
+  String get jsonMustBeObject => 'JSON必须是对象';
+
+  @override
+  String missingRequiredField(Object field) {
+    return '缺少必填字段: $field';
+  }
+
+  @override
+  String invalidJson(Object message) {
+    return '无效的JSON: $message';
+  }
+
+  @override
+  String errorParsingTheme(Object message) {
+    return '解析主题时出错: $message';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -248,9 +269,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get general => '一般';
-
-  @override
-  String get search => '搜尋';
 
   @override
   String get workspace => '工作區';
@@ -283,19 +301,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get addWorkspace => '新增工作區';
 
   @override
-  String get slateDark => '板岩黑';
+  String get dark => '深色';
 
   @override
-  String get zincDark => '鋅黑';
-
-  @override
-  String get neutralDark => '中性黑';
-
-  @override
-  String get stoneDark => '石黑';
-
-  @override
-  String get grayDark => '灰色黑';
+  String get light => '亮色';
 
   @override
   String get oneDark => 'One Dark';
@@ -325,7 +334,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get cmd => '命令提示字元';
 
   @override
-  String get wsl => 'WSL (預設)';
+  String get wsl => 'WSL';
 
   @override
   String get gitBash => 'Git Bash';
@@ -472,4 +481,37 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get delete => '刪除';
+
+  @override
+  String get customTheme => '自定義主題';
+
+  @override
+  String get customThemeDescription => '貼上JSON主題設定以自定義終端機顏色。';
+
+  @override
+  String get applyCustomTheme => '添加自定義主題';
+
+  @override
+  String get clearCustomTheme => '清除';
+
+  @override
+  String get customThemeFolderHint => '匯入的主題儲存至 ~/.flutter-agent-panel/themes/';
+
+  @override
+  String get jsonMustBeObject => 'JSON 必須是物件';
+
+  @override
+  String missingRequiredField(Object field) {
+    return '缺少必填欄位: $field';
+  }
+
+  @override
+  String invalidJson(Object message) {
+    return '無效的 JSON: $message';
+  }
+
+  @override
+  String errorParsingTheme(Object message) {
+    return '解析主題時發生錯誤: $message';
+  }
 }

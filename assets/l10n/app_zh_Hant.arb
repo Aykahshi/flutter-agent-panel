@@ -1,7 +1,7 @@
 {
   "appTitle": "Flutter 代理面板",
   "general": "一般",
-  "search": "搜尋",
+
   "workspace": "工作區",
   "terminal": "終端機",
   "newTerminal": "新建終端",
@@ -12,11 +12,10 @@
   "workspaces": "工作區",
   "noWorkspaces": "沒有工作區",
   "addWorkspace": "新增工作區",
-  "slateDark": "板岩黑",
-  "zincDark": "鋅黑",
-  "neutralDark": "中性黑",
-  "stoneDark": "石黑",
-  "grayDark": "灰色黑",
+
+  "dark": "深色",
+  "light": "亮色",
+
   "oneDark": "One Dark",
   "dracula": "Dracula",
   "monokai": "Monokai",
@@ -26,7 +25,7 @@
   "pwsh7": "PowerShell 7",
   "powershell": "Windows PowerShell",
   "cmd": "命令提示字元",
-  "wsl": "WSL (預設)",
+  "wsl": "WSL",
   "gitBash": "Git Bash",
   "appearance": "外觀",
   "theme": "主題",
@@ -75,6 +74,15 @@
   "save": "儲存",
   "cancel": "取消",
   "delete": "刪除",
+  "customTheme": "自定義主題",
+  "customThemeDescription": "貼上JSON主題設定以自定義終端機顏色。",
+  "applyCustomTheme": "添加自定義主題",
+  "clearCustomTheme": "清除",
+  "customThemeFolderHint": "匯入的主題儲存至 ~/.flutter-agent-panel/themes/",
+  "jsonMustBeObject": "JSON 必須是物件",
+  "missingRequiredField": "缺少必填欄位: {field}",
+  "invalidJson": "無效的 JSON: {message}",
+  "errorParsingTheme": "解析主題時發生錯誤: {message}",
   "@@locale": "zh_Hant"
 }
 

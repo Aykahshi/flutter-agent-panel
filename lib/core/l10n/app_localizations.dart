@@ -111,12 +111,6 @@ abstract class AppLocalizations {
   /// **'General'**
   String get general;
 
-  /// No description provided for @search.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get search;
-
   /// No description provided for @workspace.
   ///
   /// In en, this message translates to:
@@ -177,35 +171,17 @@ abstract class AppLocalizations {
   /// **'Add Workspace'**
   String get addWorkspace;
 
-  /// No description provided for @slateDark.
+  /// No description provided for @dark.
   ///
   /// In en, this message translates to:
-  /// **'Slate Dark'**
-  String get slateDark;
+  /// **'Dark'**
+  String get dark;
 
-  /// No description provided for @zincDark.
+  /// No description provided for @light.
   ///
   /// In en, this message translates to:
-  /// **'Zinc Dark'**
-  String get zincDark;
-
-  /// No description provided for @neutralDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Neutral Dark'**
-  String get neutralDark;
-
-  /// No description provided for @stoneDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Stone Dark'**
-  String get stoneDark;
-
-  /// No description provided for @grayDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Gray Dark'**
-  String get grayDark;
+  /// **'Light'**
+  String get light;
 
   /// No description provided for @oneDark.
   ///
@@ -264,7 +240,7 @@ abstract class AppLocalizations {
   /// No description provided for @wsl.
   ///
   /// In en, this message translates to:
-  /// **'WSL (Default)'**
+  /// **'WSL'**
   String get wsl;
 
   /// No description provided for @gitBash.
@@ -554,6 +530,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
+
+  /// No description provided for @customTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Theme'**
+  String get customTheme;
+
+  /// No description provided for @customThemeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a JSON theme configuration to customize terminal colors.'**
+  String get customThemeDescription;
+
+  /// No description provided for @applyCustomTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Theme'**
+  String get applyCustomTheme;
+
+  /// No description provided for @clearCustomTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearCustomTheme;
+
+  /// No description provided for @customThemeFolderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported themes are saved to ~/.flutter-agent-panel/themes/'**
+  String get customThemeFolderHint;
+
+  /// No description provided for @jsonMustBeObject.
+  ///
+  /// In en, this message translates to:
+  /// **'JSON must be an object'**
+  String get jsonMustBeObject;
+
+  /// No description provided for @missingRequiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing required field: {field}'**
+  String missingRequiredField(Object field);
+
+  /// No description provided for @invalidJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid JSON: {message}'**
+  String invalidJson(Object message);
+
+  /// No description provided for @errorParsingTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Error parsing theme: {message}'**
+  String errorParsingTheme(Object message);
 }
 
 class _AppLocalizationsDelegate

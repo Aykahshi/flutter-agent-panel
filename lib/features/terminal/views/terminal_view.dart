@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:xterm/xterm.dart' as xterm;
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../models/terminal_node.dart';
+import '../models/terminal_theme_data.dart';
+import '../services/terminal_theme_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../settings/bloc/settings_bloc.dart';
-import '../../settings/models/app_settings.dart';
-import '../../../../shared/constants/app_colors.dart';
 
 class TerminalView extends StatefulWidget {
   final TerminalNode terminalNode;
@@ -25,6 +27,10 @@ class _TerminalViewState extends State<TerminalView> {
   late final FocusNode _focusNode;
   int? _lastCols;
   int? _lastRows;
+  xterm.TerminalTheme? _cachedTheme;
+  String? _lastThemeName;
+  String? _lastCustomJson;
+  Brightness? _lastBrightness;
 
   @override
   void initState() {
@@ -62,10 +68,24 @@ class _TerminalViewState extends State<TerminalView> {
           fontWeight: fontSettings.isBold ? FontWeight.bold : FontWeight.normal,
           fontStyle:
               fontSettings.isItalic ? FontStyle.italic : FontStyle.normal,
-          // Note: fontWeight and fontStyle are now used globally by TerminalStyle
         );
 
-        final xtermTheme = _getTerminalTheme(settings.terminalTheme, theme);
+        // Check if we need to reload the theme
+        final needsReload = _cachedTheme == null ||
+            _lastThemeName != settings.terminalThemeName ||
+            _lastCustomJson != settings.customTerminalThemeJson ||
+            _lastBrightness != theme.brightness;
+
+        if (needsReload) {
+          _lastThemeName = settings.terminalThemeName;
+          _lastCustomJson = settings.customTerminalThemeJson;
+          _lastBrightness = theme.brightness;
+          _loadTheme(settings.terminalThemeName,
+              settings.customTerminalThemeJson, theme.brightness);
+        }
+
+        // Use cached theme or fallback to default
+        final xtermTheme = _cachedTheme ?? _getDefaultTheme(theme);
 
         if (settings.terminalCursorBlink !=
             widget.terminalNode.terminal.cursorBlinkMode) {
@@ -74,7 +94,6 @@ class _TerminalViewState extends State<TerminalView> {
         }
 
         if (widget.interactive) {
-          // Fix Layout: Some xterm versions have a race condition on the first layout.
           Future.delayed(const Duration(milliseconds: 200), () {
             if (mounted) {
               final terminal = widget.terminalNode.terminal;
@@ -97,7 +116,7 @@ class _TerminalViewState extends State<TerminalView> {
             widget.terminalNode.terminal,
             autofocus: false,
             readOnly: true,
-            autoResize: false, // CRITICAL: Thumbnail must not resize PTY
+            autoResize: false,
             textStyle: terminalStyle,
             theme: xtermTheme,
           );
@@ -125,119 +144,66 @@ class _TerminalViewState extends State<TerminalView> {
     );
   }
 
-  xterm.TerminalTheme _getTerminalTheme(
-      TerminalTheme themeType, ShadThemeData theme) {
-    // Shared common colors
-    const defaultSearchHit = Color(0xFFE5E510);
-    const defaultSearchHitCurrent = Color(0xFF0DBC79);
-    const defaultSearchHitForeground = Color(0xFF000000);
+  Future<void> _loadTheme(
+      String themeName, String? customJson, Brightness brightness) async {
+    TerminalThemeData? themeData;
 
-    switch (themeType) {
-      case TerminalTheme.oneDark:
-        return xterm.TerminalTheme(
-          cursor: theme.colorScheme.primary,
-          selection: theme.colorScheme.primary.withValues(alpha: 0.3),
-          background: const Color(0xFF282C34),
-          foreground: const Color(0xFFABB2BF),
-          black: const Color(0xFF282C34),
-          red: const Color(0xFFE06C75),
-          green: const Color(0xFF98C379),
-          yellow: const Color(0xFFE5C07B),
-          blue: const Color(0xFF61AFEF),
-          magenta: const Color(0xFFC678DD),
-          cyan: const Color(0xFF56B6C2),
-          white: const Color(0xFFABB2BF),
-          brightBlack: const Color(0xFF5C6370),
-          brightRed: const Color(0xFFE06C75),
-          brightGreen: const Color(0xFF98C379),
-          brightYellow: const Color(0xFFE5C07B),
-          brightBlue: const Color(0xFF61AFEF),
-          brightMagenta: const Color(0xFFC678DD),
-          brightCyan: const Color(0xFF56B6C2),
-          brightWhite: const Color(0xFFFFFFFF),
-          searchHitBackground: defaultSearchHit,
-          searchHitBackgroundCurrent: defaultSearchHitCurrent,
-          searchHitForeground: defaultSearchHitForeground,
-        );
-      case TerminalTheme.dracula:
-        return xterm.TerminalTheme(
-          cursor: theme.colorScheme.primary,
-          selection: theme.colorScheme.primary.withValues(alpha: 0.3),
-          background: const Color(0xFF282A36),
-          foreground: const Color(0xFFF8F8F2),
-          black: const Color(0xFF21222C),
-          red: const Color(0xFFFF5544),
-          green: const Color(0xFF50FA7B),
-          yellow: const Color(0xFFF1FA8C),
-          blue: const Color(0xFFBD93F9),
-          magenta: const Color(0xFFFF79C6),
-          cyan: const Color(0xFF8BE9FD),
-          white: const Color(0xFFF8F8F2),
-          brightBlack: const Color(0xFF6272A4),
-          brightRed: const Color(0xFFFF6E6E),
-          brightGreen: const Color(0xFF69FF94),
-          brightYellow: const Color(0xFFFFFFA5),
-          brightBlue: const Color(0xFFD6ACFF),
-          brightMagenta: const Color(0xFFFF92DF),
-          brightCyan: const Color(0xFFA4FFFF),
-          brightWhite: const Color(0xFFFFFFFF),
-          searchHitBackground: defaultSearchHit,
-          searchHitBackgroundCurrent: defaultSearchHitCurrent,
-          searchHitForeground: defaultSearchHitForeground,
-        );
-      case TerminalTheme.monokai:
-        return xterm.TerminalTheme(
-          cursor: theme.colorScheme.primary,
-          selection: theme.colorScheme.primary.withValues(alpha: 0.3),
-          background: const Color(0xFF272822),
-          foreground: const Color(0xFFF8F8F2),
-          black: const Color(0xFF272822),
-          red: const Color(0xFFF92672),
-          green: const Color(0xFFA6E22E),
-          yellow: const Color(0xFFF4BF75),
-          blue: const Color(0xFF66D9EF),
-          magenta: const Color(0xFFAE81FF),
-          cyan: const Color(0xFFA1EFE4),
-          white: const Color(0xFFF8F8F2),
-          brightBlack: const Color(0xFF75715E),
-          brightRed: const Color(0xFFF92672),
-          brightGreen: const Color(0xFFA6E22E),
-          brightYellow: const Color(0xFFE6DB74),
-          brightBlue: const Color(0xFF66D9EF),
-          brightMagenta: const Color(0xFFAE81FF),
-          brightCyan: const Color(0xFFA1EFE4),
-          brightWhite: const Color(0xFFF8F8F2),
-          searchHitBackground: defaultSearchHit,
-          searchHitBackgroundCurrent: defaultSearchHitCurrent,
-          searchHitForeground: defaultSearchHitForeground,
-        );
-      default:
-        // Default One Dark variation
-        return xterm.TerminalTheme(
-          cursor: theme.colorScheme.primary,
-          selection: theme.colorScheme.primary.withOpacity(0.3),
-          foreground: const Color(0xFFCCCCCC),
-          background: AppColors.terminalBackground,
-          black: const Color(0xFF000000),
-          red: const Color(0xFFCD3131),
-          green: const Color(0xFF0DBC79),
-          yellow: const Color(0xFFE5E510),
-          blue: const Color(0xFF2472C8),
-          magenta: const Color(0xFFBC3FBC),
-          cyan: const Color(0xFF11A8CD),
-          white: const Color(0xFFE5E5E5),
-          brightBlack: const Color(0xFF666666),
-          brightRed: const Color(0xFFF14C4C),
-          brightGreen: const Color(0xFF23D18B),
-          brightYellow: const Color(0xFFF5F543),
-          brightBlue: const Color(0xFF3B8EEA),
-          brightMagenta: const Color(0xFFD670D6),
-          brightCyan: const Color(0xFF29B8DB),
-          brightWhite: const Color(0xFFE5E5E5),
-          searchHitBackground: defaultSearchHit,
-          searchHitBackgroundCurrent: defaultSearchHitCurrent,
-          searchHitForeground: defaultSearchHitForeground,
-        );
+    // Try custom JSON first
+    if (customJson != null && customJson.isNotEmpty) {
+      try {
+        final json = jsonDecode(customJson) as Map<String, dynamic>;
+        themeData = TerminalThemeData.fromJson(json);
+      } catch (_) {
+        // Fall through to named theme
+      }
     }
+
+    // Load named theme based on brightness
+    if (themeData == null) {
+      final service = TerminalThemeService.instance;
+      if (brightness == Brightness.light) {
+        themeData = await service.getLightThemeByName(themeName) ??
+            await service.getDefaultLightTheme();
+      } else {
+        themeData = await service.getDarkThemeByName(themeName) ??
+            await service.getDefaultDarkTheme();
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _cachedTheme = themeData!.toXtermTheme();
+      });
+    }
+  }
+
+  xterm.TerminalTheme _getDefaultTheme(ShadThemeData theme) {
+    // Return a simple default theme while loading
+    final isLight = theme.brightness == Brightness.light;
+    return xterm.TerminalTheme(
+      cursor: theme.colorScheme.primary,
+      selection: theme.colorScheme.primary.withValues(alpha: 0.3),
+      background: isLight ? const Color(0xFFFAFAFA) : const Color(0xFF1E1E1E),
+      foreground: isLight ? const Color(0xFF383A42) : const Color(0xFFCCCCCC),
+      black: const Color(0xFF000000),
+      red: const Color(0xFFCD3131),
+      green: const Color(0xFF0DBC79),
+      yellow: const Color(0xFFE5E510),
+      blue: const Color(0xFF2472C8),
+      magenta: const Color(0xFFBC3FBC),
+      cyan: const Color(0xFF11A8CD),
+      white: const Color(0xFFE5E5E5),
+      brightBlack: const Color(0xFF666666),
+      brightRed: const Color(0xFFF14C4C),
+      brightGreen: const Color(0xFF23D18B),
+      brightYellow: const Color(0xFFF5F543),
+      brightBlue: const Color(0xFF3B8EEA),
+      brightMagenta: const Color(0xFFD670D6),
+      brightCyan: const Color(0xFF29B8DB),
+      brightWhite: const Color(0xFFE5E5E5),
+      searchHitBackground: const Color(0xFFE5E510),
+      searchHitBackgroundCurrent: const Color(0xFF0DBC79),
+      searchHitForeground: const Color(0xFF000000),
+    );
   }
 }
