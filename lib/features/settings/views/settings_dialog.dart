@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -98,6 +99,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
       {'icon': LucideIcons.palette, 'label': l10n.appearance},
       {'icon': LucideIcons.terminal, 'label': l10n.terminalSettings},
       {'icon': LucideIcons.squareTerminal, 'label': l10n.customShells},
+      {'icon': LucideIcons.bot, 'label': l10n.agents},
     ];
 
     return BlocBuilder<SettingsBloc, SettingsState>(
@@ -153,9 +155,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                     : Colors.transparent,
                                 hoverBackgroundColor: theme.colorScheme.muted,
                                 onPressed: () {
-                                  setState(() {
-                                    _selectedIndex = index;
-                                  });
+                                  setState(() => _selectedIndex = index);
+                                  if (categories[index]['label'] ==
+                                      l10n.agents) {
+                                    _verifyAgentInstallations();
+                                  }
                                 },
                                 leading: Icon(
                                   cat['icon'] as IconData,
@@ -236,9 +240,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   Widget _buildContentForIndex(int index, AppSettings settings,
       AppLocalizations l10n, ShadThemeData theme) {
-    switch (index) {
-      case 0: // General
-        return Column(
+    return switch (index) {
+      0 => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SettingsSection(
@@ -266,9 +269,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
               ),
             ),
           ],
-        );
-      case 1: // Appearance
-        return Column(
+        ),
+      1 => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SettingsSection(
@@ -300,9 +302,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
               ),
             ),
           ],
-        );
-      case 2: // Terminal
-        return Column(
+        ),
+      2 => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SettingsSection(
@@ -387,21 +388,15 @@ class _SettingsDialogState extends State<SettingsDialog> {
                               .validateCustomThemeJson(json);
                           if (validationResult != null) {
                             final (errorType, details) = validationResult;
-                            String errorMessage;
-                            switch (errorType) {
-                              case 'jsonMustBeObject':
-                                errorMessage = l10n.jsonMustBeObject;
-                              case 'missingRequiredField':
-                                errorMessage =
-                                    l10n.missingRequiredField(details ?? '');
-                              case 'invalidJson':
-                                errorMessage = l10n.invalidJson(details ?? '');
-                              case 'errorParsingTheme':
-                                errorMessage =
-                                    l10n.errorParsingTheme(details ?? '');
-                              default:
-                                errorMessage = details ?? errorType;
-                            }
+                            final errorMessage = switch (errorType) {
+                              'jsonMustBeObject' => l10n.jsonMustBeObject,
+                              'missingRequiredField' =>
+                                l10n.missingRequiredField(details ?? ''),
+                              'invalidJson' => l10n.invalidJson(details ?? ''),
+                              'errorParsingTheme' =>
+                                l10n.errorParsingTheme(details ?? ''),
+                              _ => details ?? errorType,
+                            };
                             setState(() => _customThemeError = errorMessage);
                             return;
                           }
@@ -676,12 +671,485 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   ],
                 )),
           ],
-        );
-      case 3: // Custom Shells
-        return _buildCustomShellsContent(settings, l10n, theme);
-      default:
-        return const SizedBox.shrink();
+        ),
+      3 => _buildCustomShellsContent(settings, l10n, theme),
+      4 => _buildAgentsContent(settings, l10n, theme),
+      _ => const SizedBox.shrink(),
+    };
+  }
+
+  Future<bool> _checkCommandInstalled(String command) async {
+    try {
+      final isWindows = Platform.isWindows;
+      final result = await Process.run(
+        isWindows ? 'where' : 'which',
+        [command],
+        runInShell: true,
+      );
+      return result.exitCode == 0;
+    } catch (e) {
+      return false;
     }
+  }
+
+  Future<bool> _installAgent(
+      String installCommand, void Function(String) onLog) async {
+    try {
+      final parts = installCommand.split(' ');
+      if (parts.isEmpty) return false;
+
+      final process = await Process.start(
+        parts.first,
+        parts.sublist(1),
+        runInShell: true,
+      );
+
+      // Stream stdout/stderr to log
+      process.stdout.transform(utf8.decoder).listen(onLog);
+      process.stderr.transform(utf8.decoder).listen(onLog);
+
+      final exitCode = await process.exitCode;
+      return exitCode == 0;
+    } catch (e) {
+      onLog('Error: $e');
+      return false;
+    }
+  }
+
+  Widget _buildAgentsContent(
+      AppSettings settings, AppLocalizations l10n, ShadThemeData theme) {
+    // Separate presets and custom
+    final presetAgents =
+        settings.agents.where((a) => a.preset != AgentPreset.custom).toList();
+    final customAgents =
+        settings.agents.where((a) => a.preset == AgentPreset.custom).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Presets
+        SettingsSection(
+          title: l10n.agents,
+          description: l10n.agentsDescription,
+          child: Column(
+            children: [
+              ...presetAgents.map((agent) {
+                final color = _getAgentColor(agent.preset);
+                return Container(
+                  margin: EdgeInsets.only(bottom: 8.h),
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.border),
+                    borderRadius: BorderRadius.circular(8.r),
+                    color: agent.enabled
+                        ? theme.colorScheme.secondary.withValues(alpha: 0.1)
+                        : null,
+                  ),
+                  child: Row(
+                    children: [
+                      // Icon
+                      Container(
+                        width: 32.sp,
+                        height: 32.sp,
+                        padding: EdgeInsets.all(4.sp),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.background,
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+                        child: Builder(builder: (context) {
+                          var iconPath = agent.preset.iconAssetPath!;
+                          ColorFilter? colorFilter;
+
+                          if (agent.preset == AgentPreset.opencode &&
+                              Theme.of(context).brightness == Brightness.dark) {
+                            iconPath =
+                                'assets/images/agent_logos/opencode-dark.svg';
+                          }
+
+                          if (agent.preset == AgentPreset.codex ||
+                              agent.preset == AgentPreset.githubCopilot) {
+                            colorFilter = ColorFilter.mode(
+                                theme.colorScheme.foreground, BlendMode.srcIn);
+                          }
+
+                          return SvgPicture.asset(
+                            iconPath,
+                            colorFilter: colorFilter,
+                            placeholderBuilder: (context) =>
+                                Icon(LucideIcons.bot),
+                          );
+                        }),
+                      ),
+                      Gap(12.w),
+                      // Name & Command
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              agent.name,
+                              style: theme.textTheme.p.copyWith(
+                                color: color,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              agent.command,
+                              style: theme.textTheme.small.copyWith(
+                                color: theme.colorScheme.mutedForeground,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Edit Args/Env
+                      ShadButton.ghost(
+                        padding: EdgeInsets.zero,
+                        width: 32.w,
+                        height: 32.h,
+                        onPressed: () => _showAddEditAgentDialog(
+                            context, l10n, theme,
+                            existingAgent: agent),
+                        child: Icon(LucideIcons.settings, size: 16.sp),
+                      ),
+                      Gap(8.w),
+                      // Toggle
+                      ShadSwitch(
+                        value: agent.enabled,
+                        onChanged: (value) =>
+                            _toggleAgent(agent, value, l10n, theme),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+
+        Divider(height: 32.h, color: theme.colorScheme.border),
+
+        // Custom Agents
+        SettingsSection(
+          title: l10n.customAgent,
+          description:
+              l10n.agentsDescription, // Reuse description or make new one
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            ShadButton.outline(
+              onPressed: () =>
+                  _showAddEditAgentDialog(context, l10n, theme, isCustom: true),
+              leading: Icon(LucideIcons.plus, size: 16.sp),
+              child: Text(l10n.addCustomAgent),
+            ),
+            Gap(16.h),
+            if (customAgents.isEmpty)
+              Text(l10n.noCustomAgents, // Fixed L10n key
+                  style: theme.textTheme
+                      .muted) // Reuse 'no custom' string for simplicity or generic
+            else
+              ...customAgents.map((agent) => Container(
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: theme.colorScheme.border),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(LucideIcons.bot,
+                            size: 24.sp), // Default icon for custom
+                        Gap(12.w),
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              Text(agent.name, style: theme.textTheme.p),
+                              Text(agent.command,
+                                  style: theme.textTheme.small.copyWith(
+                                      color:
+                                          theme.colorScheme.mutedForeground)),
+                            ])),
+                        ShadButton.ghost(
+                          padding: EdgeInsets.zero,
+                          width: 32.w,
+                          height: 32.h,
+                          onPressed: () => _showAddEditAgentDialog(
+                              context, l10n, theme,
+                              existingAgent: agent, isCustom: true),
+                          child: Icon(LucideIcons.pencil, size: 16.sp),
+                        ),
+                        ShadButton.ghost(
+                          padding: EdgeInsets.zero,
+                          width: 32.w,
+                          height: 32.h,
+                          onPressed: () => context
+                              .read<SettingsBloc>()
+                              .add(RemoveAgentConfig(agent.id)),
+                          child: Icon(LucideIcons.trash2,
+                              size: 16.sp,
+                              color: theme.colorScheme.destructive),
+                        ),
+                      ],
+                    ),
+                  )),
+          ]),
+        )
+      ],
+    );
+  }
+
+  Color? _getAgentColor(AgentPreset preset) {
+    switch (preset) {
+      case AgentPreset.claude:
+        return const Color(0xFFD97757);
+      case AgentPreset.qwen:
+        return const Color(0xFF615CED);
+      case AgentPreset.codex:
+        return const Color(0xFF10A37F);
+      case AgentPreset.gemini:
+        return const Color(0xFF4E87F6);
+      case AgentPreset.opencode:
+        return Colors.blueGrey;
+      default:
+        return null;
+    }
+  }
+
+  Future<void> _toggleAgent(AgentConfig agent, bool value,
+      AppLocalizations l10n, ShadThemeData theme) async {
+    if (!value) {
+      context
+          .read<SettingsBloc>()
+          .add(UpdateAgentConfig(agent.copyWith(enabled: false)));
+      return;
+    }
+
+    // Optimistic Update: toggle ON immediately
+    context
+        .read<SettingsBloc>()
+        .add(UpdateAgentConfig(agent.copyWith(enabled: true)));
+
+    // Check availability asynchronously
+    final exists = await _checkCommandInstalled(agent.command);
+    if (!mounted) return;
+
+    if (exists) {
+      // Confirmed installed, keep it enabled.
+      return;
+    }
+
+    // Agent not found, revert optimistic update
+    context
+        .read<SettingsBloc>()
+        .add(UpdateAgentConfig(agent.copyWith(enabled: false)));
+
+    // Prompt Install
+    final installCmd = agent.preset.defaultInstallCommand;
+    if (installCmd.isEmpty) {
+      ShadToaster.of(context).show(
+        ShadToast.destructive(
+          title: Text(l10n.agentNotInstalled),
+          description: Text(l10n.agentInstallFailed),
+        ),
+      );
+      return;
+    }
+
+    // Show Dialog
+    final shouldInstall = await showShadDialog<bool>(
+      context: context,
+      builder: (ctx) => ShadDialog.alert(
+        title: Text(l10n.installAgentTitle),
+        description: Text(l10n.installAgentMessage(agent.name, installCmd)),
+        actions: [
+          ShadButton.ghost(
+            child: Text(l10n.cancel),
+            onPressed: () => Navigator.of(ctx).pop(false),
+          ),
+          ShadButton(
+            child: Text('Install'), // l10n.install
+            onPressed: () => Navigator.of(ctx).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldInstall == true) {
+      if (!mounted) return;
+
+      // Show progress toast
+      final logNotifier = ValueNotifier<String>('');
+
+      ShadToaster.of(context).show(
+        ShadToast(
+          title: Text(l10n.installingAgent),
+          description: ValueListenableBuilder<String>(
+              valueListenable: logNotifier,
+              builder: (context, log, child) {
+                if (log.isEmpty) return const LinearProgressIndicator();
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const LinearProgressIndicator(),
+                    const Gap(4),
+                    Text(
+                      log.trim(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.small.copyWith(
+                        fontFamily: 'Consolas',
+                        color: theme.colorScheme.mutedForeground,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+        ),
+      );
+
+      final success = await _installAgent(installCmd, (line) {
+        if (line.trim().isNotEmpty) {
+          logNotifier.value = line;
+        }
+      });
+
+      // Dialog was not shown, so no pop needed.
+      // Progress Toast will eventually timeout or be pushed up by Success Toast.
+
+      if (!mounted) return;
+      if (success) {
+        ShadToaster.of(context).show(
+          ShadToast(
+            title: Text(l10n.agentInstalled),
+            backgroundColor: Colors.green.withValues(alpha: 0.2),
+          ),
+        );
+        context
+            .read<SettingsBloc>()
+            .add(UpdateAgentConfig(agent.copyWith(enabled: true)));
+      } else {
+        ShadToaster.of(context).show(
+          ShadToast.destructive(
+            title: Text(l10n.agentInstallFailed),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showAddEditAgentDialog(
+      BuildContext context, AppLocalizations l10n, ShadThemeData theme,
+      {AgentConfig? existingAgent, bool isCustom = false}) {
+    final nameController =
+        TextEditingController(text: existingAgent?.name ?? '');
+    final commandController =
+        TextEditingController(text: existingAgent?.command ?? '');
+    final argsController =
+        TextEditingController(text: existingAgent?.args.join(' ') ?? '');
+    final envController = TextEditingController(
+        text: existingAgent?.env.entries
+                .map((e) => '${e.key}=${e.value}')
+                .join('\n') ??
+            '');
+
+    showShadDialog(
+        context: context,
+        builder: (ctx) => ShadDialog(
+              title:
+                  Text(isCustom ? l10n.addCustomAgent : l10n.editCustomAgent),
+              child: SizedBox(
+                width: 400.w,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isCustom) ...[
+                      Text(l10n.agentName),
+                      ShadInput(controller: nameController),
+                      Gap(8.h),
+                      Text(l10n.agentCommand),
+                      ShadInput(controller: commandController),
+                      Gap(8.h),
+                    ],
+                    Text(l10n.agentArgs),
+                    ShadInput(controller: argsController),
+                    Gap(8.h),
+                    Text(l10n.agentEnv),
+                    ShadInput(
+                        controller: envController,
+                        maxLines: 3,
+                        placeholder: const Text('KEY=VALUE')),
+                    Gap(16.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ShadButton.ghost(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: Text(l10n.cancel)),
+                        ShadButton(
+                          onPressed: () {
+                            // Save
+                            final args = argsController.text
+                                .trim()
+                                .split(' ')
+                                .where((s) => s.isNotEmpty)
+                                .toList();
+                            final envLines =
+                                envController.text.trim().split('\n');
+                            final env = <String, String>{};
+                            for (var line in envLines) {
+                              final parts = line.split('=');
+                              if (parts.length >= 2) {
+                                env[parts[0].trim()] =
+                                    parts.sublist(1).join('=').trim();
+                              }
+                            }
+
+                            if (isCustom) {
+                              final newAgent = AgentConfig(
+                                id: existingAgent?.id ??
+                                    DateTime.now()
+                                        .millisecondsSinceEpoch
+                                        .toString(),
+                                preset: AgentPreset.custom,
+                                name: nameController.text, // Validation needed
+                                command: commandController.text,
+                                args: args,
+                                env: env,
+                                enabled: true,
+                              );
+                              if (existingAgent != null) {
+                                context
+                                    .read<SettingsBloc>()
+                                    .add(UpdateAgentConfig(newAgent));
+                              } else {
+                                context
+                                    .read<SettingsBloc>()
+                                    .add(AddAgentConfig(newAgent));
+                              }
+                            } else {
+                              // Update preset args/env/enabled only
+                              final updated = existingAgent!.copyWith(
+                                args: args,
+                                env: env,
+                              );
+                              context
+                                  .read<SettingsBloc>()
+                                  .add(UpdateAgentConfig(updated));
+                            }
+                            Navigator.of(ctx).pop();
+                          },
+                          child: Text(l10n.save),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ));
   }
 
   Widget _buildCustomShellsContent(
@@ -1001,6 +1469,22 @@ class _SettingsDialogState extends State<SettingsDialog> {
         return LucideIcons.settings;
       default:
         return LucideIcons.terminal;
+    }
+  }
+
+  Future<void> _verifyAgentInstallations() async {
+    final settings = context.read<SettingsBloc>().state.settings;
+    for (final agent in settings.agents) {
+      if (agent.enabled) {
+        final exists = await _checkCommandInstalled(agent.command);
+        if (!exists) {
+          if (mounted) {
+            context
+                .read<SettingsBloc>()
+                .add(UpdateAgentConfig(agent.copyWith(enabled: false)));
+          }
+        }
+      }
     }
   }
 }

@@ -21,6 +21,9 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     on<UpdateCustomShell>(_onUpdateCustomShell);
     on<RemoveCustomShell>(_onRemoveCustomShell);
     on<SelectCustomShell>(_onSelectCustomShell);
+    on<UpdateAgentConfig>(_onUpdateAgentConfig);
+    on<AddAgentConfig>(_onAddAgentConfig);
+    on<RemoveAgentConfig>(_onRemoveAgentConfig);
   }
 
   void _onUpdateAppTheme(UpdateAppTheme event, Emitter<SettingsState> emit) {
@@ -103,6 +106,29 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
       defaultShell: ShellType.custom,
       selectedCustomShellId: event.shellId,
     )));
+  }
+
+  void _onUpdateAgentConfig(
+      UpdateAgentConfig event, Emitter<SettingsState> emit) {
+    final updatedAgents = state.settings.agents.map((a) {
+      return a.id == event.config.id ? event.config : a;
+    }).toList();
+    emit(state.copyWith(
+        settings: state.settings.copyWith(agents: updatedAgents)));
+  }
+
+  void _onAddAgentConfig(AddAgentConfig event, Emitter<SettingsState> emit) {
+    final updatedAgents = [...state.settings.agents, event.config];
+    emit(state.copyWith(
+        settings: state.settings.copyWith(agents: updatedAgents)));
+  }
+
+  void _onRemoveAgentConfig(
+      RemoveAgentConfig event, Emitter<SettingsState> emit) {
+    final updatedAgents =
+        state.settings.agents.where((a) => a.id != event.agentId).toList();
+    emit(state.copyWith(
+        settings: state.settings.copyWith(agents: updatedAgents)));
   }
 
   @override

@@ -69,6 +69,7 @@ class _TerminalViewState extends State<TerminalView> {
           fontWeight: fontSettings.isBold ? FontWeight.bold : FontWeight.normal,
           fontStyle:
               fontSettings.isItalic ? FontStyle.italic : FontStyle.normal,
+          height: 1.0,
         );
 
         // Check if we need to reload the theme

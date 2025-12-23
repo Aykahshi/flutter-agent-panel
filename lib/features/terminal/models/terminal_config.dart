@@ -7,6 +7,8 @@ class TerminalConfig extends Equatable {
   final String cwd;
   final String shellCmd;
   final String? icon;
+  final String? agentId;
+  final List<String> args;
 
   const TerminalConfig({
     required this.id,
@@ -14,6 +16,8 @@ class TerminalConfig extends Equatable {
     required this.cwd,
     this.shellCmd = 'pwsh',
     this.icon,
+    this.agentId,
+    this.args = const [],
   });
 
   factory TerminalConfig.create({
@@ -21,6 +25,8 @@ class TerminalConfig extends Equatable {
     required String cwd,
     String shellCmd = 'pwsh',
     String? icon,
+    String? agentId,
+    List<String> args = const [],
   }) {
     return TerminalConfig(
       id: const Uuid().v4(),
@@ -28,6 +34,8 @@ class TerminalConfig extends Equatable {
       cwd: cwd,
       shellCmd: shellCmd,
       icon: icon,
+      agentId: agentId,
+      args: args,
     );
   }
 
@@ -37,6 +45,8 @@ class TerminalConfig extends Equatable {
     String? cwd,
     String? shellCmd,
     String? icon,
+    String? agentId,
+    List<String>? args,
   }) {
     return TerminalConfig(
       id: id ?? this.id,
@@ -44,6 +54,8 @@ class TerminalConfig extends Equatable {
       cwd: cwd ?? this.cwd,
       shellCmd: shellCmd ?? this.shellCmd,
       icon: icon ?? this.icon,
+      agentId: agentId ?? this.agentId,
+      args: args ?? this.args,
     );
   }
 
@@ -54,6 +66,10 @@ class TerminalConfig extends Equatable {
       cwd: json['cwd'] as String,
       shellCmd: json['shellCmd'] as String? ?? 'pwsh',
       icon: json['icon'] as String?,
+      agentId: json['agentId'] as String?,
+      args:
+          (json['args'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
     );
   }
 
@@ -64,9 +80,11 @@ class TerminalConfig extends Equatable {
       'cwd': cwd,
       'shellCmd': shellCmd,
       'icon': icon,
+      'agentId': agentId,
+      'args': args,
     };
   }
 
   @override
-  List<Object?> get props => [id, title, cwd, shellCmd, icon];
+  List<Object?> get props => [id, title, cwd, shellCmd, icon, agentId, args];
 }

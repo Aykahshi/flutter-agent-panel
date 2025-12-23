@@ -52,6 +52,40 @@
   "restartingTerminal": "Restarting Terminal...",
   "cursorBlink": "Cursor Blink",
   "cursorBlinkDescription": "Allow the terminal cursor to blink.",
+  "agents": "Agents",
+  "@agents": {
+    "description": "Agents settings section title"
+  },
+  "agentsDescription": "Manage AI agents and their configurations",
+  "@agentsDescription": {
+    "description": "Description for agents settings"
+  },
+  "agentName": "Name",
+  "agentCommand": "Command",
+  "agentArgs": "Arguments",
+  "agentEnv": "Environment Variables",
+  "installAgentTitle": "Install Agent",
+  "installAgentMessage": "The agent '{name}' is not installed.\nDo you want to install it using the following command?\n\n{command}",
+  "@installAgentMessage": {
+    "placeholders": {
+        "name": {
+            "type": "String"
+        },
+        "command": {
+            "type": "String"
+        }
+    }
+  },
+  "agentNotInstalled": "Agent not installed",
+  "enableAgent": "Enable Agent",
+  "installingAgent": "Installing Agent...",
+  "startingAgent": "Starting Agent...",
+  "agentInstalled": "Agent installed successfully",
+  "agentInstallFailed": "Failed to install agent",
+  "noCustomAgents": "No custom agents configured",
+  "customAgent": "Custom Agent",
+  "addCustomAgent": "Add Custom Agent",
+  "editCustomAgent": "Edit Custom Agent",
   "themeDescription": "Select the application theme mode.",
   "terminalSettingsDescription": "Configure terminal appearance and behavior.",
   "fontFamilyDescription": "Choose which font to use in the terminal.",
@@ -82,6 +116,8 @@
   "jsonMustBeObject": "JSON must be an object",
   "missingRequiredField": "Missing required field: {field}",
   "invalidJson": "Invalid JSON: {message}",
-  "errorParsingTheme": "Error parsing theme: {message}"
+  "errorParsingTheme": "Error parsing theme: {message}",
+  "startingTerminal": "Starting...",
+  "initializingShell": "Initializing shell environment..."
 }
 

@@ -52,6 +52,7 @@ dependencies:
   url_launcher: ^6.3.1
   gap: ^3.0.1
   nil: ^1.1.1
+  flutter_svg: ^2.2.3
 
 workspace:
   - packages/xterm
@@ -93,6 +94,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/agent_logos/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

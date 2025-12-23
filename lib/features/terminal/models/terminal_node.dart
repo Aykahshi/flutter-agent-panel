@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flutter_pty/flutter_pty.dart';
 import 'package:xterm/xterm.dart';
+import '../services/isolate_pty.dart';
 
 /// Terminal activity status for visual indicators
 enum TerminalStatus {
@@ -25,7 +25,7 @@ class TerminalNode {
   final String workspaceId;
   String title;
   String? icon;
-  final Pty pty;
+  final IsolatePty pty;
   final Terminal terminal;
   bool isDisposed = false;
 
@@ -37,6 +37,9 @@ class TerminalNode {
 
   /// Timer to reset status to idle
   Timer? _activityTimer;
+
+  /// Whether the terminal has received any output
+  bool hasOutput = false;
 
   /// Callback for UI updates when status changes
   void Function()? onStatusChanged;

@@ -399,6 +399,114 @@ abstract class AppLocalizations {
   /// **'Allow the terminal cursor to blink.'**
   String get cursorBlinkDescription;
 
+  /// Agents settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Agents'**
+  String get agents;
+
+  /// Description for agents settings
+  ///
+  /// In en, this message translates to:
+  /// **'Manage AI agents and their configurations'**
+  String get agentsDescription;
+
+  /// No description provided for @agentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get agentName;
+
+  /// No description provided for @agentCommand.
+  ///
+  /// In en, this message translates to:
+  /// **'Command'**
+  String get agentCommand;
+
+  /// No description provided for @agentArgs.
+  ///
+  /// In en, this message translates to:
+  /// **'Arguments'**
+  String get agentArgs;
+
+  /// No description provided for @agentEnv.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment Variables'**
+  String get agentEnv;
+
+  /// No description provided for @installAgentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Agent'**
+  String get installAgentTitle;
+
+  /// No description provided for @installAgentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The agent \'{name}\' is not installed.\nDo you want to install it using the following command?\n\n{command}'**
+  String installAgentMessage(String name, String command);
+
+  /// No description provided for @agentNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent not installed'**
+  String get agentNotInstalled;
+
+  /// No description provided for @enableAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Agent'**
+  String get enableAgent;
+
+  /// No description provided for @installingAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing Agent...'**
+  String get installingAgent;
+
+  /// No description provided for @startingAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting Agent...'**
+  String get startingAgent;
+
+  /// No description provided for @agentInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent installed successfully'**
+  String get agentInstalled;
+
+  /// No description provided for @agentInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to install agent'**
+  String get agentInstallFailed;
+
+  /// No description provided for @noCustomAgents.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom agents configured'**
+  String get noCustomAgents;
+
+  /// No description provided for @customAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Agent'**
+  String get customAgent;
+
+  /// No description provided for @addCustomAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Agent'**
+  String get addCustomAgent;
+
+  /// No description provided for @editCustomAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Custom Agent'**
+  String get editCustomAgent;
+
   /// No description provided for @themeDescription.
   ///
   /// In en, this message translates to:
@@ -584,6 +692,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error parsing theme: {message}'**
   String errorParsingTheme(Object message);
+
+  /// No description provided for @startingTerminal.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting...'**
+  String get startingTerminal;
+
+  /// No description provided for @initializingShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing shell environment...'**
+  String get initializingShell;
 }
 
 class _AppLocalizationsDelegate

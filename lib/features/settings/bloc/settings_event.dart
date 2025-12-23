@@ -92,3 +92,27 @@ class SelectCustomShell extends SettingsEvent {
   @override
   List<Object?> get props => [shellId];
 }
+
+class UpdateAgentConfig extends SettingsEvent {
+  final AgentConfig config;
+  const UpdateAgentConfig(this.config);
+
+  @override
+  List<Object?> get props => [config];
+}
+
+class AddAgentConfig extends SettingsEvent {
+  final AgentConfig config;
+  const AddAgentConfig(this.config);
+
+  @override
+  List<Object?> get props => [config];
+}
+
+class RemoveAgentConfig extends SettingsEvent {
+  final String agentId;
+  const RemoveAgentConfig(this.agentId);
+
+  @override
+  List<Object?> get props => [agentId];
+}

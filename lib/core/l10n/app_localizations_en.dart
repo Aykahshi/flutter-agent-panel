@@ -160,6 +160,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cursorBlinkDescription => 'Allow the terminal cursor to blink.';
 
   @override
+  String get agents => 'Agents';
+
+  @override
+  String get agentsDescription => 'Manage AI agents and their configurations';
+
+  @override
+  String get agentName => 'Name';
+
+  @override
+  String get agentCommand => 'Command';
+
+  @override
+  String get agentArgs => 'Arguments';
+
+  @override
+  String get agentEnv => 'Environment Variables';
+
+  @override
+  String get installAgentTitle => 'Install Agent';
+
+  @override
+  String installAgentMessage(String name, String command) {
+    return 'The agent \'$name\' is not installed.\nDo you want to install it using the following command?\n\n$command';
+  }
+
+  @override
+  String get agentNotInstalled => 'Agent not installed';
+
+  @override
+  String get enableAgent => 'Enable Agent';
+
+  @override
+  String get installingAgent => 'Installing Agent...';
+
+  @override
+  String get startingAgent => 'Starting Agent...';
+
+  @override
+  String get agentInstalled => 'Agent installed successfully';
+
+  @override
+  String get agentInstallFailed => 'Failed to install agent';
+
+  @override
+  String get noCustomAgents => 'No custom agents configured';
+
+  @override
+  String get customAgent => 'Custom Agent';
+
+  @override
+  String get addCustomAgent => 'Add Custom Agent';
+
+  @override
+  String get editCustomAgent => 'Edit Custom Agent';
+
+  @override
   String get themeDescription => 'Select the application theme mode.';
 
   @override
@@ -265,4 +321,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String errorParsingTheme(Object message) {
     return 'Error parsing theme: $message';
   }
+
+  @override
+  String get startingTerminal => 'Starting...';
+
+  @override
+  String get initializingShell => 'Initializing shell environment...';
 }

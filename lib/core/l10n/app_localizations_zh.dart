@@ -160,6 +160,62 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cursorBlinkDescription => '允许终端光标闪爍。';
 
   @override
+  String get agents => '智能助手';
+
+  @override
+  String get agentsDescription => '管理 AI 智能助手及其配置';
+
+  @override
+  String get agentName => '名称';
+
+  @override
+  String get agentCommand => '命令';
+
+  @override
+  String get agentArgs => '参数';
+
+  @override
+  String get agentEnv => '环境变量';
+
+  @override
+  String get installAgentTitle => '安装助手';
+
+  @override
+  String installAgentMessage(String name, String command) {
+    return '助手 \'$name\' 尚未安装。\n是否要使用以下命令安装？\n\n$command';
+  }
+
+  @override
+  String get agentNotInstalled => '助手未安装';
+
+  @override
+  String get enableAgent => '启用助手';
+
+  @override
+  String get installingAgent => '正在安装助手...';
+
+  @override
+  String get startingAgent => 'Starting Agent...';
+
+  @override
+  String get agentInstalled => '助手安装成功';
+
+  @override
+  String get agentInstallFailed => '助手安装失败';
+
+  @override
+  String get noCustomAgents => 'No custom agents configured';
+
+  @override
+  String get customAgent => '自定义助手';
+
+  @override
+  String get addCustomAgent => '添加自定义助手';
+
+  @override
+  String get editCustomAgent => '编辑自定义助手';
+
+  @override
   String get themeDescription => '选择应用程序主题模式。';
 
   @override
@@ -258,6 +314,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String errorParsingTheme(Object message) {
     return '解析主题时出错: $message';
   }
+
+  @override
+  String get startingTerminal => 'Starting...';
+
+  @override
+  String get initializingShell => 'Initializing shell environment...';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -416,6 +478,62 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get cursorBlinkDescription => '允許終端機游標閃爍。';
 
   @override
+  String get agents => '智能助手';
+
+  @override
+  String get agentsDescription => '管理 AI 智能助手及其設定';
+
+  @override
+  String get agentName => '名稱';
+
+  @override
+  String get agentCommand => '命令';
+
+  @override
+  String get agentArgs => '參數';
+
+  @override
+  String get agentEnv => '環境變數';
+
+  @override
+  String get installAgentTitle => '安裝助手';
+
+  @override
+  String installAgentMessage(String name, String command) {
+    return '助手 \'$name\' 尚未安裝。\n是否要使用以下命令安裝？\n\n$command';
+  }
+
+  @override
+  String get agentNotInstalled => '助手未安裝';
+
+  @override
+  String get enableAgent => '啟用助手';
+
+  @override
+  String get installingAgent => '正在安裝助手...';
+
+  @override
+  String get startingAgent => '啟動助手...';
+
+  @override
+  String get agentInstalled => '助手安裝成功';
+
+  @override
+  String get agentInstallFailed => '助手安裝失敗';
+
+  @override
+  String get noCustomAgents => '尚未設定自定義助手';
+
+  @override
+  String get customAgent => '自定義助手';
+
+  @override
+  String get addCustomAgent => '新增自定義助手';
+
+  @override
+  String get editCustomAgent => '編輯自定義助手';
+
+  @override
   String get themeDescription => '選擇應用程式主題模式。';
 
   @override
@@ -514,4 +632,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String errorParsingTheme(Object message) {
     return '解析主題時發生錯誤: $message';
   }
+
+  @override
+  String get startingTerminal => '正在啟動...';
+
+  @override
+  String get initializingShell => '正在初始化 Shell 環境...';
 }

@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import '../models/terminal_node.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 class GlowingIcon extends StatefulWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgPath;
   final TerminalStatus status;
   final double size;
   final Color? baseColor;
 
   const GlowingIcon({
     super.key,
-    required this.icon,
+    this.icon,
+    this.svgPath,
     required this.status,
     this.size = 16.0,
     this.baseColor,
-  });
+  }) : assert(icon != null || svgPath != null,
+            'Either icon or svgPath must be provided');
 
   @override
   State<GlowingIcon> createState() => _GlowingIconState();
@@ -89,11 +94,21 @@ class _GlowingIconState extends State<GlowingIcon>
                 ),
             ],
           ),
-          child: Icon(
-            widget.icon,
-            size: widget.size,
-            color: color.withValues(alpha: opacity),
-          ),
+          child: widget.svgPath != null
+              ? SvgPicture.asset(
+                  widget.svgPath!,
+                  width: widget.size,
+                  height: widget.size,
+                  colorFilter: ColorFilter.mode(
+                    color.withValues(alpha: opacity),
+                    BlendMode.srcIn,
+                  ),
+                )
+              : Icon(
+                  widget.icon,
+                  size: widget.size,
+                  color: color.withValues(alpha: opacity),
+                ),
         );
       },
     );

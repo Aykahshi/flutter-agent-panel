@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:xterm/xterm.dart' hide TerminalView;
-import 'package:flutter_pty/flutter_pty.dart';
 import 'dart:convert';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:gap/gap.dart';
@@ -16,6 +15,7 @@ import '../../../core/l10n/app_localizations.dart';
 
 import '../../terminal/models/terminal_node.dart';
 import '../../terminal/models/terminal_config.dart';
+import '../../terminal/services/isolate_pty.dart';
 import '../../terminal/widgets/activity_indicator.dart';
 import '../../terminal/widgets/glowing_icon.dart';
 import '../bloc/workspace_bloc.dart';
@@ -23,7 +23,6 @@ import '../../settings/bloc/settings_bloc.dart';
 import '../models/workspace.dart';
 import '../../settings/models/app_settings.dart';
 import 'dart:io';
-import 'dart:async';
 
 class WorkspaceView extends StatefulWidget {
   const WorkspaceView({super.key});
@@ -36,10 +35,13 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   final _titleController = TextEditingController();
   final _popoverController = ShadPopoverController();
   final _iconPopoverController = ShadPopoverController();
+  final _agentPopoverController = ShadPopoverController();
   String? _activeTerminalId;
   final Map<String, TerminalNode> _terminalNodes = {};
   final Set<String> _pendingTerminalIds = {};
   final Set<String> _restartingIds = {}; // Track terminals currently restarting
+  String?
+      _newlyCreatedId; // Track newly added terminal to prevent selection reset race conditions
 
   @override
   void initState() {
@@ -52,7 +54,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   @override
   void dispose() {
     _titleController.dispose();
+    _popoverController.dispose();
     _iconPopoverController.dispose();
+    _agentPopoverController.dispose();
     for (var node in _terminalNodes.values) {
       node.dispose();
     }
@@ -102,11 +106,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         }
       }
 
-      // Remove from restarting list if it exists now
-      if (_terminalNodes.containsKey(config.id) &&
-          _restartingIds.contains(config.id)) {
-        _restartingIds.remove(config.id);
-      }
+      // Note: We used to remove from restarting list here, but it caused races.
+      // Now we wait for actual output in _createTerminalNode.
     }
 
     // Maintain active selection
@@ -116,10 +117,20 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
     if (_activeTerminalId == null ||
         !selectedTerminalIds.contains(_activeTerminalId)) {
+      // GUARD: If active ID matches the one we just created, keep it!
+      if (_activeTerminalId != null && _activeTerminalId == _newlyCreatedId) {
+        return;
+      }
+
       if (selectedWorkspace.terminals.isNotEmpty) {
         _activeTerminalId = selectedWorkspace.terminals.first.id;
       } else {
         _activeTerminalId = null;
+      }
+    } else {
+      // If the newly created ID is now in the state, we can clear our tracker
+      if (_activeTerminalId == _newlyCreatedId) {
+        _newlyCreatedId = null;
       }
     }
   }
@@ -136,18 +147,42 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       );
 
       // Determine shell and cwd
-      final shell = config.shellCmd.isNotEmpty
-          ? config.shellCmd
-          : (PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash');
+      String shell;
+      List<String> ptyArgs;
+
+      if (config.agentId != null && config.agentId!.isNotEmpty) {
+        // Agent terminal: wrap command in pwsh.exe
+        shell = PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash';
+        if (PlatformUtils.isWindows) {
+          ptyArgs = [
+            '-NoLogo',
+            '-NoExit',
+            '-Command',
+            config.shellCmd,
+            ...config.args,
+          ];
+        } else {
+          ptyArgs = ['-c', config.shellCmd, ...config.args];
+        }
+      } else {
+        // Normal terminal
+        shell = config.shellCmd.isNotEmpty
+            ? config.shellCmd
+            : (PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash');
+        ptyArgs = config.args;
+      }
 
       final cwd = config.cwd.isNotEmpty ? config.cwd : Directory.current.path;
 
-      final pty = Pty.start(
+      final pty = await IsolatePty.start(
         shell,
-        columns: 80,
-        rows: 24,
+        arguments: ptyArgs,
         workingDirectory: cwd,
-        environment: Platform.environment, // Inherit system environment
+        environment: {
+          'TERM': 'xterm-256color',
+          'COLORTERM': 'truecolor',
+          ...Platform.environment,
+        },
       );
 
       final node = TerminalNode(
@@ -165,12 +200,26 @@ class _WorkspaceViewState extends State<WorkspaceView> {
 
       // Setup PTY -> Terminal (Output)
       // Use utf8.decoder transform to handle multi-byte characters (mojibake fix)
+      bool outputTimerStarted = false;
       pty.output
           .cast<List<int>>()
           .transform(const Utf8Decoder(allowMalformed: true))
           .listen((data) {
         terminal.write(data);
         if (data.isNotEmpty) {
+          if (!node.hasOutput && !outputTimerStarted) {
+            outputTimerStarted = true;
+            // Directly show the terminal when output is received
+            if (mounted) {
+              node.hasOutput = true;
+              // Clear restarting state only when we have actual output
+              if (_restartingIds.contains(config.id)) {
+                _restartingIds.remove(config.id);
+              }
+              // Force rebuild to remove loading state
+              setState(() {});
+            }
+          }
           node.markActivity();
         }
       });
@@ -197,7 +246,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   }
 
   void _addNewTerminal(BuildContext context, String workspaceId,
-      {String? shellCmd}) {
+      {String? shellCmd, String? agentId}) {
     final settings = context.read<SettingsBloc>().state.settings;
     final l10n = context.t;
 
@@ -228,10 +277,22 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       }
     }
 
+    List<String> terminalArgs = [];
+    if (agentId != null) {
+      final agentParams = settings.agents.firstWhere((a) => a.id == agentId);
+      terminalArgs = agentParams.args;
+      // Set the title to the agent's display name or custom name
+      terminalTitle = agentParams.preset == AgentPreset.custom
+          ? agentParams.name
+          : agentParams.preset.displayName;
+    }
+
     final config = TerminalConfig.create(
       title: terminalTitle,
       cwd: context.read<WorkspaceBloc>().state.selectedWorkspace?.path ?? '',
       shellCmd: effectiveShellCmd,
+      agentId: agentId,
+      args: terminalArgs,
     );
     context.read<WorkspaceBloc>().add(AddTerminalToWorkspace(
           workspaceId: workspaceId,
@@ -239,6 +300,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         ));
     // Auto select new terminal
     setState(() {
+      _newlyCreatedId = config.id;
       _activeTerminalId = config.id;
     });
   }
@@ -289,6 +351,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       },
       builder: (context, state) {
         final workspace = state.selectedWorkspace;
+        final settings = context.watch<SettingsBloc>().state.settings;
 
         if (workspace == null) {
           final l10n = context.t;
@@ -314,15 +377,36 @@ class _WorkspaceViewState extends State<WorkspaceView> {
             ? _terminalNodes[_activeTerminalId]
             : null;
 
+        final activeConfig = _activeTerminalId != null
+            ? workspace.terminals
+                .where((t) => t.id == _activeTerminalId)
+                .firstOrNull
+            : null;
+
+        final agentConfig = activeConfig?.agentId != null
+            ? settings.agents
+                .where((a) => a.id == activeConfig!.agentId)
+                .firstOrNull
+            : null;
+
+        // Agent Color Theme
+        final agentColor =
+            agentConfig != null ? _getAgentColor(agentConfig.preset) : null;
+        final topBarColor = agentColor != null
+            ? agentColor.withValues(alpha: 0.1)
+            : theme.colorScheme.card;
+        final topBarBorderColor = agentColor ?? theme.colorScheme.border;
+
         return Column(
           children: [
             // Top Bar (Active Terminal Title / Controls)
             Container(
               height: 48,
               decoration: BoxDecoration(
-                color: theme.colorScheme.card,
+                color: topBarColor,
                 border: Border(
-                  bottom: BorderSide(color: theme.colorScheme.border),
+                  bottom: BorderSide(
+                      color: topBarBorderColor.withValues(alpha: 0.3)),
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -333,63 +417,112 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Icon Selector
-                          ShadPopover(
-                            controller: _iconPopoverController,
-                            popover: (context) => Container(
-                              width: 300,
-                              height: 300,
-                              padding: const EdgeInsets.all(8),
-                              child: GridView.count(
-                                crossAxisCount: 5,
-                                children: [
-                                  ..._iconMapping.keys.map(
-                                    (iconName) => IconOption(
-                                      iconName: iconName,
-                                      node: activeNode,
-                                      workspace: workspace,
-                                      iconMapping: _iconMapping,
-                                      onClose: () =>
-                                          _iconPopoverController.toggle(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            child: ShadButton.ghost(
-                              padding: EdgeInsets.zero,
+                          if (agentConfig != null) ...[
+                            // Agent Icon
+                            Container(
                               width: 32,
                               height: 32,
-                              onPressed: () => _iconPopoverController.toggle(),
-                              child: Icon(
-                                _getIconData(activeNode.id, workspace),
-                                size: 18,
-                                color: theme.colorScheme.primary,
-                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: agentConfig.preset.iconAssetPath != null
+                                  ? Builder(builder: (context) {
+                                      var iconPath =
+                                          agentConfig.preset.iconAssetPath!;
+                                      ColorFilter? colorFilter;
+
+                                      if (agentConfig.preset ==
+                                              AgentPreset.opencode &&
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark) {
+                                        iconPath =
+                                            'assets/images/agent_logos/opencode-dark.svg';
+                                      }
+
+                                      if (agentConfig.preset ==
+                                              AgentPreset.codex ||
+                                          agentConfig.preset ==
+                                              AgentPreset.githubCopilot) {
+                                        colorFilter = ColorFilter.mode(
+                                            theme.colorScheme.foreground,
+                                            BlendMode.srcIn);
+                                      }
+
+                                      return SvgPicture.asset(
+                                        iconPath,
+                                        colorFilter: colorFilter,
+                                      );
+                                    })
+                                  : Icon(LucideIcons.bot,
+                                      color: agentColor ??
+                                          theme.colorScheme.primary),
                             ),
-                          ),
-                          const Gap(4),
-                          Expanded(
-                            child: Focus(
-                              onFocusChange: (hasFocus) {
-                                if (!hasFocus) {
-                                  _updateTitle(activeNode, workspace);
-                                }
-                              },
-                              child: ShadInput(
-                                key: ValueKey(activeNode.id),
-                                controller: _titleController
-                                  ..text = activeNode.title,
-                                style: theme.textTheme.large,
-                                decoration: ShadDecoration(
-                                  border: ShadBorder.none,
-                                  focusedBorder: ShadBorder.none,
+                            const Gap(8),
+                            // Fixed Title
+                            Expanded(
+                                child: Text(activeNode.title,
+                                    style: theme.textTheme.large.copyWith(
+                                        color: agentColor ??
+                                            theme.colorScheme.foreground,
+                                        fontWeight: FontWeight.bold))),
+                          ] else ...[
+                            // Icon Selector
+                            ShadPopover(
+                              controller: _iconPopoverController,
+                              popover: (context) => Container(
+                                width: 300,
+                                height: 300,
+                                padding: const EdgeInsets.all(8),
+                                child: GridView.count(
+                                  crossAxisCount: 5,
+                                  children: [
+                                    ..._iconMapping.keys.map(
+                                      (iconName) => IconOption(
+                                        iconName: iconName,
+                                        node: activeNode,
+                                        workspace: workspace,
+                                        iconMapping: _iconMapping,
+                                        onClose: () =>
+                                            _iconPopoverController.toggle(),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                onSubmitted: (value) =>
-                                    _updateTitle(activeNode, workspace),
+                              ),
+                              child: ShadButton.ghost(
+                                padding: EdgeInsets.zero,
+                                width: 32,
+                                height: 32,
+                                onPressed: () =>
+                                    _iconPopoverController.toggle(),
+                                child: Icon(
+                                  _getIconData(activeNode.id, workspace),
+                                  size: 18,
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
                             ),
-                          ),
+                            const Gap(4),
+                            Expanded(
+                              child: Focus(
+                                onFocusChange: (hasFocus) {
+                                  if (!hasFocus) {
+                                    _updateTitle(activeNode, workspace);
+                                  }
+                                },
+                                child: ShadInput(
+                                  key: ValueKey(activeNode.id),
+                                  controller: _titleController
+                                    ..text = activeNode.title,
+                                  style: theme.textTheme.large,
+                                  decoration: ShadDecoration(
+                                    border: ShadBorder.none,
+                                    focusedBorder: ShadBorder.none,
+                                  ),
+                                  onSubmitted: (value) =>
+                                      _updateTitle(activeNode, workspace),
+                                ),
+                              ),
+                            ),
+                          ],
                           const Gap(8),
                           const Gap(8),
                           const Gap(8),
@@ -543,16 +676,44 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                         color: theme.colorScheme.background
                                             .withValues(alpha: 0.5),
                                         child: Center(
-                                          child: GlowingIcon(
-                                            icon: _getIconData(
-                                                config.id, workspace),
-                                            status: node?.status ??
-                                                TerminalStatus.disconnected,
-                                            size: 32,
-                                            baseColor: isActive
-                                                ? theme.colorScheme.primary
-                                                : null,
-                                          ),
+                                          child: () {
+                                            // Determine icon or SVG path
+                                            IconData? iconData;
+                                            String? svgPath;
+
+                                            if (config.agentId != null) {
+                                              final agents = context
+                                                  .read<SettingsBloc>()
+                                                  .state
+                                                  .settings
+                                                  .agents;
+                                              final agent = agents
+                                                  .where((a) =>
+                                                      a.id == config.agentId)
+                                                  .firstOrNull;
+                                              if (agent != null) {
+                                                svgPath = _getAgentIconPath(
+                                                    agent.preset, theme);
+                                              }
+                                            }
+
+                                            // Fallback to standard icon logic if no agent/svg
+                                            if (svgPath == null) {
+                                              iconData = _getIconData(
+                                                  config.id, workspace);
+                                            }
+
+                                            return GlowingIcon(
+                                              icon: iconData,
+                                              svgPath: svgPath,
+                                              status: node?.status ??
+                                                  TerminalStatus.disconnected,
+                                              size: 32,
+                                              baseColor: isActive
+                                                  ? theme.colorScheme.primary
+                                                  : null,
+                                            );
+                                          }(),
                                         ),
                                       ),
                                     ),
@@ -577,8 +738,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                         child: ShadButton.outline(
                           padding: EdgeInsets.zero,
                           size: ShadButtonSize.sm,
-                          onPressed: () => _popoverController.show(),
-                          child: Icon(LucideIcons.plus,
+                          onPressed: () => _popoverController.toggle(),
+                          child: Icon(LucideIcons.terminal,
                               size: 16,
                               color: theme.colorScheme.mutedForeground),
                         ),
@@ -669,6 +830,115 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                       ),
                     ),
                   ),
+
+                  // Add Agent Button
+                  // Add Agent Button
+                  if (settings.agents.any((a) => a.enabled))
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: ShadPopover(
+                        controller: _agentPopoverController,
+                        padding: EdgeInsets.zero,
+                        child: ShadButton.outline(
+                          padding: EdgeInsets.zero,
+                          size: ShadButtonSize.sm,
+                          width: 36,
+                          height: 36,
+                          onPressed: () => _agentPopoverController
+                              .toggle(), // Explicit toggle
+
+                          child: Icon(LucideIcons.bot,
+                              size: 16,
+                              color: theme.colorScheme.mutedForeground),
+                        ),
+                        popover: (context) {
+                          final enabledAgents =
+                              settings.agents.where((a) => a.enabled).toList();
+                          return SizedBox(
+                              width: 200,
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Text(context.t.agents,
+                                          style: theme.textTheme.small.copyWith(
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                    Divider(
+                                        height: 1,
+                                        color: theme.colorScheme.border),
+                                    ...enabledAgents.map((agent) => InkWell(
+                                        onTap: () {
+                                          _agentPopoverController.toggle();
+                                          _addNewTerminal(context, workspace.id,
+                                              shellCmd: agent.command,
+                                              agentId: agent.id);
+                                        },
+                                        child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 8),
+                                            child: Row(children: [
+                                              SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child: agent.preset
+                                                            .iconAssetPath !=
+                                                        null
+                                                    ? Builder(
+                                                        builder: (context) {
+                                                        var iconPath = agent
+                                                            .preset
+                                                            .iconAssetPath!;
+                                                        ColorFilter?
+                                                            colorFilter;
+
+                                                        // Adapt Opencode icon for dark mode
+                                                        if (agent.preset ==
+                                                                AgentPreset
+                                                                    .opencode &&
+                                                            Theme.of(context)
+                                                                    .brightness ==
+                                                                Brightness
+                                                                    .dark) {
+                                                          iconPath =
+                                                              'assets/images/agent_logos/opencode-dark.svg';
+                                                        }
+
+                                                        // Adapt Codex and Github Copilot icon color
+                                                        if (agent.preset ==
+                                                                AgentPreset
+                                                                    .codex ||
+                                                            agent.preset ==
+                                                                AgentPreset
+                                                                    .githubCopilot) {
+                                                          colorFilter =
+                                                              ColorFilter.mode(
+                                                                  theme
+                                                                      .colorScheme
+                                                                      .foreground,
+                                                                  BlendMode
+                                                                      .srcIn);
+                                                        }
+
+                                                        return SvgPicture.asset(
+                                                          iconPath,
+                                                          colorFilter:
+                                                              colorFilter,
+                                                        );
+                                                      })
+                                                    : Icon(LucideIcons.bot,
+                                                        size: 16),
+                                              ),
+                                              const Gap(8),
+                                              Text(agent.name),
+                                            ]))))
+                                  ]));
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -757,20 +1027,43 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     }
   }
 
-  String _getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) {
-    switch (shell) {
-      case ShellType.pwsh7:
-        return l10n.pwsh7;
-      case ShellType.powershell:
-        return l10n.powershell;
-      case ShellType.cmd:
-        return l10n.cmd;
-      case ShellType.wsl:
-        return l10n.wsl;
-      case ShellType.gitBash:
-        return l10n.gitBash;
-      case ShellType.custom:
-        return l10n.custom;
+  String _getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) =>
+      switch (shell) {
+        ShellType.pwsh7 => l10n.pwsh7,
+        ShellType.powershell => l10n.powershell,
+        ShellType.cmd => l10n.cmd,
+        ShellType.wsl => l10n.wsl,
+        ShellType.gitBash => l10n.gitBash,
+        ShellType.custom => l10n.custom,
+      };
+
+  Color? _getAgentColor(AgentPreset preset) => switch (preset) {
+        AgentPreset.claude => const Color(0xFFD97757),
+        AgentPreset.qwen => const Color(0xFF615CED),
+        AgentPreset.codex => const Color(0xFF10A37F),
+        AgentPreset.gemini => const Color(0xFF4E87F6),
+        AgentPreset.opencode => Colors.blueGrey,
+        _ => null,
+      };
+
+  String? _getAgentIconPath(AgentPreset preset, ShadThemeData theme) {
+    switch (preset) {
+      case AgentPreset.claude:
+        return 'assets/images/agent_logos/claude.svg';
+      case AgentPreset.gemini:
+        return 'assets/images/agent_logos/gemini.svg';
+      case AgentPreset.codex:
+        return 'assets/images/agent_logos/chatgpt.svg';
+      case AgentPreset.qwen:
+        return 'assets/images/agent_logos/qwen.svg';
+      case AgentPreset.opencode:
+        return theme.brightness == Brightness.dark
+            ? 'assets/images/agent_logos/opencode-dark.svg'
+            : 'assets/images/agent_logos/opencode.svg';
+      case AgentPreset.githubCopilot:
+        return 'assets/images/agent_logos/github-copilot.svg';
+      default:
+        return null;
     }
   }
 }

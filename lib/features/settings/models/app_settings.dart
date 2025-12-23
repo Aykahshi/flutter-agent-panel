@@ -4,12 +4,14 @@ import 'app_theme.dart';
 import 'custom_shell_config.dart';
 import 'shell_type.dart';
 import 'terminal_font_settings.dart';
+import 'agent_config.dart';
 
 // Re-export for backwards compatibility
 export 'app_theme.dart';
 export 'custom_shell_config.dart';
 export 'shell_type.dart';
 export 'terminal_font_settings.dart';
+export 'agent_config.dart';
 
 /// Migrate old TerminalTheme enum names to new theme names.
 String? _migrateTerminalThemeName(String? oldName) {
@@ -36,6 +38,7 @@ class AppSettings extends Equatable {
   final String? selectedCustomShellId; // ID of the selected custom shell
   final String locale;
   final bool terminalCursorBlink;
+  final List<AgentConfig> agents;
 
   const AppSettings({
     this.appTheme = AppTheme.dark,
@@ -47,6 +50,7 @@ class AppSettings extends Equatable {
     this.selectedCustomShellId,
     this.locale = 'en',
     this.terminalCursorBlink = true,
+    this.agents = const [],
   });
 
   AppSettings copyWith({
@@ -61,6 +65,7 @@ class AppSettings extends Equatable {
     bool clearSelectedCustomShellId = false,
     String? locale,
     bool? terminalCursorBlink,
+    List<AgentConfig>? agents,
   }) {
     return AppSettings(
       appTheme: appTheme ?? this.appTheme,
@@ -76,6 +81,7 @@ class AppSettings extends Equatable {
           : (selectedCustomShellId ?? this.selectedCustomShellId),
       locale: locale ?? this.locale,
       terminalCursorBlink: terminalCursorBlink ?? this.terminalCursorBlink,
+      agents: agents ?? this.agents,
     );
   }
 
@@ -117,7 +123,69 @@ class AppSettings extends Equatable {
       selectedCustomShellId: json['selectedCustomShellId'] as String?,
       locale: json['locale'] as String? ?? 'en',
       terminalCursorBlink: json['terminalCursorBlink'] as bool? ?? true,
+      agents: _mergeWithDefaults(json['agents'] as List?),
     );
+  }
+
+  static List<AgentConfig> _mergeWithDefaults(List<dynamic>? jsonAgents) {
+    final defaults = _getDefaultAgents();
+    if (jsonAgents == null) return defaults;
+
+    final loaded = jsonAgents
+        .map((e) => AgentConfig.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    // Add any default agents that are missing from the loaded list (by ID)
+    final loadedIds = loaded.map((a) => a.id).toSet();
+    for (final defaultAgent in defaults) {
+      if (!loadedIds.contains(defaultAgent.id)) {
+        loaded.add(defaultAgent);
+      }
+    }
+
+    return loaded;
+  }
+
+  static List<AgentConfig> _getDefaultAgents() {
+    return [
+      AgentConfig(
+        id: 'preset_claude',
+        preset: AgentPreset.claude,
+        name: AgentPreset.claude.displayName,
+        command: AgentPreset.claude.defaultCommand,
+      ),
+      AgentConfig(
+        id: 'preset_qwen',
+        preset: AgentPreset.qwen,
+        name: AgentPreset.qwen.displayName,
+        command: AgentPreset.qwen.defaultCommand,
+      ),
+      AgentConfig(
+        id: 'preset_codex',
+        preset: AgentPreset.codex,
+        name: AgentPreset.codex.displayName,
+        command: AgentPreset.codex.defaultCommand,
+      ),
+      AgentConfig(
+        id: 'preset_gemini',
+        preset: AgentPreset.gemini,
+        name: AgentPreset.gemini.displayName,
+        command: AgentPreset.gemini.defaultCommand,
+      ),
+      AgentConfig(
+        id: 'preset_opencode',
+        preset: AgentPreset.opencode,
+        name: AgentPreset.opencode.displayName,
+        command: AgentPreset.opencode.defaultCommand,
+      ),
+      AgentConfig(
+        id: 'preset_github_copilot',
+        preset: AgentPreset.githubCopilot,
+        name: AgentPreset.githubCopilot.displayName,
+        command: AgentPreset.githubCopilot.defaultCommand,
+        args: AgentPreset.githubCopilot.defaultArgs,
+      ),
+    ];
   }
 
   Map<String, dynamic> toJson() {
@@ -131,6 +199,7 @@ class AppSettings extends Equatable {
       'selectedCustomShellId': selectedCustomShellId,
       'locale': locale,
       'terminalCursorBlink': terminalCursorBlink,
+      'agents': agents.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -168,5 +237,6 @@ class AppSettings extends Equatable {
         selectedCustomShellId,
         locale,
         terminalCursorBlink,
+        agents,
       ];
 }

@@ -21,33 +21,46 @@ class MainTerminalContent extends StatelessWidget {
     final theme = context.theme;
     final l10n = context.t;
 
-    // Show restarting state
-    if (isRestarting || activeNode == null) {
+    // Show restarting state or loading state for new agent terminal
+    // We check hasOutput to see if the process has started sending data
+    final shouldShowLoading =
+        isRestarting || activeNode == null || !activeNode!.hasOutput;
+
+    if (shouldShowLoading) {
       return Container(
         color: theme.colorScheme.background,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(
-                color: theme.colorScheme.primary,
-              ),
-              const Gap(16),
               Text(
-                isRestarting ? l10n.restartingTerminal : l10n.noTerminalsOpen,
-                style: theme.textTheme.muted,
+                isRestarting
+                    ? l10n.restartingTerminal
+                    : (activeNode != null && !activeNode!.hasOutput
+                        ? l10n.startingTerminal
+                        : l10n.noTerminalsOpen),
+                style: theme.textTheme.large,
               ),
+              if (isRestarting ||
+                  (activeNode != null && !activeNode!.hasOutput)) ...[
+                const Gap(16),
+                CircularProgressIndicator(
+                  color: theme.colorScheme.primary,
+                ),
+              ],
             ],
           ),
         ),
       );
     }
 
-    // Show the terminal
-    return TerminalView(
-      key: ValueKey(activeNode!.id),
-      terminalNode: activeNode!,
-      interactive: true,
+    // Show the terminal with RepaintBoundary to isolate repaints
+    return RepaintBoundary(
+      child: TerminalView(
+        key: ValueKey(activeNode!.id),
+        terminalNode: activeNode!,
+        interactive: true,
+      ),
     );
   }
 }

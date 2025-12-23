@@ -1,4 +1,22 @@
 {
+  "agents": "智能助手",
+  "agentsDescription": "管理 AI 智能助手及其設定",
+  "agentName": "名稱",
+  "agentCommand": "命令",
+  "agentArgs": "參數",
+  "agentEnv": "環境變數",
+  "installAgentTitle": "安裝助手",
+  "installAgentMessage": "助手 '{name}' 尚未安裝。\n是否要使用以下命令安裝？\n\n{command}",
+  "agentNotInstalled": "助手未安裝",
+  "enableAgent": "啟用助手",
+  "installingAgent": "正在安裝助手...",
+  "startingAgent": "啟動助手...",
+  "agentInstalled": "助手安裝成功",
+  "agentInstallFailed": "助手安裝失敗",
+  "noCustomAgents": "尚未設定自定義助手",
+  "customAgent": "自定義助手",
+  "addCustomAgent": "新增自定義助手",
+  "editCustomAgent": "編輯自定義助手",
   "appTitle": "Flutter 代理面板",
   "general": "一般",
 
@@ -83,6 +101,8 @@
   "missingRequiredField": "缺少必填欄位: {field}",
   "invalidJson": "無效的 JSON: {message}",
   "errorParsingTheme": "解析主題時發生錯誤: {message}",
+  "startingTerminal": "正在啟動...",
+  "initializingShell": "正在初始化 Shell 環境...",
   "@@locale": "zh_Hant"
 }
 
