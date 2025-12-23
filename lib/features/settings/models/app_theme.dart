@@ -3,6 +3,7 @@ enum AppTheme {
   dark('Dark'),
   light('Light');
 
-  final String displayName;
   const AppTheme(this.displayName);
+
+  final String displayName;
 }

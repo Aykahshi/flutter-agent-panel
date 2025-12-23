@@ -60,17 +60,6 @@ extension AgentPresetX on AgentPreset {
 }
 
 class AgentConfig extends Equatable {
-  final String id;
-  final AgentPreset preset;
-  final String name;
-  final String command;
-  final List<String> args;
-  final Map<String, String> env;
-  final bool enabled;
-  final String? customIconPath;
-  // If user sets a custom text color, we store the hex code
-  final String? customTextColor;
-
   const AgentConfig({
     required this.id,
     required this.preset,
@@ -105,6 +94,16 @@ class AgentConfig extends Equatable {
       customTextColor: json['customTextColor'] as String?,
     );
   }
+  final String id;
+  final AgentPreset preset;
+  final String name;
+  final String command;
+  final List<String> args;
+  final Map<String, String> env;
+  final bool enabled;
+  final String? customIconPath;
+  // If user sets a custom text color, we store the hex code
+  final String? customTextColor;
 
   Map<String, dynamic> toJson() {
     return {

@@ -6,10 +6,9 @@ import '../models/terminal_theme_data.dart';
 
 /// Service to load terminal themes.
 class TerminalThemeService {
+  TerminalThemeService._();
   static final TerminalThemeService _instance = TerminalThemeService._();
   static TerminalThemeService get instance => _instance;
-
-  TerminalThemeService._();
 
   List<TerminalThemeData>? _darkThemes;
   List<TerminalThemeData>? _lightThemes;
@@ -118,7 +117,8 @@ class TerminalThemeService {
   /// Returns null if valid, or a record with (errorType, details) if invalid.
   /// errorType: 'jsonMustBeObject', 'missingRequiredField', 'invalidJson', 'errorParsingTheme'
   (String errorType, String? details)? validateCustomThemeJson(
-      String jsonString) {
+    String jsonString,
+  ) {
     try {
       final json = jsonDecode(jsonString);
       if (json is! Map<String, dynamic>) {

@@ -3,11 +3,6 @@ import 'package:uuid/uuid.dart';
 
 /// Custom shell configuration for user-defined shells
 class CustomShellConfig extends Equatable {
-  final String id;
-  final String name;
-  final String path;
-  final String icon;
-
   const CustomShellConfig({
     required this.id,
     required this.name,
@@ -29,6 +24,19 @@ class CustomShellConfig extends Equatable {
     );
   }
 
+  factory CustomShellConfig.fromJson(Map<String, dynamic> json) {
+    return CustomShellConfig(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      path: json['path'] as String,
+      icon: json['icon'] as String? ?? 'terminal',
+    );
+  }
+  final String id;
+  final String name;
+  final String path;
+  final String icon;
+
   CustomShellConfig copyWith({
     String? name,
     String? path,
@@ -39,15 +47,6 @@ class CustomShellConfig extends Equatable {
       name: name ?? this.name,
       path: path ?? this.path,
       icon: icon ?? this.icon,
-    );
-  }
-
-  factory CustomShellConfig.fromJson(Map<String, dynamic> json) {
-    return CustomShellConfig(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      path: json['path'] as String,
-      icon: json['icon'] as String? ?? 'terminal',
     );
   }
 

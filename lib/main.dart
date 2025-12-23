@@ -11,7 +11,8 @@ void main() async {
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: HydratedStorageDirectory(
-        (await getApplicationDocumentsDirectory()).path),
+      (await getApplicationDocumentsDirectory()).path,
+    ),
   );
 
   // Initialize user config folder

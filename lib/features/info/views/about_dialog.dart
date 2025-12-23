@@ -67,7 +67,8 @@ class AppAboutDialog extends StatelessWidget {
             ),
             ShadButton.link(
               onPressed: () => _launchUrl(
-                  'https://github.com/tony1223/better-agent-terminal'),
+                'https://github.com/tony1223/better-agent-terminal',
+              ),
               child: const Text('Better Agent Terminal'),
             ),
             SizedBox(height: 16.h),

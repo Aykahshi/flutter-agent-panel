@@ -3,11 +3,6 @@ import 'package:uuid/uuid.dart';
 import '../../terminal/models/terminal_config.dart';
 
 class Workspace extends Equatable {
-  final String id;
-  final String path;
-  final String name;
-  final List<TerminalConfig> terminals;
-
   const Workspace({
     required this.id,
     required this.path,
@@ -23,6 +18,22 @@ class Workspace extends Equatable {
     );
   }
 
+  factory Workspace.fromJson(Map<String, dynamic> json) {
+    return Workspace(
+      id: json['id'] as String,
+      path: json['path'] as String,
+      name: json['name'] as String,
+      terminals: (json['terminals'] as List<dynamic>?)
+              ?.map((e) => TerminalConfig.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+  final String id;
+  final String path;
+  final String name;
+  final List<TerminalConfig> terminals;
+
   Workspace copyWith({
     String? id,
     String? path,
@@ -34,18 +45,6 @@ class Workspace extends Equatable {
       path: path ?? this.path,
       name: name ?? this.name,
       terminals: terminals ?? this.terminals,
-    );
-  }
-
-  factory Workspace.fromJson(Map<String, dynamic> json) {
-    return Workspace(
-      id: json['id'] as String,
-      path: json['path'] as String,
-      name: json['name'] as String,
-      terminals: (json['terminals'] as List<dynamic>?)
-              ?.map((e) => TerminalConfig.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
     );
   }
 

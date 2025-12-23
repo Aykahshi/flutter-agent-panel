@@ -11,14 +11,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../settings/bloc/settings_bloc.dart';
 
 class TerminalView extends StatefulWidget {
-  final TerminalNode terminalNode;
-  final bool interactive;
-
   const TerminalView({
     super.key,
     required this.terminalNode,
     this.interactive = true,
   });
+  final TerminalNode terminalNode;
+  final bool interactive;
 
   @override
   State<TerminalView> createState() => _TerminalViewState();
@@ -82,8 +81,11 @@ class _TerminalViewState extends State<TerminalView> {
           _lastThemeName = settings.terminalThemeName;
           _lastCustomJson = settings.customTerminalThemeJson;
           _lastBrightness = theme.brightness;
-          _loadTheme(settings.terminalThemeName,
-              settings.customTerminalThemeJson, theme.brightness);
+          _loadTheme(
+            settings.terminalThemeName,
+            settings.customTerminalThemeJson,
+            theme.brightness,
+          );
         }
 
         // Use cached theme or fallback to default
@@ -147,7 +149,10 @@ class _TerminalViewState extends State<TerminalView> {
   }
 
   Future<void> _loadTheme(
-      String themeName, String? customJson, Brightness brightness) async {
+    String themeName,
+    String? customJson,
+    Brightness brightness,
+  ) async {
     TerminalThemeData? themeData;
 
     // Try custom JSON first

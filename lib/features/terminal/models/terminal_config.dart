@@ -2,14 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
 class TerminalConfig extends Equatable {
-  final String id;
-  final String title;
-  final String cwd;
-  final String shellCmd;
-  final String? icon;
-  final String? agentId;
-  final List<String> args;
-
   const TerminalConfig({
     required this.id,
     required this.title,
@@ -39,6 +31,27 @@ class TerminalConfig extends Equatable {
     );
   }
 
+  factory TerminalConfig.fromJson(Map<String, dynamic> json) {
+    return TerminalConfig(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      cwd: json['cwd'] as String,
+      shellCmd: json['shellCmd'] as String? ?? 'pwsh',
+      icon: json['icon'] as String?,
+      agentId: json['agentId'] as String?,
+      args:
+          (json['args'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
+    );
+  }
+  final String id;
+  final String title;
+  final String cwd;
+  final String shellCmd;
+  final String? icon;
+  final String? agentId;
+  final List<String> args;
+
   TerminalConfig copyWith({
     String? id,
     String? title,
@@ -56,20 +69,6 @@ class TerminalConfig extends Equatable {
       icon: icon ?? this.icon,
       agentId: agentId ?? this.agentId,
       args: args ?? this.args,
-    );
-  }
-
-  factory TerminalConfig.fromJson(Map<String, dynamic> json) {
-    return TerminalConfig(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      cwd: json['cwd'] as String,
-      shellCmd: json['shellCmd'] as String? ?? 'pwsh',
-      icon: json['icon'] as String?,
-      agentId: json['agentId'] as String?,
-      args:
-          (json['args'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-              const [],
     );
   }
 

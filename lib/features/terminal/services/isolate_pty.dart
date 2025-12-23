@@ -8,14 +8,14 @@ import 'package:flutter_pty/flutter_pty.dart';
 sealed class _PtyCommand {}
 
 class _ResizeCommand extends _PtyCommand {
+  _ResizeCommand(this.rows, this.cols);
   final int rows;
   final int cols;
-  _ResizeCommand(this.rows, this.cols);
 }
 
 class _WriteCommand extends _PtyCommand {
-  final String data;
   _WriteCommand(this.data);
+  final String data;
 }
 
 class _KillCommand extends _PtyCommand {}
@@ -24,28 +24,27 @@ class _KillCommand extends _PtyCommand {}
 sealed class _PtyEvent {}
 
 class _OutputEvent extends _PtyEvent {
-  final List<int> data;
   _OutputEvent(this.data);
+  final List<int> data;
 }
 
 class _ExitEvent extends _PtyEvent {
-  final int? exitCode;
   _ExitEvent(this.exitCode);
+  final int? exitCode;
 }
 
 /// A wrapper around Pty that runs the actual process in a separate Isolate
 /// to prevent blocking the UI thread during heavy IO or startup.
 class IsolatePty {
-  final Isolate _isolate;
-  final SendPort _commandPort;
-  final Stream<List<int>> _outputStream;
-  final Completer<int?> _exitCompleter = Completer<int?>();
-
   IsolatePty._(
     this._isolate,
     this._commandPort,
     this._outputStream,
   );
+  final Isolate _isolate;
+  final SendPort _commandPort;
+  final Stream<List<int>> _outputStream;
+  final Completer<int?> _exitCompleter = Completer<int?>();
 
   /// Spawns a new PTY in a background isolate.
   static Future<IsolatePty> start(
@@ -138,14 +137,6 @@ class IsolatePty {
 }
 
 class _PtyConfig {
-  final SendPort sendPort;
-  final String executable;
-  final List<String> arguments;
-  final String? workingDirectory;
-  final Map<String, String>? environment;
-  final int rows;
-  final int columns;
-
   _PtyConfig({
     required this.sendPort,
     required this.executable,
@@ -155,6 +146,13 @@ class _PtyConfig {
     this.rows = 24,
     this.columns = 80,
   });
+  final SendPort sendPort;
+  final String executable;
+  final List<String> arguments;
+  final String? workingDirectory;
+  final Map<String, String>? environment;
+  final int rows;
+  final int columns;
 }
 
 Future<void> _ptyIsolateEntryPoint(_PtyConfig config) async {

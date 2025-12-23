@@ -56,7 +56,9 @@ class App extends StatelessWidget {
                       Locale('en'),
                       Locale('zh'),
                       Locale.fromSubtags(
-                          languageCode: 'zh', scriptCode: 'Hant'),
+                        languageCode: 'zh',
+                        scriptCode: 'Hant',
+                      ),
                     ],
                     locale: _parseLocale(state.settings.locale),
                     home: const AppShell(),

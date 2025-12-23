@@ -22,11 +22,13 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
     final updatedWorkspaces = List<Workspace>.from(state.workspaces)
       ..add(newWorkspace);
 
-    emit(state.copyWith(
-      workspaces: updatedWorkspaces,
-      selectedWorkspaceId: state.selectedWorkspaceId ??
-          newWorkspace.id, // Auto-select if none selected
-    ));
+    emit(
+      state.copyWith(
+        workspaces: updatedWorkspaces,
+        selectedWorkspaceId: state.selectedWorkspaceId ??
+            newWorkspace.id, // Auto-select if none selected
+      ),
+    );
   }
 
   void _onRemoveWorkspace(RemoveWorkspace event, Emitter<WorkspaceState> emit) {
@@ -37,19 +39,29 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
       newSelectedId =
           updatedWorkspaces.isNotEmpty ? updatedWorkspaces.first.id : null;
     }
-    emit(WorkspaceState(
-        workspaces: updatedWorkspaces, selectedWorkspaceId: newSelectedId));
+    emit(
+      WorkspaceState(
+        workspaces: updatedWorkspaces,
+        selectedWorkspaceId: newSelectedId,
+      ),
+    );
   }
 
   void _onSelectWorkspace(SelectWorkspace event, Emitter<WorkspaceState> emit) {
     if (state.workspaces.any((w) => w.id == event.id)) {
-      emit(WorkspaceState(
-          workspaces: state.workspaces, selectedWorkspaceId: event.id));
+      emit(
+        WorkspaceState(
+          workspaces: state.workspaces,
+          selectedWorkspaceId: event.id,
+        ),
+      );
     }
   }
 
   void _onAddTerminal(
-      AddTerminalToWorkspace event, Emitter<WorkspaceState> emit) {
+    AddTerminalToWorkspace event,
+    Emitter<WorkspaceState> emit,
+  ) {
     _updateWorkspace(event.workspaceId, emit, (workspace) {
       final updatedTerminals = List<TerminalConfig>.from(workspace.terminals)
         ..add(event.config);
@@ -58,7 +70,9 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
   }
 
   void _onRemoveTerminal(
-      RemoveTerminalFromWorkspace event, Emitter<WorkspaceState> emit) {
+    RemoveTerminalFromWorkspace event,
+    Emitter<WorkspaceState> emit,
+  ) {
     _updateWorkspace(event.workspaceId, emit, (workspace) {
       final updatedTerminals =
           workspace.terminals.where((t) => t.id != event.terminalId).toList();
@@ -67,7 +81,9 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
   }
 
   void _onUpdateTerminal(
-      UpdateTerminalInWorkspace event, Emitter<WorkspaceState> emit) {
+    UpdateTerminalInWorkspace event,
+    Emitter<WorkspaceState> emit,
+  ) {
     _updateWorkspace(event.workspaceId, emit, (workspace) {
       final updatedTerminals = workspace.terminals.map((t) {
         return t.id == event.config.id ? event.config : t;
@@ -77,7 +93,9 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
   }
 
   void _onReorderTerminals(
-      ReorderTerminalsInWorkspace event, Emitter<WorkspaceState> emit) {
+    ReorderTerminalsInWorkspace event,
+    Emitter<WorkspaceState> emit,
+  ) {
     _updateWorkspace(event.workspaceId, emit, (workspace) {
       final terminals = List<TerminalConfig>.from(workspace.terminals);
       var newIndex = event.newIndex;

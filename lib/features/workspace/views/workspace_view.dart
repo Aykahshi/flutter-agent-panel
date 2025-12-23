@@ -5,19 +5,19 @@ import 'dart:convert';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:gap/gap.dart';
 
-import '../widgets/icon_option.dart';
 import '../widgets/main_terminal_content.dart';
+import '../widgets/terminal_top_bar.dart';
+import '../widgets/shell_selection_popover.dart';
+import '../widgets/agent_selection_popover.dart';
 
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../shared/utils/platform_utils.dart';
 import '../../../core/constants/assets.dart';
 import '../../../core/extensions/context_extension.dart';
-import '../../../core/l10n/app_localizations.dart';
 
 import '../../terminal/models/terminal_node.dart';
 import '../../terminal/models/terminal_config.dart';
 import '../../terminal/services/isolate_pty.dart';
-import '../../terminal/widgets/activity_indicator.dart';
 import '../../terminal/widgets/glowing_icon.dart';
 import '../bloc/workspace_bloc.dart';
 import '../../settings/bloc/settings_bloc.dart';
@@ -137,7 +137,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   }
 
   Future<void> _createTerminalNode(
-      TerminalConfig config, String workspaceId) async {
+    TerminalConfig config,
+    String workspaceId,
+  ) async {
     if (_pendingTerminalIds.contains(config.id)) return;
 
     _pendingTerminalIds.add(config.id);
@@ -246,8 +248,12 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     }
   }
 
-  void _addNewTerminal(BuildContext context, String workspaceId,
-      {String? shellCmd, String? agentId}) {
+  void _addNewTerminal(
+    BuildContext context,
+    String workspaceId, {
+    String? shellCmd,
+    String? agentId,
+  }) {
     final settings = context.read<SettingsBloc>().state.settings;
     final l10n = context.t;
 
@@ -295,10 +301,12 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       agentId: agentId,
       args: terminalArgs,
     );
-    context.read<WorkspaceBloc>().add(AddTerminalToWorkspace(
-          workspaceId: workspaceId,
-          config: config,
-        ));
+    context.read<WorkspaceBloc>().add(
+          AddTerminalToWorkspace(
+            workspaceId: workspaceId,
+            config: config,
+          ),
+        );
     // Auto select new terminal
     setState(() {
       _newlyCreatedId = config.id;
@@ -307,11 +315,16 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   }
 
   void _closeTerminal(
-      BuildContext context, String workspaceId, String terminalId) {
-    context.read<WorkspaceBloc>().add(RemoveTerminalFromWorkspace(
-          workspaceId: workspaceId,
-          terminalId: terminalId,
-        ));
+    BuildContext context,
+    String workspaceId,
+    String terminalId,
+  ) {
+    context.read<WorkspaceBloc>().add(
+          RemoveTerminalFromWorkspace(
+            workspaceId: workspaceId,
+            terminalId: terminalId,
+          ),
+        );
   }
 
   void _refreshTerminal(String terminalId) {
@@ -359,7 +372,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           return Center(
             child: Text(
               l10n.selectWorkspacePrompt,
-              style: theme.textTheme.muted.copyWith(fontSize: 16),
+              style: theme.textTheme.muted.copyWith(
+                fontSize: 16,
+              ),
             ),
           );
         }
@@ -401,165 +416,21 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         return Column(
           children: [
             // Top Bar (Active Terminal Title / Controls)
-            Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: topBarColor,
-                border: Border(
-                  bottom: BorderSide(
-                      color: topBarBorderColor.withValues(alpha: 0.3)),
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  if (activeNode != null)
-                    Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (agentConfig != null) ...[
-                            // Agent Icon
-                            Container(
-                              width: 32,
-                              height: 32,
-                              padding: const EdgeInsets.all(4),
-                              child: agentConfig.preset.iconAssetPath != null
-                                  ? Builder(builder: (context) {
-                                      var iconPath =
-                                          agentConfig.preset.iconAssetPath!;
-                                      ColorFilter? colorFilter;
-
-                                      if (agentConfig.preset ==
-                                              AgentPreset.opencode &&
-                                          Theme.of(context).brightness ==
-                                              Brightness.dark) {
-                                        iconPath = Assets.opencodeDarkLogo;
-                                      }
-
-                                      if (agentConfig.preset ==
-                                              AgentPreset.codex ||
-                                          agentConfig.preset ==
-                                              AgentPreset.githubCopilot) {
-                                        colorFilter = ColorFilter.mode(
-                                            theme.colorScheme.foreground,
-                                            BlendMode.srcIn);
-                                      }
-
-                                      return SvgPicture.asset(
-                                        iconPath,
-                                        colorFilter: colorFilter,
-                                      );
-                                    })
-                                  : Icon(LucideIcons.bot,
-                                      color: agentColor ??
-                                          theme.colorScheme.primary),
-                            ),
-                            const Gap(8),
-                            // Fixed Title
-                            Expanded(
-                                child: Text(activeNode.title,
-                                    style: theme.textTheme.large.copyWith(
-                                        color: agentColor ??
-                                            theme.colorScheme.foreground,
-                                        fontWeight: FontWeight.bold))),
-                          ] else ...[
-                            // Icon Selector
-                            ShadPopover(
-                              controller: _iconPopoverController,
-                              popover: (context) => Container(
-                                width: 300,
-                                height: 300,
-                                padding: const EdgeInsets.all(8),
-                                child: GridView.count(
-                                  crossAxisCount: 5,
-                                  children: [
-                                    ..._iconMapping.keys.map(
-                                      (iconName) => IconOption(
-                                        iconName: iconName,
-                                        node: activeNode,
-                                        workspace: workspace,
-                                        iconMapping: _iconMapping,
-                                        onClose: () =>
-                                            _iconPopoverController.toggle(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              child: ShadButton.ghost(
-                                padding: EdgeInsets.zero,
-                                width: 32,
-                                height: 32,
-                                onPressed: () =>
-                                    _iconPopoverController.toggle(),
-                                child: Icon(
-                                  _getIconData(activeNode.id, workspace),
-                                  size: 18,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                            const Gap(4),
-                            Expanded(
-                              child: Focus(
-                                onFocusChange: (hasFocus) {
-                                  if (!hasFocus) {
-                                    _updateTitle(activeNode, workspace);
-                                  }
-                                },
-                                child: ShadInput(
-                                  key: ValueKey(activeNode.id),
-                                  controller: _titleController
-                                    ..text = activeNode.title,
-                                  style: theme.textTheme.large,
-                                  decoration: ShadDecoration(
-                                    border: ShadBorder.none,
-                                    focusedBorder: ShadBorder.none,
-                                  ),
-                                  onSubmitted: (value) =>
-                                      _updateTitle(activeNode, workspace),
-                                ),
-                              ),
-                            ),
-                          ],
-                          const Gap(8),
-                          const Gap(8),
-                          const Gap(8),
-                          ActivityIndicator(
-                            status: activeNode.status,
-                            size: 8,
-                          ),
-                          const Gap(8),
-                          const Gap(8),
-                          ShadButton.ghost(
-                            width: 32,
-                            height: 32,
-                            padding: EdgeInsets.zero,
-                            onPressed: () => _refreshTerminal(activeNode.id),
-                            child: Icon(
-                              LucideIcons.refreshCw,
-                              size: 16,
-                              color: theme.colorScheme.mutedForeground,
-                            ),
-                          ),
-                          ShadButton.ghost(
-                            width: 32,
-                            height: 32,
-                            padding: EdgeInsets.zero,
-                            onPressed: () => _closeTerminal(
-                                context, workspace.id, activeNode.id),
-                            child: Icon(
-                              LucideIcons.x,
-                              size: 16,
-                              color: theme.colorScheme.mutedForeground,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+            TerminalTopBar(
+              activeNode: activeNode,
+              agentConfig: agentConfig,
+              workspace: workspace,
+              agentColor: agentColor,
+              topBarColor: topBarColor,
+              topBarBorderColor: topBarBorderColor,
+              titleController: _titleController,
+              iconPopoverController: _iconPopoverController,
+              iconMapping: _iconMapping,
+              onRefresh: () => _refreshTerminal(activeNode?.id ?? ''),
+              onClose: () =>
+                  _closeTerminal(context, workspace.id, activeNode?.id ?? ''),
+              onUpdateTitle: _updateTitle,
+              getIconData: _getIconData,
             ),
 
             // Main Terminal Area (No outer padding here)
@@ -593,10 +464,12 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                       itemCount: workspace.terminals.length,
                       onReorder: (oldIndex, newIndex) {
                         context.read<WorkspaceBloc>().add(
-                            ReorderTerminalsInWorkspace(
+                              ReorderTerminalsInWorkspace(
                                 workspaceId: workspace.id,
                                 oldIndex: oldIndex,
-                                newIndex: newIndex));
+                                newIndex: newIndex,
+                              ),
+                            );
                       },
                       itemBuilder: (context, index) {
                         final config = workspace.terminals[index];
@@ -608,9 +481,11 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                           index: index,
                           child: GestureDetector(
                             onTap: () {
-                              setState(() {
-                                _activeTerminalId = config.id;
-                              });
+                              setState(
+                                () {
+                                  _activeTerminalId = config.id;
+                                },
+                              );
                             },
                             child: AspectRatio(
                               aspectRatio: 1.2,
@@ -636,37 +511,43 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.card,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 4, vertical: 2),
+                                        horizontal: 4,
+                                        vertical: 2,
+                                      ),
                                       child: Row(
                                         children: [
                                           const Gap(4),
                                           Expanded(
                                             child: Text(
                                               config.title,
-                                              style: theme
-                                                  .textTheme.small
+                                              style: theme.textTheme.small
                                                   .copyWith(
-                                                      color: isActive
-                                                          ? theme.colorScheme
-                                                              .primaryForeground
-                                                          : theme.colorScheme
-                                                              .foreground,
-                                                      fontSize: 11,
-                                                      overflow: TextOverflow
-                                                          .ellipsis),
-                                            ),
-                                          ),
-                                          InkWell(
-                                            onTap: () => _closeTerminal(context,
-                                                workspace.id, config.id),
-                                            child: Icon(LucideIcons.x,
-                                                size: 12,
                                                 color: isActive
                                                     ? theme.colorScheme
                                                         .primaryForeground
-                                                    : theme.colorScheme
-                                                        .foreground),
-                                          )
+                                                    : theme
+                                                        .colorScheme.foreground,
+                                                fontSize: 11,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: () => _closeTerminal(
+                                              context,
+                                              workspace.id,
+                                              config.id,
+                                            ),
+                                            child: Icon(
+                                              LucideIcons.x,
+                                              size: 12,
+                                              color: isActive
+                                                  ? theme.colorScheme
+                                                      .primaryForeground
+                                                  : theme
+                                                      .colorScheme.foreground,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -688,19 +569,25 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                                   .settings
                                                   .agents;
                                               final agent = agents
-                                                  .where((a) =>
-                                                      a.id == config.agentId)
+                                                  .where(
+                                                    (a) =>
+                                                        a.id == config.agentId,
+                                                  )
                                                   .firstOrNull;
                                               if (agent != null) {
                                                 svgPath = _getAgentIconPath(
-                                                    agent.preset, theme);
+                                                  agent.preset,
+                                                  theme,
+                                                );
                                               }
                                             }
 
                                             // Fallback to standard icon logic if no agent/svg
                                             if (svgPath == null) {
                                               iconData = _getIconData(
-                                                  config.id, workspace);
+                                                config.id,
+                                                workspace,
+                                              );
                                             }
 
                                             return GlowingIcon(
@@ -726,217 +613,34 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                       },
                     ),
                   ),
-                  // Appended Add Button with Shell Selection Popover
+                  // Shell Selection Popover
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 0),
                     child: SizedBox(
                       width: 36,
-                      height: 36, // Match thumbnail aspect ratio roughly
-                      child: ShadPopover(
+                      height: 36,
+                      child: ShellSelectionPopover(
                         controller: _popoverController,
-                        padding: EdgeInsets.zero,
-                        child: ShadButton.outline(
-                          padding: EdgeInsets.zero,
-                          size: ShadButtonSize.sm,
-                          onPressed: () => _popoverController.toggle(),
-                          child: Icon(LucideIcons.terminal,
-                              size: 16,
-                              color: theme.colorScheme.mutedForeground),
-                        ),
-                        popover: (context) => SizedBox(
-                          width: 200,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Text(context.t.selectShell,
-                                    style: theme.textTheme.small
-                                        .copyWith(fontWeight: FontWeight.bold)),
-                              ),
-                              Divider(
-                                  height: 1, color: theme.colorScheme.border),
-                              // Built-in shells (excluding custom type)
-                              ...ShellType.values
-                                  .where((s) => s != ShellType.custom)
-                                  .map((shell) {
-                                final shellDisplayName =
-                                    _getShellTypeLocalizedName(
-                                        shell, context.t);
-                                return InkWell(
-                                  onTap: () {
-                                    _popoverController.hide();
-                                    _addNewTerminal(context, workspace.id,
-                                        shellCmd: shell.command);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Icon(_getShellIcon(shell.icon),
-                                            size: 16),
-                                        const Gap(8),
-                                        Text(shellDisplayName),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                              // Custom shells from settings
-                              if (context
-                                  .read<SettingsBloc>()
-                                  .state
-                                  .settings
-                                  .customShells
-                                  .isNotEmpty) ...[
-                                Divider(
-                                    height: 1, color: theme.colorScheme.border),
-                                ...context
-                                    .read<SettingsBloc>()
-                                    .state
-                                    .settings
-                                    .customShells
-                                    .map((customShell) {
-                                  return InkWell(
-                                    onTap: () {
-                                      _popoverController.hide();
-                                      _addNewTerminal(context, workspace.id,
-                                          shellCmd: 'custom:${customShell.id}');
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Icon(_getShellIcon(customShell.icon),
-                                              size: 16),
-                                          const Gap(8),
-                                          Text(customShell.name),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ],
-                          ),
-                        ),
+                        workspaceId: workspace.id,
+                        onAddTerminal: _addNewTerminal,
                       ),
                     ),
                   ),
 
-                  // Add Agent Button
-                  // Add Agent Button
+                  // Agent Selection Popover
                   if (settings.agents.any((a) => a.enabled))
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
-                      child: ShadPopover(
-                        controller: _agentPopoverController,
-                        padding: EdgeInsets.zero,
-                        child: ShadButton.outline(
-                          padding: EdgeInsets.zero,
-                          size: ShadButtonSize.sm,
-                          width: 36,
-                          height: 36,
-                          onPressed: () => _agentPopoverController
-                              .toggle(), // Explicit toggle
-
-                          child: Icon(LucideIcons.bot,
-                              size: 16,
-                              color: theme.colorScheme.mutedForeground),
+                      child: SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: AgentSelectionPopover(
+                          controller: _agentPopoverController,
+                          workspaceId: workspace.id,
+                          enabledAgents:
+                              settings.agents.where((a) => a.enabled).toList(),
+                          onAddTerminal: _addNewTerminal,
                         ),
-                        popover: (context) {
-                          final enabledAgents =
-                              settings.agents.where((a) => a.enabled).toList();
-                          return SizedBox(
-                              width: 200,
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Text(context.t.agents,
-                                          style: theme.textTheme.small.copyWith(
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    Divider(
-                                        height: 1,
-                                        color: theme.colorScheme.border),
-                                    ...enabledAgents.map((agent) => InkWell(
-                                        onTap: () {
-                                          _agentPopoverController.toggle();
-                                          _addNewTerminal(context, workspace.id,
-                                              shellCmd: agent.command,
-                                              agentId: agent.id);
-                                        },
-                                        child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 8),
-                                            child: Row(children: [
-                                              SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: agent.preset
-                                                            .iconAssetPath !=
-                                                        null
-                                                    ? Builder(
-                                                        builder: (context) {
-                                                        var iconPath = agent
-                                                            .preset
-                                                            .iconAssetPath!;
-                                                        ColorFilter?
-                                                            colorFilter;
-
-                                                        // Adapt Opencode icon for dark mode
-                                                        if (agent.preset ==
-                                                                AgentPreset
-                                                                    .opencode &&
-                                                            Theme.of(context)
-                                                                    .brightness ==
-                                                                Brightness
-                                                                    .dark) {
-                                                          iconPath = Assets
-                                                              .opencodeDarkLogo;
-                                                        }
-
-                                                        // Adapt Codex and Github Copilot icon color
-                                                        if (agent.preset ==
-                                                                AgentPreset
-                                                                    .codex ||
-                                                            agent.preset ==
-                                                                AgentPreset
-                                                                    .githubCopilot) {
-                                                          colorFilter =
-                                                              ColorFilter.mode(
-                                                                  theme
-                                                                      .colorScheme
-                                                                      .foreground,
-                                                                  BlendMode
-                                                                      .srcIn);
-                                                        }
-
-                                                        return SvgPicture.asset(
-                                                          iconPath,
-                                                          colorFilter:
-                                                              colorFilter,
-                                                        );
-                                                      })
-                                                    : Icon(LucideIcons.bot,
-                                                        size: 16),
-                                              ),
-                                              const Gap(8),
-                                              Text(agent.name),
-                                            ]))))
-                                  ]));
-                        },
                       ),
                     ),
                 ],
@@ -952,10 +656,14 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     final value = _titleController.text.trim();
     if (value.isNotEmpty && value != node.title) {
       final config = workspace.terminals.firstWhere((t) => t.id == node.id);
-      context.read<WorkspaceBloc>().add(UpdateTerminalInWorkspace(
-            workspaceId: workspace.id,
-            config: config.copyWith(title: value),
-          ));
+      context.read<WorkspaceBloc>().add(
+            UpdateTerminalInWorkspace(
+              workspaceId: workspace.id,
+              config: config.copyWith(
+                title: value,
+              ),
+            ),
+          );
     }
   }
 
@@ -1007,27 +715,6 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     'flask-conical': LucideIcons.flaskConical,
     'layout-panel-left': LucideIcons.layoutPanelLeft,
   };
-
-  IconData _getShellIcon(String iconName) => switch (iconName) {
-        'terminal' => LucideIcons.terminal,
-        'command' => LucideIcons.squareTerminal,
-        'server' => LucideIcons.server,
-        'gitBranch' => LucideIcons.gitBranch,
-        'box' => LucideIcons.box,
-        'settings' => LucideIcons.settings,
-        _ => LucideIcons.terminal,
-      };
-
-  String _getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) =>
-      switch (shell) {
-        ShellType.pwsh7 => l10n.pwsh7,
-        ShellType.powershell => l10n.powershell,
-        ShellType.cmd => l10n.cmd,
-        ShellType.wsl => l10n.wsl,
-        ShellType.gitBash => l10n.gitBash,
-        ShellType.custom => l10n.custom,
-      };
-
   Color? _getAgentColor(AgentPreset preset) => switch (preset) {
         AgentPreset.claude => const Color(0xFFD97757),
         AgentPreset.qwen => const Color(0xFF615CED),

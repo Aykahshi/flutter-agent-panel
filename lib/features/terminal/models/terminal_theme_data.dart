@@ -5,28 +5,6 @@ import 'package:xterm/xterm.dart' as xterm;
 
 /// Data class representing a terminal color theme loaded from JSON.
 class TerminalThemeData extends Equatable {
-  final String name;
-  final Color black;
-  final Color red;
-  final Color green;
-  final Color yellow;
-  final Color blue;
-  final Color purple;
-  final Color cyan;
-  final Color white;
-  final Color brightBlack;
-  final Color brightRed;
-  final Color brightGreen;
-  final Color brightYellow;
-  final Color brightBlue;
-  final Color brightPurple;
-  final Color brightCyan;
-  final Color brightWhite;
-  final Color background;
-  final Color foreground;
-  final Color selectionBackground;
-  final Color cursorColor;
-
   const TerminalThemeData({
     required this.name,
     required this.black,
@@ -50,15 +28,6 @@ class TerminalThemeData extends Equatable {
     required this.selectionBackground,
     required this.cursorColor,
   });
-
-  /// Parse a hex color string (e.g., "#RRGGBB") to a Color.
-  static Color _parseHexColor(String hex) {
-    hex = hex.replaceFirst('#', '');
-    if (hex.length == 6) {
-      hex = 'FF$hex'; // Add alpha if not present
-    }
-    return Color(int.parse(hex, radix: 16));
-  }
 
   /// Create a TerminalThemeData from a JSON map.
   factory TerminalThemeData.fromJson(Map<String, dynamic> json) {
@@ -88,6 +57,36 @@ class TerminalThemeData extends Equatable {
           _parseHexColor(json['selectionBackground'] as String? ?? '#3A3D41'),
       cursorColor: _parseHexColor(json['cursorColor'] as String? ?? '#FFFFFF'),
     );
+  }
+  final String name;
+  final Color black;
+  final Color red;
+  final Color green;
+  final Color yellow;
+  final Color blue;
+  final Color purple;
+  final Color cyan;
+  final Color white;
+  final Color brightBlack;
+  final Color brightRed;
+  final Color brightGreen;
+  final Color brightYellow;
+  final Color brightBlue;
+  final Color brightPurple;
+  final Color brightCyan;
+  final Color brightWhite;
+  final Color background;
+  final Color foreground;
+  final Color selectionBackground;
+  final Color cursorColor;
+
+  /// Parse a hex color string (e.g., "#RRGGBB") to a Color.
+  static Color _parseHexColor(String hex) {
+    hex = hex.replaceFirst('#', '');
+    if (hex.length == 6) {
+      hex = 'FF$hex'; // Add alpha if not present
+    }
+    return Color(int.parse(hex, radix: 16));
   }
 
   /// Convert to JSON map.

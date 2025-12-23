@@ -7,14 +7,13 @@ import 'package:gap/gap.dart';
 
 /// Main terminal content widget that displays the active terminal or restarting state.
 class MainTerminalContent extends StatelessWidget {
-  final TerminalNode? activeNode;
-  final bool isRestarting;
-
   const MainTerminalContent({
     super.key,
     required this.activeNode,
     this.isRestarting = false,
   });
+  final TerminalNode? activeNode;
+  final bool isRestarting;
 
   @override
   Widget build(BuildContext context) {

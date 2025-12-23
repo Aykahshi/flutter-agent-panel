@@ -4,12 +4,6 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import '../models/terminal_node.dart';
 
 class GlowingIcon extends StatefulWidget {
-  final IconData? icon;
-  final String? svgPath;
-  final TerminalStatus status;
-  final double size;
-  final Color? baseColor;
-
   const GlowingIcon({
     super.key,
     this.icon,
@@ -17,8 +11,15 @@ class GlowingIcon extends StatefulWidget {
     required this.status,
     this.size = 16.0,
     this.baseColor,
-  }) : assert(icon != null || svgPath != null,
-            'Either icon or svgPath must be provided');
+  }) : assert(
+          icon != null || svgPath != null,
+          'Either icon or svgPath must be provided',
+        );
+  final IconData? icon;
+  final String? svgPath;
+  final TerminalStatus status;
+  final double size;
+  final Color? baseColor;
 
   @override
   State<GlowingIcon> createState() => _GlowingIconState();

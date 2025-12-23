@@ -7,10 +7,9 @@ import '../../features/terminal/models/terminal_theme_data.dart';
 
 /// Service to manage user configuration folder at ~/.flutter-agent-panel/
 class UserConfigService {
+  UserConfigService._();
   static final UserConfigService _instance = UserConfigService._();
   static UserConfigService get instance => _instance;
-
-  UserConfigService._();
 
   String? _configPath;
 
@@ -246,7 +245,7 @@ class UserConfigService {
       final filePath = '$themePath/$filename.json';
 
       // Format JSON nicely
-      final encoder = JsonEncoder.withIndent('  ');
+      final encoder = const JsonEncoder.withIndent('  ');
       final formattedJson = encoder.convert(json);
 
       await File(filePath).writeAsString(formattedJson);
@@ -279,7 +278,7 @@ class UserConfigService {
   Future<bool> saveSettingsToFile(Map<String, dynamic> settings) async {
     try {
       final file = File(settingsFilePath);
-      final encoder = JsonEncoder.withIndent('  ');
+      final encoder = const JsonEncoder.withIndent('  ');
       final formattedJson = encoder.convert(settings);
       await file.writeAsString(formattedJson);
       return true;

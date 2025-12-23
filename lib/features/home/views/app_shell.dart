@@ -88,8 +88,8 @@ class _AppShellState extends State<AppShell> {
               },
             ),
             // Main Content
-            Expanded(
-              child: const WorkspaceView(),
+            const Expanded(
+              child: WorkspaceView(),
             ),
           ],
         ),
@@ -100,11 +100,6 @@ class _AppShellState extends State<AppShell> {
 
 /// Helper to listen to two ValueNotifiers
 class ValueListenableBuilder2<A, B> extends StatelessWidget {
-  final ValueListenable<A> first;
-  final ValueListenable<B> second;
-  final Widget Function(BuildContext context, A a, B b, Widget? child) builder;
-  final Widget? child;
-
   const ValueListenableBuilder2({
     super.key,
     required this.first,
@@ -112,6 +107,10 @@ class ValueListenableBuilder2<A, B> extends StatelessWidget {
     required this.builder,
     this.child,
   });
+  final ValueListenable<A> first;
+  final ValueListenable<B> second;
+  final Widget Function(BuildContext context, A a, B b, Widget? child) builder;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

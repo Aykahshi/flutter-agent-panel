@@ -29,17 +29,6 @@ String? _migrateTerminalThemeName(String? oldName) {
 
 /// Application settings model
 class AppSettings extends Equatable {
-  final AppTheme appTheme;
-  final String terminalThemeName;
-  final String? customTerminalThemeJson;
-  final TerminalFontSettings fontSettings;
-  final ShellType defaultShell;
-  final List<CustomShellConfig> customShells;
-  final String? selectedCustomShellId; // ID of the selected custom shell
-  final String locale;
-  final bool terminalCursorBlink;
-  final List<AgentConfig> agents;
-
   const AppSettings({
     this.appTheme = AppTheme.dark,
     this.terminalThemeName = 'OneDark',
@@ -52,38 +41,6 @@ class AppSettings extends Equatable {
     this.terminalCursorBlink = true,
     this.agents = const [],
   });
-
-  AppSettings copyWith({
-    AppTheme? appTheme,
-    String? terminalThemeName,
-    String? customTerminalThemeJson,
-    bool clearCustomTerminalThemeJson = false,
-    TerminalFontSettings? fontSettings,
-    ShellType? defaultShell,
-    List<CustomShellConfig>? customShells,
-    String? selectedCustomShellId,
-    bool clearSelectedCustomShellId = false,
-    String? locale,
-    bool? terminalCursorBlink,
-    List<AgentConfig>? agents,
-  }) {
-    return AppSettings(
-      appTheme: appTheme ?? this.appTheme,
-      terminalThemeName: terminalThemeName ?? this.terminalThemeName,
-      customTerminalThemeJson: clearCustomTerminalThemeJson
-          ? null
-          : (customTerminalThemeJson ?? this.customTerminalThemeJson),
-      fontSettings: fontSettings ?? this.fontSettings,
-      defaultShell: defaultShell ?? this.defaultShell,
-      customShells: customShells ?? this.customShells,
-      selectedCustomShellId: clearSelectedCustomShellId
-          ? null
-          : (selectedCustomShellId ?? this.selectedCustomShellId),
-      locale: locale ?? this.locale,
-      terminalCursorBlink: terminalCursorBlink ?? this.terminalCursorBlink,
-      agents: agents ?? this.agents,
-    );
-  }
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     // Handle migration from old customShellPath to new customShells list
@@ -124,6 +81,48 @@ class AppSettings extends Equatable {
       locale: json['locale'] as String? ?? 'en',
       terminalCursorBlink: json['terminalCursorBlink'] as bool? ?? true,
       agents: _mergeWithDefaults(json['agents'] as List?),
+    );
+  }
+  final AppTheme appTheme;
+  final String terminalThemeName;
+  final String? customTerminalThemeJson;
+  final TerminalFontSettings fontSettings;
+  final ShellType defaultShell;
+  final List<CustomShellConfig> customShells;
+  final String? selectedCustomShellId; // ID of the selected custom shell
+  final String locale;
+  final bool terminalCursorBlink;
+  final List<AgentConfig> agents;
+
+  AppSettings copyWith({
+    AppTheme? appTheme,
+    String? terminalThemeName,
+    String? customTerminalThemeJson,
+    bool clearCustomTerminalThemeJson = false,
+    TerminalFontSettings? fontSettings,
+    ShellType? defaultShell,
+    List<CustomShellConfig>? customShells,
+    String? selectedCustomShellId,
+    bool clearSelectedCustomShellId = false,
+    String? locale,
+    bool? terminalCursorBlink,
+    List<AgentConfig>? agents,
+  }) {
+    return AppSettings(
+      appTheme: appTheme ?? this.appTheme,
+      terminalThemeName: terminalThemeName ?? this.terminalThemeName,
+      customTerminalThemeJson: clearCustomTerminalThemeJson
+          ? null
+          : (customTerminalThemeJson ?? this.customTerminalThemeJson),
+      fontSettings: fontSettings ?? this.fontSettings,
+      defaultShell: defaultShell ?? this.defaultShell,
+      customShells: customShells ?? this.customShells,
+      selectedCustomShellId: clearSelectedCustomShellId
+          ? null
+          : (selectedCustomShellId ?? this.selectedCustomShellId),
+      locale: locale ?? this.locale,
+      terminalCursorBlink: terminalCursorBlink ?? this.terminalCursorBlink,
+      agents: agents ?? this.agents,
     );
   }
 

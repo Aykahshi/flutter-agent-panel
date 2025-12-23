@@ -8,12 +8,6 @@ import '../../terminal/models/terminal_node.dart';
 
 /// A reusable icon option widget for terminal icon selection.
 class IconOption extends StatelessWidget {
-  final String iconName;
-  final TerminalNode node;
-  final Workspace workspace;
-  final VoidCallback? onClose;
-  final Map<String, IconData> iconMapping;
-
   const IconOption({
     super.key,
     required this.iconName,
@@ -22,6 +16,11 @@ class IconOption extends StatelessWidget {
     this.onClose,
     required this.iconMapping,
   });
+  final String iconName;
+  final TerminalNode node;
+  final Workspace workspace;
+  final VoidCallback? onClose;
+  final Map<String, IconData> iconMapping;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +32,12 @@ class IconOption extends StatelessWidget {
       height: 40,
       onPressed: () {
         final config = workspace.terminals.firstWhere((t) => t.id == node.id);
-        context.read<WorkspaceBloc>().add(UpdateTerminalInWorkspace(
-              workspaceId: workspace.id,
-              config: config.copyWith(icon: iconName),
-            ));
+        context.read<WorkspaceBloc>().add(
+              UpdateTerminalInWorkspace(
+                workspaceId: workspace.id,
+                config: config.copyWith(icon: iconName),
+              ),
+            );
         onClose?.call();
       },
       child: Icon(iconData, size: 20),

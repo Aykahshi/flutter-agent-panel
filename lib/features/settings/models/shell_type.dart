@@ -7,8 +7,9 @@ enum ShellType {
   gitBash('Git Bash', 'C:\\Program Files\\Git\\bin\\bash.exe', 'gitBranch'),
   custom('Custom...', '', 'settings');
 
+  const ShellType(this.displayName, this.command, this.icon);
+
   final String displayName;
   final String command;
   final String icon;
-  const ShellType(this.displayName, this.command, this.icon);
 }

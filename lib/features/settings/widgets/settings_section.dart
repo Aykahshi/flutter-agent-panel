@@ -6,16 +6,15 @@ import '../../../core/extensions/context_extension.dart';
 
 /// A reusable section widget for settings pages.
 class SettingsSection extends StatelessWidget {
-  final String title;
-  final String? description;
-  final Widget child;
-
   const SettingsSection({
     super.key,
     required this.title,
     this.description,
     required this.child,
   });
+  final String title;
+  final String? description;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {

@@ -12,106 +12,106 @@ class LoadSettings extends SettingsEvent {
 }
 
 class UpdateAppTheme extends SettingsEvent {
-  final AppTheme appTheme;
   const UpdateAppTheme(this.appTheme);
+  final AppTheme appTheme;
 
   @override
   List<Object?> get props => [appTheme];
 }
 
 class UpdateTerminalTheme extends SettingsEvent {
+  const UpdateTerminalTheme(this.themeName, {this.customThemeJson});
   final String themeName;
   final String? customThemeJson;
-  const UpdateTerminalTheme(this.themeName, {this.customThemeJson});
 
   @override
   List<Object?> get props => [themeName, customThemeJson];
 }
 
 class UpdateFontSettings extends SettingsEvent {
-  final TerminalFontSettings fontSettings;
   const UpdateFontSettings(this.fontSettings);
+  final TerminalFontSettings fontSettings;
 
   @override
   List<Object?> get props => [fontSettings];
 }
 
 class UpdateDefaultShell extends SettingsEvent {
+  const UpdateDefaultShell(this.defaultShell, {this.selectedCustomShellId});
   final ShellType defaultShell;
   final String? selectedCustomShellId;
-  const UpdateDefaultShell(this.defaultShell, {this.selectedCustomShellId});
 
   @override
   List<Object?> get props => [defaultShell, selectedCustomShellId];
 }
 
 class UpdateLocale extends SettingsEvent {
-  final String locale;
   const UpdateLocale(this.locale);
+  final String locale;
 
   @override
   List<Object?> get props => [locale];
 }
 
 class UpdateTerminalCursorBlink extends SettingsEvent {
-  final bool isEnabled;
   const UpdateTerminalCursorBlink(this.isEnabled);
+  final bool isEnabled;
 
   @override
   List<Object?> get props => [isEnabled];
 }
 
 class AddCustomShell extends SettingsEvent {
-  final CustomShellConfig config;
   const AddCustomShell(this.config);
+  final CustomShellConfig config;
 
   @override
   List<Object?> get props => [config];
 }
 
 class UpdateCustomShell extends SettingsEvent {
-  final CustomShellConfig config;
   const UpdateCustomShell(this.config);
+  final CustomShellConfig config;
 
   @override
   List<Object?> get props => [config];
 }
 
 class RemoveCustomShell extends SettingsEvent {
-  final String shellId;
   const RemoveCustomShell(this.shellId);
+  final String shellId;
 
   @override
   List<Object?> get props => [shellId];
 }
 
 class SelectCustomShell extends SettingsEvent {
-  final String shellId;
   const SelectCustomShell(this.shellId);
+  final String shellId;
 
   @override
   List<Object?> get props => [shellId];
 }
 
 class UpdateAgentConfig extends SettingsEvent {
-  final AgentConfig config;
   const UpdateAgentConfig(this.config);
+  final AgentConfig config;
 
   @override
   List<Object?> get props => [config];
 }
 
 class AddAgentConfig extends SettingsEvent {
-  final AgentConfig config;
   const AddAgentConfig(this.config);
+  final AgentConfig config;
 
   @override
   List<Object?> get props => [config];
 }
 
 class RemoveAgentConfig extends SettingsEvent {
-  final String agentId;
   const RemoveAgentConfig(this.agentId);
+  final String agentId;
 
   @override
   List<Object?> get props => [agentId];

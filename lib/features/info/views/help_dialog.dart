@@ -60,9 +60,11 @@ class HelpDialog extends StatelessWidget {
             ShadButton.link(
               padding: EdgeInsets.zero,
               onPressed: () => _launchUrl(
-                  'https://github.com/Aykahshi/flutter-agent-panel/issues'),
+                'https://github.com/Aykahshi/flutter-agent-panel/issues',
+              ),
               child: const Text(
-                  'https://github.com/Aykahshi/flutter-agent-panel/issues'),
+                'https://github.com/Aykahshi/flutter-agent-panel/issues',
+              ),
             ),
             SizedBox(height: 16.h),
           ],

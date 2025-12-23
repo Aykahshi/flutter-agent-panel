@@ -21,6 +21,15 @@ enum TerminalStatus {
 }
 
 class TerminalNode {
+  TerminalNode({
+    required this.id,
+    required this.workspaceId,
+    required this.title,
+    required this.pty,
+    required this.terminal,
+    this.icon,
+    this.onStatusChanged,
+  });
   final String id;
   final String workspaceId;
   String title;
@@ -43,16 +52,6 @@ class TerminalNode {
 
   /// Callback for UI updates when status changes
   void Function()? onStatusChanged;
-
-  TerminalNode({
-    required this.id,
-    required this.workspaceId,
-    required this.title,
-    required this.pty,
-    required this.terminal,
-    this.icon,
-    this.onStatusChanged,
-  });
 
   void resize(int cols, int rows) {
     pty.resize(rows, cols);

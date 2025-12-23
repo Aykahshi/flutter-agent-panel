@@ -134,7 +134,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     decoration: BoxDecoration(
                       color: theme.colorScheme.card,
                       border: Border(
-                        right: BorderSide(color: theme.colorScheme.border),
+                        right: BorderSide(
+                          color: theme.colorScheme.border,
+                        ),
                       ),
                     ),
                     child: Column(
@@ -201,10 +203,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       // Header
                       Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 32.w, vertical: 24.h),
+                          horizontal: 32.w,
+                          vertical: 24.h,
+                        ),
                         decoration: BoxDecoration(
                           border: Border(
-                            bottom: BorderSide(color: theme.colorScheme.border),
+                            bottom: BorderSide(
+                              color: theme.colorScheme.border,
+                            ),
                           ),
                         ),
                         child: Row(
@@ -223,9 +229,15 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       // Scrollable Content
                       Expanded(
                         child: SingleChildScrollView(
-                          padding: EdgeInsets.all(32.w),
+                          padding: EdgeInsets.all(
+                            32.w,
+                          ),
                           child: _buildContentForIndex(
-                              _selectedIndex, settings, l10n, theme),
+                            _selectedIndex,
+                            settings,
+                            l10n,
+                            theme,
+                          ),
                         ),
                       ),
                     ],
@@ -239,8 +251,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
-  Widget _buildContentForIndex(int index, AppSettings settings,
-      AppLocalizations l10n, ShadThemeData theme) {
+  Widget _buildContentForIndex(
+    int index,
+    AppSettings settings,
+    AppLocalizations l10n,
+    ShadThemeData theme,
+  ) {
     return switch (index) {
       0 => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +358,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   Gap(24.h),
 
                   // Custom Theme JSON
-                  Text(l10n.customTheme, style: theme.textTheme.large),
+                  Text(
+                    l10n.customTheme,
+                    style: theme.textTheme.large,
+                  ),
                   Gap(8.h),
                   Text(
                     l10n.customThemeDescription,
@@ -361,7 +380,8 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   ShadInput(
                     controller: _customThemeJsonController,
                     placeholder: const Text(
-                        '{"name": "Custom", "background": "#1e1e1e", ...}'),
+                      '{"name": "Custom", "background": "#1e1e1e", ...}',
+                    ),
                     minLines: 3,
                     maxLines: 6,
                   ),
@@ -451,11 +471,16 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.cursorBlink,
-                                style: theme.textTheme.large),
-                            Text(l10n.cursorBlinkDescription,
-                                style: theme.textTheme.small.copyWith(
-                                    color: theme.colorScheme.mutedForeground)),
+                            Text(
+                              l10n.cursorBlink,
+                              style: theme.textTheme.large,
+                            ),
+                            Text(
+                              l10n.cursorBlinkDescription,
+                              style: theme.textTheme.small.copyWith(
+                                color: theme.colorScheme.mutedForeground,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -472,7 +497,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 ],
               ),
             ),
-            Divider(height: 48.h, color: theme.colorScheme.border),
+            Divider(
+              height: 48.h,
+              color: theme.colorScheme.border,
+            ),
             SettingsSection(
               title: l10n.fontFamily,
               description: l10n.fontFamilyDescription,
@@ -485,8 +513,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     options: _uniqueFamilies.isEmpty
                         ? [
                             ShadOption(
-                                value: settings.fontSettings.fontFamily,
-                                child: Text(settings.fontSettings.fontFamily))
+                              value: settings.fontSettings.fontFamily,
+                              child: Text(settings.fontSettings.fontFamily),
+                            ),
                           ]
                         : _uniqueFamilies
                             .map((f) => ShadOption(value: f, child: Text(f)))
@@ -494,9 +523,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     selectedOptionBuilder: (context, value) => Text(value),
                     onChanged: (value) {
                       if (value != null) {
-                        context.read<SettingsBloc>().add(UpdateFontSettings(
-                              settings.fontSettings.copyWith(fontFamily: value),
-                            ));
+                        context.read<SettingsBloc>().add(
+                              UpdateFontSettings(
+                                settings.fontSettings
+                                    .copyWith(fontFamily: value),
+                              ),
+                            );
                       }
                     },
                   ),
@@ -504,12 +536,17 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   // Font Size
                   Row(
                     children: [
-                      Text(l10n.fontSize,
-                          style: theme.textTheme.small.copyWith(
-                              color: theme.colorScheme.mutedForeground)),
+                      Text(
+                        l10n.fontSize,
+                        style: theme.textTheme.small.copyWith(
+                          color: theme.colorScheme.mutedForeground,
+                        ),
+                      ),
                       const Spacer(),
-                      Text('${settings.fontSettings.fontSize.toInt()}px',
-                          style: theme.textTheme.small),
+                      Text(
+                        '${settings.fontSettings.fontSize.toInt()}px',
+                        style: theme.textTheme.small,
+                      ),
                     ],
                   ),
                   Gap(4.h),
@@ -518,9 +555,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     min: 10,
                     max: 24,
                     onChanged: (value) {
-                      context.read<SettingsBloc>().add(UpdateFontSettings(
-                            settings.fontSettings.copyWith(fontSize: value),
-                          ));
+                      context.read<SettingsBloc>().add(
+                            UpdateFontSettings(
+                              settings.fontSettings.copyWith(fontSize: value),
+                            ),
+                          );
                     },
                   ),
                   Gap(16.h),
@@ -530,9 +569,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ShadCheckbox(
                         value: settings.fontSettings.isBold,
                         onChanged: (value) {
-                          context.read<SettingsBloc>().add(UpdateFontSettings(
-                                settings.fontSettings.copyWith(isBold: value),
-                              ));
+                          context.read<SettingsBloc>().add(
+                                UpdateFontSettings(
+                                  settings.fontSettings.copyWith(isBold: value),
+                                ),
+                              );
                         },
                         label: Text(l10n.bold),
                       ),
@@ -540,9 +581,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       ShadCheckbox(
                         value: settings.fontSettings.isItalic,
                         onChanged: (value) {
-                          context.read<SettingsBloc>().add(UpdateFontSettings(
-                                settings.fontSettings.copyWith(isItalic: value),
-                              ));
+                          context.read<SettingsBloc>().add(
+                                UpdateFontSettings(
+                                  settings.fontSettings
+                                      .copyWith(isItalic: value),
+                                ),
+                              );
                         },
                         label: Text(l10n.italic),
                       ),
@@ -576,101 +620,112 @@ class _SettingsDialogState extends State<SettingsDialog> {
                 ],
               ),
             ),
-            Divider(height: 48.h, color: theme.colorScheme.border),
+            Divider(
+              height: 48.h,
+              color: theme.colorScheme.border,
+            ),
             SettingsSection(
-                title: l10n.shellSettings,
-                description: l10n.shellSettingsDescription,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Built-in shells
-                    Text(l10n.defaultShell,
-                        style: theme.textTheme.small.copyWith(
-                            color: theme.colorScheme.mutedForeground)),
-                    Gap(8.h),
-                    ShadSelect<String>(
-                      initialValue: settings.defaultShell == ShellType.custom
-                          ? 'custom:${settings.selectedCustomShellId ?? ''}'
-                          : settings.defaultShell.name,
-                      placeholder: Text(l10n.defaultShell),
-                      options: [
-                        // Built-in shells (excluding custom)
-                        ...ShellType.values
-                            .where((s) => s != ShellType.custom)
-                            .map((s) => ShadOption(
-                                  value: s.name,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(_getShellIcon(s.icon), size: 16.sp),
-                                      Gap(8.w),
-                                      Text(_getShellTypeLocalizedName(s, l10n)),
-                                    ],
-                                  ),
-                                )),
-                        // Custom shells
-                        ...settings.customShells.map((shell) => ShadOption(
-                              value: 'custom:${shell.id}',
+              title: l10n.shellSettings,
+              description: l10n.shellSettingsDescription,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Built-in shells
+                  Text(
+                    l10n.defaultShell,
+                    style: theme.textTheme.small.copyWith(
+                      color: theme.colorScheme.mutedForeground,
+                    ),
+                  ),
+                  Gap(8.h),
+                  ShadSelect<String>(
+                    initialValue: settings.defaultShell == ShellType.custom
+                        ? 'custom:${settings.selectedCustomShellId ?? ''}'
+                        : settings.defaultShell.name,
+                    placeholder: Text(l10n.defaultShell),
+                    options: [
+                      // Built-in shells (excluding custom)
+                      ...ShellType.values
+                          .where((s) => s != ShellType.custom)
+                          .map(
+                            (s) => ShadOption(
+                              value: s.name,
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(_getShellIcon(shell.icon), size: 16.sp),
+                                  Icon(_getShellIcon(s.icon), size: 16.sp),
                                   Gap(8.w),
-                                  Text(shell.name),
+                                  Text(_getShellTypeLocalizedName(s, l10n)),
                                 ],
                               ),
-                            )),
-                      ],
-                      selectedOptionBuilder: (context, value) {
-                        if (value.startsWith('custom:')) {
-                          final shellId = value.substring(7);
-                          final shell = settings.customShells
-                              .where((s) => s.id == shellId)
-                              .firstOrNull;
-                          if (shell != null) {
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(_getShellIcon(shell.icon), size: 16.sp),
-                                Gap(8.w),
-                                Text(shell.name),
-                              ],
-                            );
-                          }
-                        }
-                        final shellType = ShellType.values
-                            .where((s) => s.name == value)
+                            ),
+                          ),
+                      // Custom shells
+                      ...settings.customShells.map(
+                        (shell) => ShadOption(
+                          value: 'custom:${shell.id}',
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(_getShellIcon(shell.icon), size: 16.sp),
+                              Gap(8.w),
+                              Text(shell.name),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    selectedOptionBuilder: (context, value) {
+                      if (value.startsWith('custom:')) {
+                        final shellId = value.substring(7);
+                        final shell = settings.customShells
+                            .where((s) => s.id == shellId)
                             .firstOrNull;
-                        if (shellType != null) {
+                        if (shell != null) {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(_getShellIcon(shellType.icon), size: 16.sp),
+                              Icon(_getShellIcon(shell.icon), size: 16.sp),
                               Gap(8.w),
-                              Text(_getShellTypeLocalizedName(shellType, l10n)),
+                              Text(shell.name),
                             ],
                           );
                         }
-                        return Text(value);
-                      },
-                      onChanged: (value) {
-                        if (value == null) return;
-                        if (value.startsWith('custom:')) {
-                          final shellId = value.substring(7);
-                          context
-                              .read<SettingsBloc>()
-                              .add(SelectCustomShell(shellId));
-                        } else {
-                          final shellType = ShellType.values
-                              .firstWhere((s) => s.name == value);
-                          context
-                              .read<SettingsBloc>()
-                              .add(UpdateDefaultShell(shellType));
-                        }
-                      },
-                    ),
-                  ],
-                )),
+                      }
+                      final shellType = ShellType.values
+                          .where((s) => s.name == value)
+                          .firstOrNull;
+                      if (shellType != null) {
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(_getShellIcon(shellType.icon), size: 16.sp),
+                            Gap(8.w),
+                            Text(_getShellTypeLocalizedName(shellType, l10n)),
+                          ],
+                        );
+                      }
+                      return Text(value);
+                    },
+                    onChanged: (value) {
+                      if (value == null) return;
+                      if (value.startsWith('custom:')) {
+                        final shellId = value.substring(7);
+                        context
+                            .read<SettingsBloc>()
+                            .add(SelectCustomShell(shellId));
+                      } else {
+                        final shellType =
+                            ShellType.values.firstWhere((s) => s.name == value);
+                        context
+                            .read<SettingsBloc>()
+                            .add(UpdateDefaultShell(shellType));
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       3 => _buildCustomShellsContent(settings, l10n, theme),
@@ -694,7 +749,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   Future<bool> _installAgent(
-      String installCommand, void Function(String) onLog) async {
+    String installCommand,
+    void Function(String) onLog,
+  ) async {
     try {
       final parts = installCommand.split(' ');
       if (parts.isEmpty) return false;
@@ -718,7 +775,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   Widget _buildAgentsContent(
-      AppSettings settings, AppLocalizations l10n, ShadThemeData theme) {
+    AppSettings settings,
+    AppLocalizations l10n,
+    ShadThemeData theme,
+  ) {
     // Separate presets and custom
     final presetAgents =
         settings.agents.where((a) => a.preset != AgentPreset.custom).toList();
@@ -757,28 +817,33 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           color: theme.colorScheme.background,
                           borderRadius: BorderRadius.circular(4.r),
                         ),
-                        child: Builder(builder: (context) {
-                          var iconPath = agent.preset.iconAssetPath!;
-                          ColorFilter? colorFilter;
+                        child: Builder(
+                          builder: (context) {
+                            var iconPath = agent.preset.iconAssetPath!;
+                            ColorFilter? colorFilter;
 
-                          if (agent.preset == AgentPreset.opencode &&
-                              Theme.of(context).brightness == Brightness.dark) {
-                            iconPath = Assets.opencodeDarkLogo;
-                          }
+                            if (agent.preset == AgentPreset.opencode &&
+                                Theme.of(context).brightness ==
+                                    Brightness.dark) {
+                              iconPath = Assets.opencodeDarkLogo;
+                            }
 
-                          if (agent.preset == AgentPreset.codex ||
-                              agent.preset == AgentPreset.githubCopilot) {
-                            colorFilter = ColorFilter.mode(
-                                theme.colorScheme.foreground, BlendMode.srcIn);
-                          }
+                            if (agent.preset == AgentPreset.codex ||
+                                agent.preset == AgentPreset.githubCopilot) {
+                              colorFilter = ColorFilter.mode(
+                                theme.colorScheme.foreground,
+                                BlendMode.srcIn,
+                              );
+                            }
 
-                          return SvgPicture.asset(
-                            iconPath,
-                            colorFilter: colorFilter,
-                            placeholderBuilder: (context) =>
-                                Icon(LucideIcons.bot),
-                          );
-                        }),
+                            return SvgPicture.asset(
+                              iconPath,
+                              colorFilter: colorFilter,
+                              placeholderBuilder: (context) =>
+                                  const Icon(LucideIcons.bot),
+                            );
+                          },
+                        ),
                       ),
                       Gap(12.w),
                       // Name & Command
@@ -808,8 +873,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         width: 32.w,
                         height: 32.h,
                         onPressed: () => _showAddEditAgentDialog(
-                            context, l10n, theme,
-                            existingAgent: agent),
+                          context,
+                          l10n,
+                          theme,
+                          existingAgent: agent,
+                        ),
                         child: Icon(LucideIcons.settings, size: 16.sp),
                       ),
                       Gap(8.w),
@@ -834,21 +902,28 @@ class _SettingsDialogState extends State<SettingsDialog> {
           title: l10n.customAgent,
           description:
               l10n.agentsDescription, // Reuse description or make new one
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            ShadButton.outline(
-              onPressed: () =>
-                  _showAddEditAgentDialog(context, l10n, theme, isCustom: true),
-              leading: Icon(LucideIcons.plus, size: 16.sp),
-              child: Text(l10n.addCustomAgent),
-            ),
-            Gap(16.h),
-            if (customAgents.isEmpty)
-              Text(l10n.noCustomAgents, // Fixed L10n key
-                  style: theme.textTheme
-                      .muted) // Reuse 'no custom' string for simplicity or generic
-            else
-              ...customAgents.map((agent) => Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ShadButton.outline(
+                onPressed: () => _showAddEditAgentDialog(
+                  context,
+                  l10n,
+                  theme,
+                  isCustom: true,
+                ),
+                leading: Icon(LucideIcons.plus, size: 16.sp),
+                child: Text(l10n.addCustomAgent),
+              ),
+              Gap(16.h),
+              if (customAgents.isEmpty)
+                Text(
+                  l10n.noCustomAgents, // Fixed L10n key
+                  style: theme.textTheme.muted,
+                ) // Reuse 'no custom' string for simplicity or generic
+              else
+                ...customAgents.map(
+                  (agent) => Container(
                     margin: EdgeInsets.only(bottom: 8.h),
                     padding: EdgeInsets.all(12.w),
                     decoration: BoxDecoration(
@@ -857,26 +932,36 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     ),
                     child: Row(
                       children: [
-                        Icon(LucideIcons.bot,
-                            size: 24.sp), // Default icon for custom
+                        Icon(
+                          LucideIcons.bot,
+                          size: 24.sp,
+                        ), // Default icon for custom
                         Gap(12.w),
                         Expanded(
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(agent.name, style: theme.textTheme.p),
-                              Text(agent.command,
-                                  style: theme.textTheme.small.copyWith(
-                                      color:
-                                          theme.colorScheme.mutedForeground)),
-                            ])),
+                              Text(
+                                agent.command,
+                                style: theme.textTheme.small.copyWith(
+                                  color: theme.colorScheme.mutedForeground,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         ShadButton.ghost(
                           padding: EdgeInsets.zero,
                           width: 32.w,
                           height: 32.h,
                           onPressed: () => _showAddEditAgentDialog(
-                              context, l10n, theme,
-                              existingAgent: agent, isCustom: true),
+                            context,
+                            l10n,
+                            theme,
+                            existingAgent: agent,
+                            isCustom: true,
+                          ),
                           child: Icon(LucideIcons.pencil, size: 16.sp),
                         ),
                         ShadButton.ghost(
@@ -886,15 +971,19 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           onPressed: () => context
                               .read<SettingsBloc>()
                               .add(RemoveAgentConfig(agent.id)),
-                          child: Icon(LucideIcons.trash2,
-                              size: 16.sp,
-                              color: theme.colorScheme.destructive),
+                          child: Icon(
+                            LucideIcons.trash2,
+                            size: 16.sp,
+                            color: theme.colorScheme.destructive,
+                          ),
                         ),
                       ],
                     ),
-                  )),
-          ]),
-        )
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -908,8 +997,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
         _ => null,
       };
 
-  Future<void> _toggleAgent(AgentConfig agent, bool value,
-      AppLocalizations l10n, ShadThemeData theme) async {
+  Future<void> _toggleAgent(
+    AgentConfig agent,
+    bool value,
+    AppLocalizations l10n,
+    ShadThemeData theme,
+  ) async {
     if (!value) {
       context
           .read<SettingsBloc>()
@@ -960,7 +1053,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
             onPressed: () => Navigator.of(ctx).pop(false),
           ),
           ShadButton(
-            child: Text('Install'), // l10n.install
+            child: const Text('Install'), // l10n.install
             onPressed: () => Navigator.of(ctx).pop(true),
           ),
         ],
@@ -977,28 +1070,29 @@ class _SettingsDialogState extends State<SettingsDialog> {
         ShadToast(
           title: Text(l10n.installingAgent),
           description: ValueListenableBuilder<String>(
-              valueListenable: logNotifier,
-              builder: (context, log, child) {
-                if (log.isEmpty) return const LinearProgressIndicator();
+            valueListenable: logNotifier,
+            builder: (context, log, child) {
+              if (log.isEmpty) return const LinearProgressIndicator();
 
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const LinearProgressIndicator(),
-                    const Gap(4),
-                    Text(
-                      log.trim(),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.small.copyWith(
-                        fontFamily: 'Consolas',
-                        color: theme.colorScheme.mutedForeground,
-                      ),
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const LinearProgressIndicator(),
+                  const Gap(4),
+                  Text(
+                    log.trim(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.small.copyWith(
+                      fontFamily: 'Consolas',
+                      color: theme.colorScheme.mutedForeground,
                     ),
-                  ],
-                );
-              }),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       );
 
@@ -1033,8 +1127,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   void _showAddEditAgentDialog(
-      BuildContext context, AppLocalizations l10n, ShadThemeData theme,
-      {AgentConfig? existingAgent, bool isCustom = false}) {
+    BuildContext context,
+    AppLocalizations l10n,
+    ShadThemeData theme, {
+    AgentConfig? existingAgent,
+    bool isCustom = false,
+  }) {
     final nameController =
         TextEditingController(text: existingAgent?.name ?? '');
     final commandController =
@@ -1042,110 +1140,113 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final argsController =
         TextEditingController(text: existingAgent?.args.join(' ') ?? '');
     final envController = TextEditingController(
-        text: existingAgent?.env.entries
-                .map((e) => '${e.key}=${e.value}')
-                .join('\n') ??
-            '');
+      text: existingAgent?.env.entries
+              .map((e) => '${e.key}=${e.value}')
+              .join('\n') ??
+          '',
+    );
 
     showShadDialog(
-        context: context,
-        builder: (ctx) => ShadDialog(
-              title:
-                  Text(isCustom ? l10n.addCustomAgent : l10n.editCustomAgent),
-              child: SizedBox(
-                width: 400.w,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isCustom) ...[
-                      Text(l10n.agentName),
-                      ShadInput(controller: nameController),
-                      Gap(8.h),
-                      Text(l10n.agentCommand),
-                      ShadInput(controller: commandController),
-                      Gap(8.h),
-                    ],
-                    Text(l10n.agentArgs),
-                    ShadInput(controller: argsController),
-                    Gap(8.h),
-                    Text(l10n.agentEnv),
-                    ShadInput(
-                        controller: envController,
-                        maxLines: 3,
-                        placeholder: const Text('KEY=VALUE')),
-                    Gap(16.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ShadButton.ghost(
-                            onPressed: () => Navigator.of(ctx).pop(),
-                            child: Text(l10n.cancel)),
-                        ShadButton(
-                          onPressed: () {
-                            // Save
-                            final args = argsController.text
-                                .trim()
-                                .split(' ')
-                                .where((s) => s.isNotEmpty)
-                                .toList();
-                            final envLines =
-                                envController.text.trim().split('\n');
-                            final env = <String, String>{};
-                            for (var line in envLines) {
-                              final parts = line.split('=');
-                              if (parts.length >= 2) {
-                                env[parts[0].trim()] =
-                                    parts.sublist(1).join('=').trim();
-                              }
-                            }
-
-                            if (isCustom) {
-                              final newAgent = AgentConfig(
-                                id: existingAgent?.id ??
-                                    DateTime.now()
-                                        .millisecondsSinceEpoch
-                                        .toString(),
-                                preset: AgentPreset.custom,
-                                name: nameController.text, // Validation needed
-                                command: commandController.text,
-                                args: args,
-                                env: env,
-                                enabled: true,
-                              );
-                              if (existingAgent != null) {
-                                context
-                                    .read<SettingsBloc>()
-                                    .add(UpdateAgentConfig(newAgent));
-                              } else {
-                                context
-                                    .read<SettingsBloc>()
-                                    .add(AddAgentConfig(newAgent));
-                              }
-                            } else {
-                              // Update preset args/env/enabled only
-                              final updated = existingAgent!.copyWith(
-                                args: args,
-                                env: env,
-                              );
-                              context
-                                  .read<SettingsBloc>()
-                                  .add(UpdateAgentConfig(updated));
-                            }
-                            Navigator.of(ctx).pop();
-                          },
-                          child: Text(l10n.save),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+      context: context,
+      builder: (ctx) => ShadDialog(
+        title: Text(isCustom ? l10n.addCustomAgent : l10n.editCustomAgent),
+        child: SizedBox(
+          width: 400.w,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isCustom) ...[
+                Text(l10n.agentName),
+                ShadInput(controller: nameController),
+                Gap(8.h),
+                Text(l10n.agentCommand),
+                ShadInput(controller: commandController),
+                Gap(8.h),
+              ],
+              Text(l10n.agentArgs),
+              ShadInput(controller: argsController),
+              Gap(8.h),
+              Text(l10n.agentEnv),
+              ShadInput(
+                controller: envController,
+                maxLines: 3,
+                placeholder: const Text('KEY=VALUE'),
               ),
-            ));
+              Gap(16.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ShadButton.ghost(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: Text(l10n.cancel),
+                  ),
+                  ShadButton(
+                    onPressed: () {
+                      // Save
+                      final args = argsController.text
+                          .trim()
+                          .split(' ')
+                          .where((s) => s.isNotEmpty)
+                          .toList();
+                      final envLines = envController.text.trim().split('\n');
+                      final env = <String, String>{};
+                      for (var line in envLines) {
+                        final parts = line.split('=');
+                        if (parts.length >= 2) {
+                          env[parts[0].trim()] =
+                              parts.sublist(1).join('=').trim();
+                        }
+                      }
+
+                      if (isCustom) {
+                        final newAgent = AgentConfig(
+                          id: existingAgent?.id ??
+                              DateTime.now().millisecondsSinceEpoch.toString(),
+                          preset: AgentPreset.custom,
+                          name: nameController.text, // Validation needed
+                          command: commandController.text,
+                          args: args,
+                          env: env,
+                          enabled: true,
+                        );
+                        if (existingAgent != null) {
+                          context
+                              .read<SettingsBloc>()
+                              .add(UpdateAgentConfig(newAgent));
+                        } else {
+                          context
+                              .read<SettingsBloc>()
+                              .add(AddAgentConfig(newAgent));
+                        }
+                      } else {
+                        // Update preset args/env/enabled only
+                        final updated = existingAgent!.copyWith(
+                          args: args,
+                          env: env,
+                        );
+                        context
+                            .read<SettingsBloc>()
+                            .add(UpdateAgentConfig(updated));
+                      }
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Text(l10n.save),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildCustomShellsContent(
-      AppSettings settings, AppLocalizations l10n, ShadThemeData theme) {
+    AppSettings settings,
+    AppLocalizations l10n,
+    ShadThemeData theme,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1173,74 +1274,91 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(LucideIcons.terminal,
-                            size: 48.sp,
-                            color: theme.colorScheme.mutedForeground),
+                        Icon(
+                          LucideIcons.terminal,
+                          size: 48.sp,
+                          color: theme.colorScheme.mutedForeground,
+                        ),
                         Gap(12.h),
                         Text(l10n.noCustomShells, style: theme.textTheme.large),
                         Gap(4.h),
-                        Text(l10n.addYourFirstCustomShell,
-                            style: theme.textTheme.small.copyWith(
-                                color: theme.colorScheme.mutedForeground)),
+                        Text(
+                          l10n.addYourFirstCustomShell,
+                          style: theme.textTheme.small.copyWith(
+                            color: theme.colorScheme.mutedForeground,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 )
               else
-                ...settings.customShells.map((shell) => Container(
-                      margin: EdgeInsets.only(bottom: 8.h),
-                      padding: EdgeInsets.all(12.w),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.colorScheme.border),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(_getShellIcon(shell.icon),
-                              size: 24.sp, color: theme.colorScheme.primary),
-                          Gap(12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(shell.name, style: theme.textTheme.p),
-                                  ],
+                ...settings.customShells.map(
+                  (shell) => Container(
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: theme.colorScheme.border),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _getShellIcon(shell.icon),
+                          size: 24.sp,
+                          color: theme.colorScheme.primary,
+                        ),
+                        Gap(12.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(shell.name, style: theme.textTheme.p),
+                                ],
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                shell.path,
+                                style: theme.textTheme.small.copyWith(
+                                  color: theme.colorScheme.mutedForeground,
                                 ),
-                                SizedBox(height: 2.h),
-                                Text(shell.path,
-                                    style: theme.textTheme.small.copyWith(
-                                        color:
-                                            theme.colorScheme.mutedForeground),
-                                    overflow: TextOverflow.ellipsis),
-                              ],
-                            ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          // Edit button
-                          ShadButton.ghost(
-                            padding: EdgeInsets.zero,
-                            width: 32.w,
-                            height: 32.h,
-                            onPressed: () => _showAddEditShellDialog(
-                                context, l10n, theme,
-                                existingShell: shell),
-                            child: Icon(LucideIcons.pencil, size: 16.sp),
+                        ),
+                        // Edit button
+                        ShadButton.ghost(
+                          padding: EdgeInsets.zero,
+                          width: 32.w,
+                          height: 32.h,
+                          onPressed: () => _showAddEditShellDialog(
+                            context,
+                            l10n,
+                            theme,
+                            existingShell: shell,
                           ),
-                          // Delete button
-                          ShadButton.ghost(
-                            padding: EdgeInsets.zero,
-                            width: 32.w,
-                            height: 32.h,
-                            onPressed: () =>
-                                _confirmDeleteShell(context, shell, l10n),
-                            child: Icon(LucideIcons.trash2,
-                                size: 16.sp,
-                                color: theme.colorScheme.destructive),
+                          child: Icon(LucideIcons.pencil, size: 16.sp),
+                        ),
+                        // Delete button
+                        ShadButton.ghost(
+                          padding: EdgeInsets.zero,
+                          width: 32.w,
+                          height: 32.h,
+                          onPressed: () =>
+                              _confirmDeleteShell(context, shell, l10n),
+                          child: Icon(
+                            LucideIcons.trash2,
+                            size: 16.sp,
+                            color: theme.colorScheme.destructive,
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -1249,8 +1367,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   void _showAddEditShellDialog(
-      BuildContext context, AppLocalizations l10n, ShadThemeData theme,
-      {CustomShellConfig? existingShell}) {
+    BuildContext context,
+    AppLocalizations l10n,
+    ShadThemeData theme, {
+    CustomShellConfig? existingShell,
+  }) {
     final nameController =
         TextEditingController(text: existingShell?.name ?? '');
     final pathController =
@@ -1262,9 +1383,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return ShadDialog(
-            title: Text(existingShell != null
-                ? l10n.editCustomShell
-                : l10n.addCustomShell),
+            title: Text(
+              existingShell != null
+                  ? l10n.editCustomShell
+                  : l10n.addCustomShell,
+            ),
             description: const SizedBox.shrink(),
             child: Container(
               width: 400.w,
@@ -1329,22 +1452,24 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       'zap',
                       'monitor',
                     ]
-                        .map((icon) => ShadButton(
-                              padding: EdgeInsets.all(8.w),
-                              backgroundColor: selectedIcon == icon
-                                  ? theme.colorScheme.primary
-                                  : Colors.transparent,
-                              onPressed: () {
-                                setDialogState(() => selectedIcon = icon);
-                              },
-                              child: Icon(
-                                _getShellIcon(icon),
-                                size: 20.sp,
-                                color: selectedIcon == icon
-                                    ? theme.colorScheme.primaryForeground
-                                    : theme.colorScheme.foreground,
-                              ),
-                            ))
+                        .map(
+                          (icon) => ShadButton(
+                            padding: EdgeInsets.all(8.w),
+                            backgroundColor: selectedIcon == icon
+                                ? theme.colorScheme.primary
+                                : Colors.transparent,
+                            onPressed: () {
+                              setDialogState(() => selectedIcon = icon);
+                            },
+                            child: Icon(
+                              _getShellIcon(icon),
+                              size: 20.sp,
+                              color: selectedIcon == icon
+                                  ? theme.colorScheme.primaryForeground
+                                  : theme.colorScheme.foreground,
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
                   Gap(24.h),
@@ -1365,21 +1490,25 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           if (name.isEmpty || path.isEmpty) return;
 
                           if (existingShell != null) {
-                            context.read<SettingsBloc>().add(UpdateCustomShell(
-                                  existingShell.copyWith(
-                                    name: name,
-                                    path: path,
-                                    icon: selectedIcon,
+                            context.read<SettingsBloc>().add(
+                                  UpdateCustomShell(
+                                    existingShell.copyWith(
+                                      name: name,
+                                      path: path,
+                                      icon: selectedIcon,
+                                    ),
                                   ),
-                                ));
+                                );
                           } else {
-                            context.read<SettingsBloc>().add(AddCustomShell(
-                                  CustomShellConfig.create(
-                                    name: name,
-                                    path: path,
-                                    icon: selectedIcon,
+                            context.read<SettingsBloc>().add(
+                                  AddCustomShell(
+                                    CustomShellConfig.create(
+                                      name: name,
+                                      path: path,
+                                      icon: selectedIcon,
+                                    ),
                                   ),
-                                ));
+                                );
                           }
                           Navigator.of(context).pop();
                         },
@@ -1397,7 +1526,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   void _confirmDeleteShell(
-      BuildContext context, CustomShellConfig shell, AppLocalizations l10n) {
+    BuildContext context,
+    CustomShellConfig shell,
+    AppLocalizations l10n,
+  ) {
     showShadDialog(
       context: context,
       builder: (context) => ShadDialog.alert(

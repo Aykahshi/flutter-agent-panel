@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/terminal_node.dart';
 
 class ActivityIndicator extends StatefulWidget {
-  final TerminalStatus status;
-  final double size;
-
   const ActivityIndicator({
     super.key,
     required this.status,
     this.size = 8.0,
   });
+  final TerminalStatus status;
+  final double size;
 
   @override
   State<ActivityIndicator> createState() => _ActivityIndicatorState();

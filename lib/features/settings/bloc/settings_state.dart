@@ -1,15 +1,14 @@
 part of 'settings_bloc.dart';
 
 class SettingsState extends Equatable {
-  final AppSettings settings;
-  final bool isLoading;
-  final String? error;
-
   const SettingsState({
     this.settings = const AppSettings(),
     this.isLoading = false,
     this.error,
   });
+  final AppSettings settings;
+  final bool isLoading;
+  final String? error;
 
   SettingsState copyWith({
     AppSettings? settings,

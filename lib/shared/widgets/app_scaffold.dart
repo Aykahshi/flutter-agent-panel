@@ -7,10 +7,9 @@ import '../../features/info/views/about_dialog.dart';
 import '../../features/info/views/help_dialog.dart';
 
 class AppScaffold extends StatelessWidget {
+  const AppScaffold({super.key, required this.body, this.titleBar});
   final Widget body;
   final Widget? titleBar;
-
-  const AppScaffold({super.key, required this.body, this.titleBar});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,9 @@ class AppScaffold extends StatelessWidget {
                 Expanded(
                   child: DragToMoveArea(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                      ),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: titleBar ??
@@ -55,13 +56,17 @@ class AppScaffold extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.background,
               border: Border(
-                bottom: BorderSide(color: theme.colorScheme.border),
+                bottom: BorderSide(
+                  color: theme.colorScheme.border,
+                ),
               ),
             ),
             alignment: Alignment.centerLeft,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -89,9 +94,8 @@ class AppScaffold extends StatelessWidget {
 }
 
 class _WindowButtons extends StatelessWidget {
-  final ShadThemeData theme;
-
   const _WindowButtons({required this.theme});
+  final ShadThemeData theme;
 
   @override
   Widget build(BuildContext context) {
@@ -126,17 +130,16 @@ class _WindowButtons extends StatelessWidget {
 }
 
 class _WindowButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-  final Color? hoverColor;
-  final ShadThemeData theme;
-
   const _WindowButton({
     required this.icon,
     required this.onPressed,
     required this.theme,
     this.hoverColor,
   });
+  final IconData icon;
+  final VoidCallback onPressed;
+  final Color? hoverColor;
+  final ShadThemeData theme;
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +151,7 @@ class _WindowButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         width: 46,
         height: 32,
-        decoration: ShadDecoration(
+        decoration: const ShadDecoration(
           focusedBorder: ShadBorder.none,
           border: ShadBorder.none,
         ),
