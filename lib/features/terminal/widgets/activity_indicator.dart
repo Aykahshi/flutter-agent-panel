@@ -92,18 +92,11 @@ class _ActivityIndicatorState extends State<ActivityIndicator>
     );
   }
 
-  Color _getStatusColor(TerminalStatus status) {
-    switch (status) {
-      case TerminalStatus.running:
-        return Colors.orangeAccent;
-      case TerminalStatus.idle:
-        return Colors.greenAccent;
-      case TerminalStatus.error:
-        return Colors.redAccent;
-      case TerminalStatus.disconnected:
-        return Colors.grey.shade600;
-      case TerminalStatus.restarting:
-        return Colors.blueAccent;
-    }
-  }
+  Color _getStatusColor(TerminalStatus status) => switch (status) {
+        TerminalStatus.running => Colors.orangeAccent,
+        TerminalStatus.idle => Colors.greenAccent,
+        TerminalStatus.error => Colors.redAccent,
+        TerminalStatus.disconnected => Colors.grey.shade600,
+        TerminalStatus.restarting => Colors.blueAccent,
+      };
 }

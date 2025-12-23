@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/terminal_node.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
+import '../models/terminal_node.dart';
 
 class GlowingIcon extends StatefulWidget {
   final IconData? icon;
@@ -114,18 +114,11 @@ class _GlowingIconState extends State<GlowingIcon>
     );
   }
 
-  Color _getStatusColor(TerminalStatus status) {
-    switch (status) {
-      case TerminalStatus.running:
-        return Colors.orangeAccent;
-      case TerminalStatus.idle:
-        return Colors.greenAccent;
-      case TerminalStatus.error:
-        return Colors.redAccent;
-      case TerminalStatus.disconnected:
-        return Colors.grey.shade600;
-      case TerminalStatus.restarting:
-        return Colors.blueAccent;
-    }
-  }
+  Color _getStatusColor(TerminalStatus status) => switch (status) {
+        TerminalStatus.running => Colors.orangeAccent,
+        TerminalStatus.idle => Colors.greenAccent,
+        TerminalStatus.error => Colors.redAccent,
+        TerminalStatus.disconnected => Colors.grey.shade600,
+        TerminalStatus.restarting => Colors.blueAccent,
+      };
 }

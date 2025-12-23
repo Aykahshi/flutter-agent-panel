@@ -82,13 +82,8 @@ class App extends StatelessWidget {
     return Locale(localeStr);
   }
 
-  ShadColorScheme _getColorScheme(AppTheme theme) {
-    switch (theme) {
-      case AppTheme.dark:
-        return const ShadZincColorScheme.dark();
-
-      case AppTheme.light:
-        return const ShadZincColorScheme.light();
-    }
-  }
+  ShadColorScheme _getColorScheme(AppTheme theme) => switch (theme) {
+        AppTheme.dark => const ShadZincColorScheme.dark(),
+        AppTheme.light => const ShadZincColorScheme.light(),
+      };
 }

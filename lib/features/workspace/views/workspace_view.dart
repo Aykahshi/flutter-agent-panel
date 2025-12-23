@@ -10,6 +10,7 @@ import '../widgets/main_terminal_content.dart';
 
 import '../../../../shared/constants/app_colors.dart';
 import '../../../../shared/utils/platform_utils.dart';
+import '../../../core/constants/assets.dart';
 import '../../../core/extensions/context_extension.dart';
 import '../../../core/l10n/app_localizations.dart';
 
@@ -433,8 +434,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                               AgentPreset.opencode &&
                                           Theme.of(context).brightness ==
                                               Brightness.dark) {
-                                        iconPath =
-                                            'assets/images/agent_logos/opencode-dark.svg';
+                                        iconPath = Assets.opencodeDarkLogo;
                                       }
 
                                       if (agentConfig.preset ==
@@ -903,8 +903,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
                                                                     .brightness ==
                                                                 Brightness
                                                                     .dark) {
-                                                          iconPath =
-                                                              'assets/images/agent_logos/opencode-dark.svg';
+                                                          iconPath = Assets
+                                                              .opencodeDarkLogo;
                                                         }
 
                                                         // Adapt Codex and Github Copilot icon color
@@ -1008,24 +1008,15 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     'layout-panel-left': LucideIcons.layoutPanelLeft,
   };
 
-  IconData _getShellIcon(String iconName) {
-    switch (iconName) {
-      case 'terminal':
-        return LucideIcons.terminal;
-      case 'command':
-        return LucideIcons.squareTerminal;
-      case 'server':
-        return LucideIcons.server;
-      case 'gitBranch':
-        return LucideIcons.gitBranch;
-      case 'box':
-        return LucideIcons.box;
-      case 'settings':
-        return LucideIcons.settings;
-      default:
-        return LucideIcons.terminal;
-    }
-  }
+  IconData _getShellIcon(String iconName) => switch (iconName) {
+        'terminal' => LucideIcons.terminal,
+        'command' => LucideIcons.squareTerminal,
+        'server' => LucideIcons.server,
+        'gitBranch' => LucideIcons.gitBranch,
+        'box' => LucideIcons.box,
+        'settings' => LucideIcons.settings,
+        _ => LucideIcons.terminal,
+      };
 
   String _getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) =>
       switch (shell) {
@@ -1046,24 +1037,16 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         _ => null,
       };
 
-  String? _getAgentIconPath(AgentPreset preset, ShadThemeData theme) {
-    switch (preset) {
-      case AgentPreset.claude:
-        return 'assets/images/agent_logos/claude.svg';
-      case AgentPreset.gemini:
-        return 'assets/images/agent_logos/gemini.svg';
-      case AgentPreset.codex:
-        return 'assets/images/agent_logos/chatgpt.svg';
-      case AgentPreset.qwen:
-        return 'assets/images/agent_logos/qwen.svg';
-      case AgentPreset.opencode:
-        return theme.brightness == Brightness.dark
-            ? 'assets/images/agent_logos/opencode-dark.svg'
-            : 'assets/images/agent_logos/opencode.svg';
-      case AgentPreset.githubCopilot:
-        return 'assets/images/agent_logos/github-copilot.svg';
-      default:
-        return null;
-    }
-  }
+  String? _getAgentIconPath(AgentPreset preset, ShadThemeData theme) =>
+      switch (preset) {
+        AgentPreset.claude => Assets.claudeLogo,
+        AgentPreset.gemini => Assets.geminiLogo,
+        AgentPreset.codex => Assets.chatgptLogo,
+        AgentPreset.qwen => Assets.qwenLogo,
+        AgentPreset.opencode => theme.brightness == Brightness.dark
+            ? Assets.opencodeDarkLogo
+            : Assets.opencodeLogo,
+        AgentPreset.githubCopilot => Assets.githubCopilotLogo,
+        _ => null,
+      };
 }

@@ -8,6 +8,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:gap/gap.dart';
 import 'package:system_fonts/system_fonts.dart';
+import '../../../../core/constants/assets.dart';
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/extensions/context_extension.dart';
 import '../../../../core/services/user_config_service.dart';
@@ -762,8 +763,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
                           if (agent.preset == AgentPreset.opencode &&
                               Theme.of(context).brightness == Brightness.dark) {
-                            iconPath =
-                                'assets/images/agent_logos/opencode-dark.svg';
+                            iconPath = Assets.opencodeDarkLogo;
                           }
 
                           if (agent.preset == AgentPreset.codex ||
@@ -899,22 +899,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
-  Color? _getAgentColor(AgentPreset preset) {
-    switch (preset) {
-      case AgentPreset.claude:
-        return const Color(0xFFD97757);
-      case AgentPreset.qwen:
-        return const Color(0xFF615CED);
-      case AgentPreset.codex:
-        return const Color(0xFF10A37F);
-      case AgentPreset.gemini:
-        return const Color(0xFF4E87F6);
-      case AgentPreset.opencode:
-        return Colors.blueGrey;
-      default:
-        return null;
-    }
-  }
+  Color? _getAgentColor(AgentPreset preset) => switch (preset) {
+        AgentPreset.claude => const Color(0xFFD97757),
+        AgentPreset.qwen => const Color(0xFF615CED),
+        AgentPreset.codex => const Color(0xFF10A37F),
+        AgentPreset.gemini => const Color(0xFF4E87F6),
+        AgentPreset.opencode => Colors.blueGrey,
+        _ => null,
+      };
 
   Future<void> _toggleAgent(AgentConfig agent, bool value,
       AppLocalizations l10n, ShadThemeData theme) async {
@@ -1428,49 +1420,30 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
-  String _getAppThemeLocalizedName(AppTheme theme, AppLocalizations l10n) {
-    switch (theme) {
-      case AppTheme.dark:
-        return l10n.dark;
+  String _getAppThemeLocalizedName(AppTheme theme, AppLocalizations l10n) =>
+      switch (theme) {
+        AppTheme.dark => l10n.dark,
+        AppTheme.light => l10n.light,
+      };
 
-      case AppTheme.light:
-        return l10n.light;
-    }
-  }
+  String _getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) =>
+      switch (shell) {
+        ShellType.pwsh7 => l10n.pwsh7,
+        ShellType.powershell => l10n.powershell,
+        ShellType.cmd => l10n.cmd,
+        ShellType.wsl => l10n.wsl,
+        ShellType.gitBash => l10n.gitBash,
+        ShellType.custom => l10n.custom,
+      };
 
-  String _getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) {
-    switch (shell) {
-      case ShellType.pwsh7:
-        return l10n.pwsh7;
-      case ShellType.powershell:
-        return l10n.powershell;
-      case ShellType.cmd:
-        return l10n.cmd;
-      case ShellType.wsl:
-        return l10n.wsl;
-      case ShellType.gitBash:
-        return l10n.gitBash;
-      case ShellType.custom:
-        return l10n.custom;
-    }
-  }
-
-  IconData _getShellIcon(String iconName) {
-    switch (iconName) {
-      case 'terminal':
-        return LucideIcons.terminal;
-      case 'command':
-        return LucideIcons.squareTerminal;
-      case 'server':
-        return LucideIcons.server;
-      case 'gitBranch':
-        return LucideIcons.gitBranch;
-      case 'settings':
-        return LucideIcons.settings;
-      default:
-        return LucideIcons.terminal;
-    }
-  }
+  IconData _getShellIcon(String iconName) => switch (iconName) {
+        'terminal' => LucideIcons.terminal,
+        'command' => LucideIcons.squareTerminal,
+        'server' => LucideIcons.server,
+        'gitBranch' => LucideIcons.gitBranch,
+        'settings' => LucideIcons.settings,
+        _ => LucideIcons.terminal,
+      };
 
   Future<void> _verifyAgentInstallations() async {
     final settings = context.read<SettingsBloc>().state.settings;

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../core/constants/assets.dart';
+
 enum AgentPreset {
   claude,
   qwen,
@@ -42,13 +44,12 @@ extension AgentPresetX on AgentPreset {
       };
 
   String? get iconAssetPath => switch (this) {
-        AgentPreset.claude => 'assets/images/agent_logos/claude.svg',
-        AgentPreset.qwen => 'assets/images/agent_logos/qwen.svg',
-        AgentPreset.codex => 'assets/images/agent_logos/chatgpt.svg',
-        AgentPreset.gemini => 'assets/images/agent_logos/gemini.svg',
-        AgentPreset.opencode => 'assets/images/agent_logos/opencode.svg',
-        AgentPreset.githubCopilot =>
-          'assets/images/agent_logos/githubcopilot.svg',
+        AgentPreset.claude => Assets.claudeLogo,
+        AgentPreset.qwen => Assets.qwenLogo,
+        AgentPreset.codex => Assets.chatgptLogo,
+        AgentPreset.gemini => Assets.geminiLogo,
+        AgentPreset.opencode => Assets.opencodeLogo,
+        AgentPreset.githubCopilot => Assets.githubCopilotLogo,
         AgentPreset.custom => null,
       };
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../core/constants/assets.dart';
 import '../../../../core/extensions/context_extension.dart';
 
 class AppAboutDialog extends StatelessWidget {
@@ -36,7 +38,7 @@ class AppAboutDialog extends StatelessWidget {
             SizedBox(height: 16.h),
             CircleAvatar(
               radius: 40.r,
-              backgroundImage: const AssetImage('assets/images/avatar.png'),
+              backgroundImage: const AssetImage(Assets.avatar),
             ),
             SizedBox(height: 16.h),
             Text(
