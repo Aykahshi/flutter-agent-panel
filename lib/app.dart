@@ -4,14 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/l10n/app_localizations.dart';
-
-import 'features/home/views/app_shell.dart';
+import 'core/router/app_router.dart';
 import 'features/workspace/bloc/workspace_bloc.dart';
 import 'features/settings/bloc/settings_bloc.dart';
 import 'features/settings/models/app_settings.dart';
 
 class App extends StatelessWidget {
-  const App({super.key});
+  App({super.key});
+
+  final _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,7 @@ class App extends StatelessWidget {
                   colorScheme: _getColorScheme(appTheme),
                 ),
                 appBuilder: (context) {
-                  return MaterialApp(
+                  return MaterialApp.router(
                     title: 'Flutter Agent Panel',
                     theme: Theme.of(context),
                     debugShowCheckedModeBanner: false,
@@ -61,8 +62,10 @@ class App extends StatelessWidget {
                       ),
                     ],
                     locale: _parseLocale(state.settings.locale),
-                    home: const AppShell(),
-                    builder: (context, child) => ShadAppBuilder(child: child!),
+                    routerConfig: _appRouter.config(),
+                    builder: (context, child) => ShadAppBuilder(
+                      child: child ?? const SizedBox.shrink(),
+                    ),
                   );
                 },
               );

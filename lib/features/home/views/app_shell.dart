@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -6,14 +7,15 @@ import '../../workspace/views/workspace_drawer.dart';
 import '../../workspace/views/workspace_view.dart';
 import '../../../shared/widgets/app_scaffold.dart';
 
-class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+@RoutePage()
+class AppShellView extends StatefulWidget {
+  const AppShellView({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  State<AppShellView> createState() => _AppShellViewState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellViewState extends State<AppShellView> {
   static const double _minExpandedWidth = 150.0;
   static const double _collapsedWidth = 50.0;
   final ValueNotifier<double> _drawerWidth = ValueNotifier(200.0);
