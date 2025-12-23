@@ -99,12 +99,6 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
   ];
 
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Flutter Agent Panel'**
-  String get appTitle;
-
   /// No description provided for @general.
   ///
   /// In en, this message translates to:
@@ -122,12 +116,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terminal'**
   String get terminal;
-
-  /// No description provided for @newTerminal.
-  ///
-  /// In en, this message translates to:
-  /// **'New Terminal'**
-  String get newTerminal;
 
   /// No description provided for @settings.
   ///
@@ -182,42 +170,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Light'**
   String get light;
-
-  /// No description provided for @oneDark.
-  ///
-  /// In en, this message translates to:
-  /// **'One Dark'**
-  String get oneDark;
-
-  /// No description provided for @dracula.
-  ///
-  /// In en, this message translates to:
-  /// **'Dracula'**
-  String get dracula;
-
-  /// No description provided for @monokai.
-  ///
-  /// In en, this message translates to:
-  /// **'Monokai'**
-  String get monokai;
-
-  /// No description provided for @nord.
-  ///
-  /// In en, this message translates to:
-  /// **'Nord'**
-  String get nord;
-
-  /// No description provided for @solarizedDark.
-  ///
-  /// In en, this message translates to:
-  /// **'Solarized Dark'**
-  String get solarizedDark;
-
-  /// No description provided for @githubDark.
-  ///
-  /// In en, this message translates to:
-  /// **'GitHub Dark'**
-  String get githubDark;
 
   /// No description provided for @pwsh7.
   ///
@@ -345,12 +297,6 @@ abstract class AppLocalizations {
   /// **'Simplified Chinese'**
   String get chineseHans;
 
-  /// No description provided for @fontPreview.
-  ///
-  /// In en, this message translates to:
-  /// **'Font Preview'**
-  String get fontPreview;
-
   /// No description provided for @fontPreviewText.
   ///
   /// In en, this message translates to:
@@ -368,12 +314,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Help'**
   String get help;
-
-  /// No description provided for @configureAppDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Configure application preferences'**
-  String get configureAppDescription;
 
   /// No description provided for @selectLanguage.
   ///
@@ -453,23 +393,11 @@ abstract class AppLocalizations {
   /// **'Agent not installed'**
   String get agentNotInstalled;
 
-  /// No description provided for @enableAgent.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable Agent'**
-  String get enableAgent;
-
   /// No description provided for @installingAgent.
   ///
   /// In en, this message translates to:
   /// **'Installing Agent...'**
   String get installingAgent;
-
-  /// No description provided for @startingAgent.
-  ///
-  /// In en, this message translates to:
-  /// **'Starting Agent...'**
-  String get startingAgent;
 
   /// No description provided for @agentInstalled.
   ///
@@ -698,12 +626,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starting...'**
   String get startingTerminal;
-
-  /// No description provided for @initializingShell.
-  ///
-  /// In en, this message translates to:
-  /// **'Initializing shell environment...'**
-  String get initializingShell;
 }
 
 class _AppLocalizationsDelegate

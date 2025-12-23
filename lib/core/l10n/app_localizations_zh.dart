@@ -9,9 +9,6 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'Flutter 代理面板';
-
-  @override
   String get general => '常规';
 
   @override
@@ -19,9 +16,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get terminal => '终端';
-
-  @override
-  String get newTerminal => '新建终端';
 
   @override
   String get settings => '设置';
@@ -49,24 +43,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get light => '亮色';
-
-  @override
-  String get oneDark => 'One Dark';
-
-  @override
-  String get dracula => 'Dracula';
-
-  @override
-  String get monokai => 'Monokai';
-
-  @override
-  String get nord => 'Nord';
-
-  @override
-  String get solarizedDark => 'Solarized Dark';
-
-  @override
-  String get githubDark => 'GitHub Dark';
 
   @override
   String get pwsh7 => 'PowerShell 7';
@@ -132,9 +108,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chineseHans => '简体中文';
 
   @override
-  String get fontPreview => '字体预览';
-
-  @override
   String get fontPreviewText =>
       'Build beautiful, natively compiled applications from a single codebase.';
 
@@ -143,9 +116,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get help => '帮助';
-
-  @override
-  String get configureAppDescription => '配置应用程序偏好设置';
 
   @override
   String get selectLanguage => '选择语言';
@@ -189,13 +159,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentNotInstalled => '助手未安装';
 
   @override
-  String get enableAgent => '启用助手';
-
-  @override
   String get installingAgent => '正在安装助手...';
-
-  @override
-  String get startingAgent => 'Starting Agent...';
 
   @override
   String get agentInstalled => '助手安装成功';
@@ -204,7 +168,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentInstallFailed => '助手安装失败';
 
   @override
-  String get noCustomAgents => 'No custom agents configured';
+  String get noCustomAgents => '尚未配置自定义助手';
 
   @override
   String get customAgent => '自定义助手';
@@ -316,18 +280,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get startingTerminal => 'Starting...';
-
-  @override
-  String get initializingShell => 'Initializing shell environment...';
+  String get startingTerminal => '正在启动...';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
 class AppLocalizationsZhHant extends AppLocalizationsZh {
   AppLocalizationsZhHant() : super('zh_Hant');
-
-  @override
-  String get appTitle => 'Flutter 代理面板';
 
   @override
   String get general => '一般';
@@ -337,9 +295,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get terminal => '終端機';
-
-  @override
-  String get newTerminal => '新建終端';
 
   @override
   String get settings => '設定';
@@ -367,24 +322,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get light => '亮色';
-
-  @override
-  String get oneDark => 'One Dark';
-
-  @override
-  String get dracula => 'Dracula';
-
-  @override
-  String get monokai => 'Monokai';
-
-  @override
-  String get nord => 'Nord';
-
-  @override
-  String get solarizedDark => 'Solarized Dark';
-
-  @override
-  String get githubDark => 'GitHub Dark';
 
   @override
   String get pwsh7 => 'PowerShell 7';
@@ -450,9 +387,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get chineseHans => '簡體中文';
 
   @override
-  String get fontPreview => '字型預覽';
-
-  @override
   String get fontPreviewText =>
       'Build beautiful, natively compiled applications from a single codebase.';
 
@@ -461,9 +395,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get help => '幫助';
-
-  @override
-  String get configureAppDescription => '設定應用程式偏好設定';
 
   @override
   String get selectLanguage => '選擇語言';
@@ -507,13 +438,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get agentNotInstalled => '助手未安裝';
 
   @override
-  String get enableAgent => '啟用助手';
-
-  @override
   String get installingAgent => '正在安裝助手...';
-
-  @override
-  String get startingAgent => '啟動助手...';
 
   @override
   String get agentInstalled => '助手安裝成功';
@@ -635,7 +560,4 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get startingTerminal => '正在啟動...';
-
-  @override
-  String get initializingShell => '正在初始化 Shell 環境...';
 }

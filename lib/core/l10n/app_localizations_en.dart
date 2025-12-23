@@ -9,9 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Flutter Agent Panel';
-
-  @override
   String get general => 'General';
 
   @override
@@ -19,9 +16,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get terminal => 'Terminal';
-
-  @override
-  String get newTerminal => 'New Terminal';
 
   @override
   String get settings => 'Settings';
@@ -49,24 +43,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get light => 'Light';
-
-  @override
-  String get oneDark => 'One Dark';
-
-  @override
-  String get dracula => 'Dracula';
-
-  @override
-  String get monokai => 'Monokai';
-
-  @override
-  String get nord => 'Nord';
-
-  @override
-  String get solarizedDark => 'Solarized Dark';
-
-  @override
-  String get githubDark => 'GitHub Dark';
 
   @override
   String get pwsh7 => 'PowerShell 7';
@@ -132,9 +108,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chineseHans => 'Simplified Chinese';
 
   @override
-  String get fontPreview => 'Font Preview';
-
-  @override
   String get fontPreviewText =>
       'Build beautiful, natively compiled applications from a single codebase.';
 
@@ -143,9 +116,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get help => 'Help';
-
-  @override
-  String get configureAppDescription => 'Configure application preferences';
 
   @override
   String get selectLanguage => 'Select Language';
@@ -189,13 +159,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentNotInstalled => 'Agent not installed';
 
   @override
-  String get enableAgent => 'Enable Agent';
-
-  @override
   String get installingAgent => 'Installing Agent...';
-
-  @override
-  String get startingAgent => 'Starting Agent...';
 
   @override
   String get agentInstalled => 'Agent installed successfully';
@@ -324,7 +288,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startingTerminal => 'Starting...';
-
-  @override
-  String get initializingShell => 'Initializing shell environment...';
 }

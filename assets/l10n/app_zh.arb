@@ -1,10 +1,8 @@
 {
-  "appTitle": "Flutter 代理面板",
   "general": "常规",
 
   "workspace": "工作区",
   "terminal": "终端",
-  "newTerminal": "新建终端",
   "settings": "设置",
   "selectWorkspacePrompt": "选择或建立工作区以开始",
   "noTerminalsOpen": "没有开启的终端",
@@ -16,12 +14,6 @@
   "dark": "深色",
   "light": "亮色",
 
-  "oneDark": "One Dark",
-  "dracula": "Dracula",
-  "monokai": "Monokai",
-  "nord": "Nord",
-  "solarizedDark": "Solarized Dark",
-  "githubDark": "GitHub Dark",
   "pwsh7": "PowerShell 7",
   "powershell": "Windows PowerShell",
   "cmd": "命令提示符",
@@ -43,9 +35,7 @@
   "english": "英文",
   "chineseHant": "繁體中文",
   "chineseHans": "简体中文",
-  "fontPreview": "字体预览",
   "fontPreviewText": "Build beautiful, natively compiled applications from a single codebase.",
-  "configureAppDescription": "配置应用程序偏好设置",
   "selectLanguage": "选择语言",
   "about": "关于",
   "help": "帮助",
@@ -61,13 +51,13 @@
   "installAgentTitle": "安装助手",
   "installAgentMessage": "助手 '{name}' 尚未安装。\n是否要使用以下命令安装？\n\n{command}",
   "agentNotInstalled": "助手未安装",
-  "enableAgent": "启用助手",
   "installingAgent": "正在安装助手...",
   "agentInstalled": "助手安装成功",
   "agentInstallFailed": "助手安装失败",
   "customAgent": "自定义助手",
   "addCustomAgent": "添加自定义助手",
   "editCustomAgent": "编辑自定义助手",
+  "noCustomAgents": "尚未配置自定义助手",
   "themeDescription": "选择应用程序主题模式。",
   "terminalSettingsDescription": "配置终端外观和行為。",
   "fontFamilyDescription": "选择终端使用的字體。",
@@ -99,6 +89,7 @@
   "missingRequiredField": "缺少必填字段: {field}",
   "invalidJson": "无效的JSON: {message}",
   "errorParsingTheme": "解析主题时出错: {message}",
+  "startingTerminal": "正在启动...",
   "@@locale": "zh"
 }
 

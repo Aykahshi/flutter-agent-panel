@@ -1,10 +1,8 @@
 {
-  "appTitle": "Flutter Agent Panel",
   "general": "General",
 
   "workspace": "Workspace",
   "terminal": "Terminal",
-  "newTerminal": "New Terminal",
   "settings": "Settings",
   "selectWorkspacePrompt": "Select or create a workspace to begin",
   "noTerminalsOpen": "No Terminals Open",
@@ -16,12 +14,6 @@
   "dark": "Dark",
   "light": "Light",
 
-  "oneDark": "One Dark",
-  "dracula": "Dracula",
-  "monokai": "Monokai",
-  "nord": "Nord",
-  "solarizedDark": "Solarized Dark",
-  "githubDark": "GitHub Dark",
   "pwsh7": "PowerShell 7",
   "powershell": "Windows PowerShell",
   "cmd": "Command Prompt",
@@ -43,11 +35,9 @@
   "english": "English",
   "chineseHant": "Traditional Chinese",
   "chineseHans": "Simplified Chinese",
-  "fontPreview": "Font Preview",
   "fontPreviewText": "Build beautiful, natively compiled applications from a single codebase.",
   "about": "About",
   "help": "Help",
-  "configureAppDescription": "Configure application preferences",
   "selectLanguage": "Select Language",
   "restartingTerminal": "Restarting Terminal...",
   "cursorBlink": "Cursor Blink",
@@ -77,9 +67,7 @@
     }
   },
   "agentNotInstalled": "Agent not installed",
-  "enableAgent": "Enable Agent",
   "installingAgent": "Installing Agent...",
-  "startingAgent": "Starting Agent...",
   "agentInstalled": "Agent installed successfully",
   "agentInstallFailed": "Failed to install agent",
   "noCustomAgents": "No custom agents configured",
@@ -117,7 +105,6 @@
   "missingRequiredField": "Missing required field: {field}",
   "invalidJson": "Invalid JSON: {message}",
   "errorParsingTheme": "Error parsing theme: {message}",
-  "startingTerminal": "Starting...",
-  "initializingShell": "Initializing shell environment..."
+  "startingTerminal": "Starting..."
 }
 
