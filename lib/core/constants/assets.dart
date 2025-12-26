@@ -7,6 +7,9 @@ class Assets {
   // Avatar
   static const String avatar = 'assets/images/avatar.png';
 
+  // App Icon
+  static const String appIcon = 'assets/images/app_icon.png';
+
   // Agent Logos
   static const String claudeLogo = 'assets/images/agent_logos/claude.svg';
   static const String geminiLogo = 'assets/images/agent_logos/gemini.svg';

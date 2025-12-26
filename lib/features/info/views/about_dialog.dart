@@ -37,9 +37,13 @@ class AppAboutDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Gap(16.h),
-            CircleAvatar(
-              radius: 40.r,
-              backgroundImage: const AssetImage(Assets.avatar),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Image.asset(
+                Assets.appIcon,
+                width: 120.r,
+                height: 120.r,
+              ),
             ),
             Gap(16.h),
             Text(
