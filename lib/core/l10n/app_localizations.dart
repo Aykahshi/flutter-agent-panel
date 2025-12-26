@@ -728,6 +728,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create Workspace'**
   String get createWorkspace;
+
+  /// No description provided for @terminalSearchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get terminalSearchPlaceholder;
+
+  /// No description provided for @terminalSearchPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Match'**
+  String get terminalSearchPrevious;
+
+  /// No description provided for @terminalSearchNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Match'**
+  String get terminalSearchNext;
+
+  /// No description provided for @terminalSearchCaseSensitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Case'**
+  String get terminalSearchCaseSensitive;
+
+  /// No description provided for @terminalSearchRegex.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Regular Expression'**
+  String get terminalSearchRegex;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

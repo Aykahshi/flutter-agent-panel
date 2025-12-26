@@ -330,6 +330,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get createWorkspace => '创建工作区';
+
+  @override
+  String get terminalSearchPlaceholder => '查找';
+
+  @override
+  String get terminalSearchPrevious => '上一个匹配项';
+
+  @override
+  String get terminalSearchNext => '下一个匹配项';
+
+  @override
+  String get terminalSearchCaseSensitive => '区分大小写';
+
+  @override
+  String get terminalSearchRegex => '使用正则表达式';
+
+  @override
+  String get close => '关闭';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -658,4 +676,22 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get createWorkspace => '建立工作區';
+
+  @override
+  String get terminalSearchPlaceholder => '尋找';
+
+  @override
+  String get terminalSearchPrevious => '上一個符合項目';
+
+  @override
+  String get terminalSearchNext => '下一個符合項目';
+
+  @override
+  String get terminalSearchCaseSensitive => '區分大小寫';
+
+  @override
+  String get terminalSearchRegex => '使用正規表達式';
+
+  @override
+  String get close => '關閉';
 }

@@ -123,6 +123,13 @@
   "workspaceTags": "Tags",
   "tagsPlaceholder": "Enter tags separated by commas",
   "confirmDeleteWorkspace": "Are you sure you want to delete this workspace?",
-  "createWorkspace": "Create Workspace"
+  "createWorkspace": "Create Workspace",
+
+  "terminalSearchPlaceholder": "Find",
+  "terminalSearchPrevious": "Previous Match",
+  "terminalSearchNext": "Next Match",
+  "terminalSearchCaseSensitive": "Match Case",
+  "terminalSearchRegex": "Use Regular Expression",
+  "close": "Close"
 }
 

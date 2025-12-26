@@ -145,6 +145,16 @@ class TerminalController with ChangeNotifier {
 
     return highlight;
   }
+
+  int? _scrollRequest;
+  int? get scrollRequest => _scrollRequest;
+
+  void scrollToLine(int line) {
+    _scrollRequest = line;
+    notifyListeners();
+    // Reset after notification so we don't keep scrolling
+    _scrollRequest = null;
+  }
 }
 
 class TerminalHighlight with Disposable {

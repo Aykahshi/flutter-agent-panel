@@ -169,6 +169,9 @@ class TerminalViewState extends State<TerminalView> {
   void initState() {
     _focusNode = widget.focusNode ?? FocusNode();
     _controller = widget.controller ?? TerminalController();
+    if (widget.controller != null) {
+      _controller.addListener(_onControllerChanged);
+    }
     _scrollController = widget.scrollController ?? ScrollController();
     _shortcutManager = ShortcutManager(
       shortcuts: widget.shortcuts ?? defaultTerminalShortcuts,
@@ -187,9 +190,26 @@ class TerminalViewState extends State<TerminalView> {
     if (oldWidget.controller != widget.controller) {
       if (oldWidget.controller == null) {
         _controller.dispose();
+      } else {
+        oldWidget.controller?.removeListener(_onControllerChanged);
       }
       _controller = widget.controller ?? TerminalController();
+      _controller.addListener(_onControllerChanged);
+    } else if (widget.controller != null && oldWidget.controller == null) {
+      // Handle case where controller was passed but now we use internal or vice versa?
+      // Actually the logic above handles replacement.
+      // We just need to ensure we listen to the current controller if it's the widget's one.
+      // But _controller is either widget.controller or internal.
+      // If widget.controller is null, we created one. We don't need to listen to our own empty controller unless we want to support internal events?
+      // But search controller uses the passed controller.
     }
+
+    // Ensure we listen to the current controller
+    if (widget.controller != null &&
+        widget.controller != oldWidget.controller) {
+      // Already handled above
+    }
+
     if (oldWidget.scrollController != widget.scrollController) {
       if (oldWidget.scrollController == null) {
         _scrollController.dispose();
@@ -200,6 +220,45 @@ class TerminalViewState extends State<TerminalView> {
     super.didUpdateWidget(oldWidget);
   }
 
+  void _onControllerChanged() {
+    if (_controller.scrollRequest != null) {
+      _scrollToLine(_controller.scrollRequest!);
+    }
+    setState(() {});
+  }
+
+  void _scrollToLine(int line) {
+    if (!_viewportKey.currentContext!.mounted) return;
+
+    final lineHeight = renderTerminal.lineHeight;
+    final viewHeight = widget.terminal.viewHeight;
+
+    // Convert current scroll offset to line index
+    final currentScrollLine = (_scrollController.offset / lineHeight).floor();
+
+    // If the target line is already visible, don't scroll
+    if (line >= currentScrollLine && line < currentScrollLine + viewHeight) {
+      return;
+    }
+
+    // Align to center or top? Let's try to align to center if possible, or just keep it minimal.
+    // Minimal scroll:
+    double targetOffset = _scrollController.offset;
+
+    if (line < currentScrollLine) {
+      // Scroll up to show the line at the top
+      targetOffset = line * lineHeight;
+    } else {
+      // Scroll down to show the line at the bottom
+      targetOffset = (line - viewHeight + 1) * lineHeight;
+    }
+
+    targetOffset =
+        targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent);
+
+    _scrollController.jumpTo(targetOffset);
+  }
+
   @override
   void dispose() {
     if (widget.focusNode == null) {
@@ -207,6 +266,8 @@ class TerminalViewState extends State<TerminalView> {
     }
     if (widget.controller == null) {
       _controller.dispose();
+    } else {
+      _controller.removeListener(_onControllerChanged);
     }
     if (widget.scrollController == null) {
       _scrollController.dispose();

@@ -340,4 +340,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createWorkspace => 'Create Workspace';
+
+  @override
+  String get terminalSearchPlaceholder => 'Find';
+
+  @override
+  String get terminalSearchPrevious => 'Previous Match';
+
+  @override
+  String get terminalSearchNext => 'Next Match';
+
+  @override
+  String get terminalSearchCaseSensitive => 'Match Case';
+
+  @override
+  String get terminalSearchRegex => 'Use Regular Expression';
+
+  @override
+  String get close => 'Close';
 }

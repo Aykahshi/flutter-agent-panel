@@ -111,6 +111,13 @@
   "confirmDeleteWorkspace": "确定要删除此工作区吗？",
   "createWorkspace": "创建工作区",
 
+  "terminalSearchPlaceholder": "查找",
+  "terminalSearchPrevious": "上一个匹配项",
+  "terminalSearchNext": "下一个匹配项",
+  "terminalSearchCaseSensitive": "区分大小写",
+  "terminalSearchRegex": "使用正则表达式",
+  "close": "关闭",
+
   "@@locale": "zh"
 }
 

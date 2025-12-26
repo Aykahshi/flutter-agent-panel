@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:xterm/xterm.dart' as xterm;
+import 'package:xterm/ui.dart' as xterm_ui;
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../core/extensions/context_extension.dart';
 import '../models/terminal_node.dart';
@@ -9,6 +11,7 @@ import '../models/terminal_theme_data.dart';
 import '../services/terminal_theme_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../settings/bloc/settings_bloc.dart';
+import '../widgets/terminal_search_bar.dart';
 
 class TerminalComponent extends StatefulWidget {
   const TerminalComponent({
@@ -25,6 +28,9 @@ class TerminalComponent extends StatefulWidget {
 
 class _TerminalComponentState extends State<TerminalComponent> {
   late final FocusNode _focusNode;
+  late final xterm_ui.TerminalController _terminalController;
+  xterm_ui.TerminalSearchController? _searchController;
+
   int? _lastCols;
   int? _lastRows;
   xterm.TerminalTheme? _cachedTheme;
@@ -32,11 +38,14 @@ class _TerminalComponentState extends State<TerminalComponent> {
   String? _lastCustomJson;
   Brightness? _lastBrightness;
 
+  bool _showSearchBar = false;
+
   @override
   void initState() {
     super.initState();
     _focusNode =
         widget.interactive ? FocusNode() : FocusNode(canRequestFocus: false);
+    _terminalController = xterm_ui.TerminalController();
 
     if (widget.interactive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -49,8 +58,62 @@ class _TerminalComponentState extends State<TerminalComponent> {
 
   @override
   void dispose() {
+    _searchController?.dispose();
+    _terminalController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _showSearchBar = !_showSearchBar;
+      if (_showSearchBar) {
+        _searchController ??= xterm_ui.TerminalSearchController(
+          terminal: widget.terminalNode.terminal,
+          terminalController: _terminalController,
+        );
+        _searchController!.activate();
+      } else {
+        _searchController?.deactivate();
+      }
+    });
+  }
+
+  void _closeSearch() {
+    setState(() {
+      _showSearchBar = false;
+      _searchController?.deactivate();
+    });
+    _focusNode.requestFocus();
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent) {
+      // Ctrl+F to toggle search
+      if (HardwareKeyboard.instance.isControlPressed &&
+          event.logicalKey == LogicalKeyboardKey.keyF) {
+        _toggleSearch();
+        return KeyEventResult.handled;
+      }
+      // Escape to close search
+      if (event.logicalKey == LogicalKeyboardKey.escape && _showSearchBar) {
+        _closeSearch();
+        return KeyEventResult.handled;
+      }
+
+      // Enter / Shift+Enter for next/prev match
+      if (_showSearchBar &&
+          _searchController != null &&
+          event.logicalKey == LogicalKeyboardKey.enter) {
+        if (HardwareKeyboard.instance.isShiftPressed) {
+          _searchController!.previousMatch();
+        } else {
+          _searchController!.nextMatch();
+        }
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
   }
 
   @override
@@ -127,21 +190,39 @@ class _TerminalComponentState extends State<TerminalComponent> {
         }
 
         // Interactive mode - use xterm's native input handling
-        return Container(
-          color: xtermTheme.background,
-          padding: const EdgeInsets.all(5),
-          child: GestureDetector(
-            onTap: () => _focusNode.requestFocus(),
-            child: xterm.TerminalView(
-              widget.terminalNode.terminal,
-              autofocus: true,
-              autoResize: true,
-              focusNode: _focusNode,
-              hardwareKeyboardOnly: false,
-              keyboardType: TextInputType.text,
-              textStyle: terminalStyle,
-              theme: xtermTheme,
-            ),
+        return Focus(
+          onKeyEvent: _handleKeyEvent,
+          child: Stack(
+            children: [
+              Container(
+                color: xtermTheme.background,
+                padding: const EdgeInsets.all(5),
+                child: GestureDetector(
+                  onTap: () => _focusNode.requestFocus(),
+                  child: xterm.TerminalView(
+                    widget.terminalNode.terminal,
+                    controller: _terminalController,
+                    autofocus: true,
+                    autoResize: true,
+                    focusNode: _focusNode,
+                    hardwareKeyboardOnly: false,
+                    keyboardType: TextInputType.text,
+                    textStyle: terminalStyle,
+                    theme: xtermTheme,
+                  ),
+                ),
+              ),
+              // Search bar overlay
+              if (_showSearchBar && _searchController != null)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: TerminalSearchBar(
+                    searchController: _searchController!,
+                    onClose: _closeSearch,
+                  ),
+                ),
+            ],
           ),
         );
       },

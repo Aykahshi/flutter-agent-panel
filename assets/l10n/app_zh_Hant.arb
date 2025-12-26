@@ -108,6 +108,13 @@
   "confirmDeleteWorkspace": "確定要刪除此工作區嗎？",
   "createWorkspace": "建立工作區",
 
+  "terminalSearchPlaceholder": "尋找",
+  "terminalSearchPrevious": "上一個符合項目",
+  "terminalSearchNext": "下一個符合項目",
+  "terminalSearchCaseSensitive": "區分大小寫",
+  "terminalSearchRegex": "使用正規表達式",
+  "close": "關閉",
+
   "@@locale": "zh_Hant"
 }
 
