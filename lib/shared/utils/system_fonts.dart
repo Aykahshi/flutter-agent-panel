@@ -77,7 +77,8 @@ class TtfNameParser {
         if (nameID == 1 || nameID == 16) {
           final currentPos = file.positionSync();
           file.setPositionSync(
-              nameTableOffset + stringOffset + stringDataOffset);
+            nameTableOffset + stringOffset + stringDataOffset,
+          );
           final bytes = file.readSync(length);
           file.setPositionSync(currentPos);
 
@@ -279,7 +280,9 @@ class SystemFonts {
 
   Future<String?> loadFontFromPath(String path) async {
     if (!path.toLowerCase().endsWith('.ttf') &&
-        !path.toLowerCase().endsWith('.otf')) return null;
+        !path.toLowerCase().endsWith('.otf')) {
+      return null;
+    }
     if (!File(path).existsSync()) return null;
 
     final familyName = TtfNameParser.getFontFamily(path);

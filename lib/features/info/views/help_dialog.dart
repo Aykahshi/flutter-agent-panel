@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/extensions/context_extension.dart';
@@ -34,7 +35,7 @@ class HelpDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 16.h),
+            Gap(16.h),
             Text(
               'Project Repository',
               style: theme.textTheme.small.copyWith(
@@ -49,7 +50,7 @@ class HelpDialog extends StatelessWidget {
               child:
                   const Text('https://github.com/Aykahshi/flutter-agent-panel'),
             ),
-            SizedBox(height: 16.h),
+            Gap(16.h),
             Text(
               'Issue Tracker',
               style: theme.textTheme.small.copyWith(
@@ -66,7 +67,7 @@ class HelpDialog extends StatelessWidget {
                 'https://github.com/Aykahshi/flutter-agent-panel/issues',
               ),
             ),
-            SizedBox(height: 16.h),
+            Gap(16.h),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,24 +36,24 @@ class AppAboutDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 16.h),
+            Gap(16.h),
             CircleAvatar(
               radius: 40.r,
               backgroundImage: const AssetImage(Assets.avatar),
             ),
-            SizedBox(height: 16.h),
+            Gap(16.h),
             Text(
               'Author: Aykahshi',
               style:
                   theme.textTheme.large.copyWith(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8.h),
+            Gap(8.h),
             ShadButton.link(
               onPressed: () => _launchUrl('https://github.com/Aykahshi'),
               child: const Text('GitHub @Aykahshi'),
             ),
             const Divider(),
-            SizedBox(height: 16.h),
+            Gap(16.h),
             Text(
               'Inspired by',
               style: theme.textTheme.small.copyWith(
@@ -60,7 +61,7 @@ class AppAboutDialog extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 8.h),
+            Gap(8.h),
             ShadButton.link(
               onPressed: () => _launchUrl('https://github.com/tony1223'),
               child: const Text('tony1223'),
@@ -71,7 +72,7 @@ class AppAboutDialog extends StatelessWidget {
               ),
               child: const Text('Better Agent Terminal'),
             ),
-            SizedBox(height: 16.h),
+            Gap(16.h),
           ],
         ),
       ),

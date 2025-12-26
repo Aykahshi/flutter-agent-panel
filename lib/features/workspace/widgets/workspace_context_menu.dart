@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_agent_panel/core/extensions/context_extension.dart';
-import 'package:flutter_agent_panel/features/workspace/bloc/workspace_bloc.dart';
-import 'package:flutter_agent_panel/features/workspace/models/workspace.dart';
+import '../../../core/extensions/context_extension.dart';
+import '../bloc/workspace_bloc.dart';
+import '../models/workspace.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 

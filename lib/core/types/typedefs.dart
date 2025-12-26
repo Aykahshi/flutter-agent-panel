@@ -22,3 +22,16 @@ typedef GetIconDataCallback = IconData Function(
   String terminalId,
   Workspace workspace,
 );
+
+/// Callback with terminal ID as single parameter.
+typedef TerminalIdCallback = void Function(String terminalId);
+
+/// Callback for closing a terminal with workspace and terminal IDs.
+typedef CloseTerminalCallback = void Function(
+  BuildContext context,
+  String workspaceId,
+  String terminalId,
+);
+
+/// Callback for filtering with a string value.
+typedef FilterCallback = void Function(String filter);

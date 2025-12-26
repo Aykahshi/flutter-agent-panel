@@ -5,6 +5,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:gap/gap.dart';
 import '../../../core/constants/assets.dart';
 import '../../../core/extensions/context_extension.dart';
+import '../../../core/types/typedefs.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../settings/models/app_settings.dart';
 import '../../terminal/models/terminal_config.dart';
@@ -34,9 +35,8 @@ class ThumbnailBar extends StatelessWidget {
   final Map<String, TerminalNode> terminals;
   final String? activeTerminalId;
   final ValueChanged<String> onTerminalSelected;
-  final Function(String terminalId) onTerminalClosed;
-  final Function(BuildContext context, String workspaceId,
-      {String? shellCmd, String? agentId}) onAddTerminal;
+  final TerminalIdCallback onTerminalClosed;
+  final AddTerminalCallback onAddTerminal;
   final ShadPopoverController popoverController;
   final ShadPopoverController agentPopoverController;
 

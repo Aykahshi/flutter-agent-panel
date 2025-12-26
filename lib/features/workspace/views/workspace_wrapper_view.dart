@@ -60,7 +60,7 @@ class _WorkspaceWrapperViewState extends State<WorkspaceWrapperView> {
   }
 
   void _onWorkspaceSelected(String workspaceId) {
-    if (context.router.current.pathParams.get('workspaceId') == workspaceId) {
+    if (context.router.current.params.get('workspaceId') == workspaceId) {
       return;
     }
     context.read<WorkspaceBloc>().add(SelectWorkspace(workspaceId));

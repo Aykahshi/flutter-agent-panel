@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 import '../../../core/extensions/context_extension.dart';
@@ -133,7 +134,7 @@ class WorkspaceSearchField extends StatelessWidget {
                                   size: 14,
                                   color: theme.colorScheme.mutedForeground,
                                 ),
-                                const SizedBox(width: 8),
+                                const Gap(8),
                                 Expanded(
                                   child: Text(
                                     workspace.name,
