@@ -139,12 +139,29 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     }
 
     List<String> terminalArgs = [];
+    Map<String, String> terminalEnv = {};
+    String? agentCommand;
+
+    // Start with global environment variables
+    terminalEnv.addAll(settings.globalEnvironmentVariables);
+
     if (agentId != null) {
       final agentParams = settings.agents.firstWhere((a) => a.id == agentId);
       terminalArgs = agentParams.args;
       terminalTitle = agentParams.preset == AgentPreset.custom
           ? agentParams.name
           : agentParams.preset.displayName;
+
+      // Get agent's command (e.g., 'codex', 'gemini')
+      agentCommand = agentParams.command;
+
+      // Agent-specific env overrides global env
+      terminalEnv.addAll(agentParams.env);
+
+      // Resolve agent's shell preference
+      if (agentParams.shellId != null && agentParams.shellId!.isNotEmpty) {
+        effectiveShellCmd = _resolveShellCmd(agentParams.shellId!, settings);
+      }
     }
 
     final config = TerminalConfig.create(
@@ -153,6 +170,8 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       shellCmd: effectiveShellCmd,
       agentId: agentId,
       args: terminalArgs,
+      env: terminalEnv,
+      agentCommand: agentCommand,
     );
 
     context.read<WorkspaceBloc>().add(
@@ -266,6 +285,36 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     'flask-conical': LucideIcons.flaskConical,
     'layout-panel-left': LucideIcons.layoutPanelLeft,
   };
+
+  /// Resolves a shell ID to the actual shell command path.
+  /// Supports ShellType names (e.g., 'pwsh7', 'gitBash') and custom shell UUIDs.
+  String _resolveShellCmd(String shellId, AppSettings settings) {
+    // Try to match ShellType enum
+    for (final shellType in ShellType.values) {
+      if (shellType.name == shellId) {
+        if (shellType == ShellType.custom &&
+            settings.selectedCustomShellId != null) {
+          final customShell = settings.customShells
+              .where((s) => s.id == settings.selectedCustomShellId)
+              .firstOrNull;
+          if (customShell != null) {
+            return customShell.path;
+          }
+        }
+        return shellType.command;
+      }
+    }
+
+    // Try to match custom shell by ID (UUID)
+    final customShell =
+        settings.customShells.where((s) => s.id == shellId).firstOrNull;
+    if (customShell != null) {
+      return customShell.path;
+    }
+
+    // Fallback to default shell
+    return settings.defaultShell.command;
+  }
 
   Color? _getAgentColor(AgentPreset preset) => switch (preset) {
         AgentPreset.claude => const Color(0xFFD97757),

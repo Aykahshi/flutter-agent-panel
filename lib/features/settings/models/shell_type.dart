@@ -3,7 +3,7 @@ enum ShellType {
   pwsh7('PowerShell 7', 'pwsh', 'terminal'),
   powershell('Windows PowerShell', 'powershell', 'terminal'),
   cmd('Command Prompt', 'cmd', 'command'),
-  wsl('WSL (Default)', 'wsl', 'server'),
+  wsl('WSL', 'wsl', 'server'),
   gitBash('Git Bash', 'C:\\Program Files\\Git\\bin\\bash.exe', 'gitBranch'),
   custom('Custom...', '', 'settings');
 

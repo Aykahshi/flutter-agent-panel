@@ -71,6 +71,7 @@ class AgentConfig extends Equatable {
         false, // Default disabled as per typical "toggle" logic? User said "toggle switch... test when on".
     this.customIconPath,
     this.customTextColor,
+    this.shellId,
   });
 
   factory AgentConfig.fromJson(Map<String, dynamic> json) {
@@ -92,6 +93,7 @@ class AgentConfig extends Equatable {
       enabled: json['enabled'] as bool? ?? false,
       customIconPath: json['customIconPath'] as String?,
       customTextColor: json['customTextColor'] as String?,
+      shellId: json['shellId'] as String?,
     );
   }
   final String id;
@@ -104,6 +106,8 @@ class AgentConfig extends Equatable {
   final String? customIconPath;
   // If user sets a custom text color, we store the hex code
   final String? customTextColor;
+  // Shell ID: null = default (pwsh), 'pwsh7'/'gitBash'/etc for ShellType, or custom shell UUID
+  final String? shellId;
 
   Map<String, dynamic> toJson() {
     return {
@@ -116,6 +120,7 @@ class AgentConfig extends Equatable {
       'enabled': enabled,
       'customIconPath': customIconPath,
       'customTextColor': customTextColor,
+      'shellId': shellId,
     };
   }
 
@@ -129,6 +134,8 @@ class AgentConfig extends Equatable {
     bool? enabled,
     String? customIconPath,
     String? customTextColor,
+    String? shellId,
+    bool clearShellId = false,
   }) {
     return AgentConfig(
       id: id ?? this.id,
@@ -140,6 +147,7 @@ class AgentConfig extends Equatable {
       enabled: enabled ?? this.enabled,
       customIconPath: customIconPath ?? this.customIconPath,
       customTextColor: customTextColor ?? this.customTextColor,
+      shellId: clearShellId ? null : (shellId ?? this.shellId),
     );
   }
 
@@ -154,5 +162,6 @@ class AgentConfig extends Equatable {
         enabled,
         customIconPath,
         customTextColor,
+        shellId,
       ];
 }

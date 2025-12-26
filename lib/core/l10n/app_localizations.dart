@@ -627,6 +627,36 @@ abstract class AppLocalizations {
   /// **'Loading...'**
   String get loading;
 
+  /// No description provided for @agentShell.
+  ///
+  /// In en, this message translates to:
+  /// **'Shell'**
+  String get agentShell;
+
+  /// No description provided for @agentShellDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the shell to use when opening this agent'**
+  String get agentShellDescription;
+
+  /// No description provided for @defaultShellOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Default (PowerShell)'**
+  String get defaultShellOption;
+
+  /// No description provided for @globalEnvironmentVariables.
+  ///
+  /// In en, this message translates to:
+  /// **'Global Environment Variables'**
+  String get globalEnvironmentVariables;
+
+  /// No description provided for @globalEnvironmentVariablesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Environment variables applied to all terminals'**
+  String get globalEnvironmentVariablesDescription;
+
   /// No description provided for @editWorkspace.
   ///
   /// In en, this message translates to:

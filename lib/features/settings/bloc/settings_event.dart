@@ -124,3 +124,11 @@ class RemoveAgentConfig extends SettingsEvent {
   @override
   List<Object?> get props => [agentId];
 }
+
+class UpdateGlobalEnvVars extends SettingsEvent {
+  const UpdateGlobalEnvVars(this.envVars);
+  final Map<String, String> envVars;
+
+  @override
+  List<Object?> get props => [envVars];
+}

@@ -92,6 +92,11 @@
   "errorParsingTheme": "解析主题时出错: {message}",
   "startingTerminal": "正在启动...",
   "loading": "正在加载...",
+  "agentShell": "Shell",
+  "agentShellDescription": "选择开启此助手时使用的 Shell",
+  "defaultShellOption": "预设 (PowerShell)",
+  "globalEnvironmentVariables": "全局环境变量",
+  "globalEnvironmentVariablesDescription": "应用于所有终端的环境变量",
 
   "editWorkspace": "编辑工作区",
   "deleteWorkspace": "删除工作区",

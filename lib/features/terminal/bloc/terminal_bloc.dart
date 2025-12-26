@@ -218,25 +218,76 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
     String shell;
     List<String> ptyArgs;
 
-    if (config.agentId != null && config.agentId!.isNotEmpty) {
-      // Agent terminal: wrap command in shell
-      shell = PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash';
-      if (PlatformUtils.isWindows) {
+    // Resolve shell path and handle spaces
+    shell = config.shellCmd.isNotEmpty
+        ? config.shellCmd
+        : (PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash');
+
+    // Quote shell path if it contains spaces and is not already quoted
+    // REMOVED: Dart's Process.start handles executable paths with spaces correctly.
+    // Manually quoting it causes issues with some implementations (e.g. Git Bash hanging).
+    /*
+    if (PlatformUtils.isWindows &&
+        shell.contains(' ') &&
+        !shell.startsWith('"')) {
+      shell = '"$shell"';
+    }
+    */
+
+    final Map<String, String> finalEnv = {
+      'TERM': 'xterm-256color',
+      'COLORTERM': 'truecolor',
+      ...Platform.environment,
+      ...config.env,
+    };
+
+    if (config.agentId != null &&
+        config.agentId!.isNotEmpty &&
+        config.agentCommand != null &&
+        config.agentCommand!.isNotEmpty) {
+      // Agent terminal: wrap agent command in selected shell
+      final agentWithArgs = [config.agentCommand!, ...config.args].join(' ');
+      final shellLower = shell.toLowerCase();
+
+      if (shellLower.contains('pwsh') || shellLower.contains('powershell')) {
+        // PowerShell: use & { ... } to handle spaces and complex commands
         ptyArgs = [
           '-NoLogo',
           '-NoExit',
           '-Command',
-          config.shellCmd,
-          ...config.args,
+          '& { $agentWithArgs }',
         ];
+      } else if (shellLower.contains('cmd')) {
+        // Command Prompt: /K allows executing command and staying open
+        // Wrapping everything in quotes if there are spaces or special chars
+        ptyArgs = ['/K', agentWithArgs];
+      } else if (shellLower.contains('wsl')) {
+        // WSL: Resolve environment variables bridge
+        if (config.env.isNotEmpty) {
+          // Join keys with : and append /u for Windows->Linux sharing
+          final wslEnv = config.env.keys.map((k) => '$k/u').join(':');
+          finalEnv['WSLENV'] = finalEnv.containsKey('WSLENV')
+              ? '${finalEnv['WSLENV']}:$wslEnv'
+              : wslEnv;
+        }
+        // WSL PATH issue: Windows PATH is converted and prepended to WSL PATH,
+        // causing Windows versions of tools (e.g. /mnt/c/.../codex) to be found
+        // before WSL-native versions (e.g. ~/.nvm/versions/node/.../bin/codex).
+        //
+        // Solution: Use an interactive login shell (-li) to properly source
+        // ~/.bashrc and ~/.profile, which typically set up nvm/node paths.
+        // The 'command' builtin is used to bypass aliases and ensure we find
+        // the actual executable in PATH after profile scripts are loaded.
+        //
+        // Note: For users with nvm, .bashrc usually adds nvm paths to the
+        // beginning of PATH, so the WSL-native version will be found first.
+        ptyArgs = ['bash', '-li', '-c', 'command $agentWithArgs'];
       } else {
-        ptyArgs = ['-c', config.shellCmd, ...config.args];
+        // Bash or other shells (Git Bash, etc.)
+        ptyArgs = ['-c', agentWithArgs];
       }
     } else {
-      // Normal terminal
-      shell = config.shellCmd.isNotEmpty
-          ? config.shellCmd
-          : (PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash');
+      // Normal terminal (no agent)
       ptyArgs = config.args;
     }
 
@@ -246,11 +297,7 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
       shell,
       arguments: ptyArgs,
       workingDirectory: cwd,
-      environment: {
-        'TERM': 'xterm-256color',
-        'COLORTERM': 'truecolor',
-        ...Platform.environment,
-      },
+      environment: finalEnv,
     );
 
     final node = TerminalNode(

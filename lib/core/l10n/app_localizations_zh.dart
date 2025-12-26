@@ -281,6 +281,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loading => '正在加载...';
 
   @override
+  String get agentShell => 'Shell';
+
+  @override
+  String get agentShellDescription => '选择开启此助手时使用的 Shell';
+
+  @override
+  String get defaultShellOption => '预设 (PowerShell)';
+
+  @override
+  String get globalEnvironmentVariables => '全局环境变量';
+
+  @override
+  String get globalEnvironmentVariablesDescription => '应用于所有终端的环境变量';
+
+  @override
   String get editWorkspace => '编辑工作区';
 
   @override
@@ -592,6 +607,21 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get loading => '載入中...';
+
+  @override
+  String get agentShell => 'Shell';
+
+  @override
+  String get agentShellDescription => '選擇開啟此助手時使用的 Shell';
+
+  @override
+  String get defaultShellOption => '預設 (PowerShell)';
+
+  @override
+  String get globalEnvironmentVariables => '全域環境變數';
+
+  @override
+  String get globalEnvironmentVariablesDescription => '套用至所有終端機的環境變數';
 
   @override
   String get editWorkspace => '編輯工作區';

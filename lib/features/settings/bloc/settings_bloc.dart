@@ -26,6 +26,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     on<UpdateAgentConfig>(_onUpdateAgentConfig);
     on<AddAgentConfig>(_onAddAgentConfig);
     on<RemoveAgentConfig>(_onRemoveAgentConfig);
+    on<UpdateGlobalEnvVars>(_onUpdateGlobalEnvVars);
   }
 
   void _onUpdateAppTheme(UpdateAppTheme event, Emitter<SettingsState> emit) {
@@ -202,6 +203,18 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     emit(
       state.copyWith(
         settings: state.settings.copyWith(agents: updatedAgents),
+      ),
+    );
+  }
+
+  void _onUpdateGlobalEnvVars(
+    UpdateGlobalEnvVars event,
+    Emitter<SettingsState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        settings:
+            state.settings.copyWith(globalEnvironmentVariables: event.envVars),
       ),
     );
   }

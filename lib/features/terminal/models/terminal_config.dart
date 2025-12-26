@@ -10,6 +10,8 @@ class TerminalConfig extends Equatable {
     this.icon,
     this.agentId,
     this.args = const [],
+    this.env = const {},
+    this.agentCommand,
   });
 
   factory TerminalConfig.create({
@@ -19,6 +21,8 @@ class TerminalConfig extends Equatable {
     String? icon,
     String? agentId,
     List<String> args = const [],
+    Map<String, String> env = const {},
+    String? agentCommand,
   }) {
     return TerminalConfig(
       id: const Uuid().v4(),
@@ -28,6 +32,8 @@ class TerminalConfig extends Equatable {
       icon: icon,
       agentId: agentId,
       args: args,
+      env: env,
+      agentCommand: agentCommand,
     );
   }
 
@@ -42,6 +48,11 @@ class TerminalConfig extends Equatable {
       args:
           (json['args'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const [],
+      env: (json['env'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, v as String),
+          ) ??
+          const {},
+      agentCommand: json['agentCommand'] as String?,
     );
   }
   final String id;
@@ -51,6 +62,8 @@ class TerminalConfig extends Equatable {
   final String? icon;
   final String? agentId;
   final List<String> args;
+  final Map<String, String> env;
+  final String? agentCommand;
 
   TerminalConfig copyWith({
     String? id,
@@ -60,6 +73,8 @@ class TerminalConfig extends Equatable {
     String? icon,
     String? agentId,
     List<String>? args,
+    Map<String, String>? env,
+    String? agentCommand,
   }) {
     return TerminalConfig(
       id: id ?? this.id,
@@ -69,6 +84,8 @@ class TerminalConfig extends Equatable {
       icon: icon ?? this.icon,
       agentId: agentId ?? this.agentId,
       args: args ?? this.args,
+      env: env ?? this.env,
+      agentCommand: agentCommand ?? this.agentCommand,
     );
   }
 
@@ -81,9 +98,12 @@ class TerminalConfig extends Equatable {
       'icon': icon,
       'agentId': agentId,
       'args': args,
+      'env': env,
+      'agentCommand': agentCommand,
     };
   }
 
   @override
-  List<Object?> get props => [id, title, cwd, shellCmd, icon, agentId, args];
+  List<Object?> get props =>
+      [id, title, cwd, shellCmd, icon, agentId, args, env, agentCommand];
 }

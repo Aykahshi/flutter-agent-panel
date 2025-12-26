@@ -41,6 +41,7 @@ class AppSettings extends Equatable {
     this.terminalCursorBlink = true,
     this.agents = const [],
     this.appFontFamily,
+    this.globalEnvironmentVariables = const {},
   });
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -83,6 +84,10 @@ class AppSettings extends Equatable {
       terminalCursorBlink: json['terminalCursorBlink'] as bool? ?? true,
       agents: _mergeWithDefaults(json['agents'] as List?),
       appFontFamily: json['appFontFamily'] as String?,
+      globalEnvironmentVariables:
+          (json['globalEnvironmentVariables'] as Map<String, dynamic>?)
+                  ?.map((k, v) => MapEntry(k, v as String)) ??
+              const {},
     );
   }
   final AppTheme appTheme;
@@ -96,6 +101,7 @@ class AppSettings extends Equatable {
   final bool terminalCursorBlink;
   final List<AgentConfig> agents;
   final String? appFontFamily;
+  final Map<String, String> globalEnvironmentVariables;
 
   AppSettings copyWith({
     AppTheme? appTheme,
@@ -112,6 +118,7 @@ class AppSettings extends Equatable {
     List<AgentConfig>? agents,
     String? appFontFamily,
     bool clearAppFontFamily = false,
+    Map<String, String>? globalEnvironmentVariables,
   }) {
     return AppSettings(
       appTheme: appTheme ?? this.appTheme,
@@ -130,6 +137,8 @@ class AppSettings extends Equatable {
       agents: agents ?? this.agents,
       appFontFamily:
           clearAppFontFamily ? null : (appFontFamily ?? this.appFontFamily),
+      globalEnvironmentVariables:
+          globalEnvironmentVariables ?? this.globalEnvironmentVariables,
     );
   }
 
@@ -207,6 +216,7 @@ class AppSettings extends Equatable {
       'terminalCursorBlink': terminalCursorBlink,
       'agents': agents.map((e) => e.toJson()).toList(),
       'appFontFamily': appFontFamily,
+      'globalEnvironmentVariables': globalEnvironmentVariables,
     };
   }
 
@@ -246,5 +256,6 @@ class AppSettings extends Equatable {
         terminalCursorBlink,
         agents,
         appFontFamily,
+        globalEnvironmentVariables,
       ];
 }

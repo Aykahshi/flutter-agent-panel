@@ -288,6 +288,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loading => 'Loading...';
 
   @override
+  String get agentShell => 'Shell';
+
+  @override
+  String get agentShellDescription =>
+      'Select the shell to use when opening this agent';
+
+  @override
+  String get defaultShellOption => 'Default (PowerShell)';
+
+  @override
+  String get globalEnvironmentVariables => 'Global Environment Variables';
+
+  @override
+  String get globalEnvironmentVariablesDescription =>
+      'Environment variables applied to all terminals';
+
+  @override
   String get editWorkspace => 'Edit Workspace';
 
   @override
