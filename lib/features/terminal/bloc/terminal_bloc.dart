@@ -262,14 +262,14 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
         // Wrapping everything in quotes if there are spaces or special chars
         ptyArgs = ['/K', agentWithArgs];
       } else if (shellLower.contains('wsl')) {
-        // WSL: Resolve environment variables bridge
-        if (config.env.isNotEmpty) {
-          // Join keys with : and append /u for Windows->Linux sharing
-          final wslEnv = config.env.keys.map((k) => '$k/u').join(':');
-          finalEnv['WSLENV'] = finalEnv.containsKey('WSLENV')
-              ? '${finalEnv['WSLENV']}:$wslEnv'
-              : wslEnv;
-        }
+        // WSL environment variable handling:
+        // WSLENV mechanism is unreliable with interactive login shells,
+        // so we inline the environment variables directly in the bash command
+        // using 'export VAR=value' statements.
+        final envExports = config.env.entries
+            .map((e) => "export ${e.key}='${e.value.replaceAll("'", "'\\''")}'")
+            .join('; ');
+
         // WSL PATH issue: Windows PATH is converted and prepended to WSL PATH,
         // causing Windows versions of tools (e.g. /mnt/c/.../codex) to be found
         // before WSL-native versions (e.g. ~/.nvm/versions/node/.../bin/codex).
@@ -278,17 +278,29 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
         // ~/.bashrc and ~/.profile, which typically set up nvm/node paths.
         // The 'command' builtin is used to bypass aliases and ensure we find
         // the actual executable in PATH after profile scripts are loaded.
-        //
-        // Note: For users with nvm, .bashrc usually adds nvm paths to the
-        // beginning of PATH, so the WSL-native version will be found first.
-        ptyArgs = ['bash', '-li', '-c', 'command $agentWithArgs'];
+        final cmdWithEnv = envExports.isNotEmpty
+            ? '$envExports; command $agentWithArgs'
+            : 'command $agentWithArgs';
+        ptyArgs = ['bash', '-li', '-c', cmdWithEnv];
       } else {
         // Bash or other shells (Git Bash, etc.)
         ptyArgs = ['-c', agentWithArgs];
       }
     } else {
       // Normal terminal (no agent)
-      ptyArgs = config.args;
+      final shellLower = shell.toLowerCase();
+
+      // For WSL terminals, we need to inline environment variables via export
+      // since Windows environment variables aren't passed directly to WSL.
+      if (shellLower.contains('wsl') && config.env.isNotEmpty) {
+        final envExports = config.env.entries
+            .map((e) => "export ${e.key}='${e.value.replaceAll("'", "'\\''")}'")
+            .join('; ');
+        // Start an interactive login shell with env exports
+        ptyArgs = ['bash', '-li', '-c', '$envExports; exec bash'];
+      } else {
+        ptyArgs = config.args;
+      }
     }
 
     final cwd = config.cwd.isNotEmpty ? config.cwd : Directory.current.path;
