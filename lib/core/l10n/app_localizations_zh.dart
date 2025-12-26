@@ -269,6 +269,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get startingTerminal => '正在启动...';
 
   @override
+  String get loading => '正在加载...';
+
+  @override
   String get editWorkspace => '编辑工作区';
 
   @override
@@ -568,6 +571,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get startingTerminal => '正在啟動...';
+
+  @override
+  String get loading => '載入中...';
 
   @override
   String get editWorkspace => '編輯工作區';

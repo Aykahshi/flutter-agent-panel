@@ -540,7 +540,6 @@ class _WorkspaceListItem extends StatelessWidget {
                 const Gap(4),
                 WorkspaceTagChips(
                   tags: workspace.tags,
-                  maxTags: 2,
                   isCompact: true,
                 ),
               ],

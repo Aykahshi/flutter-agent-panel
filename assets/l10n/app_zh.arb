@@ -88,6 +88,7 @@
   "invalidJson": "无效的JSON: {message}",
   "errorParsingTheme": "解析主题时出错: {message}",
   "startingTerminal": "正在启动...",
+  "loading": "正在加载...",
 
   "editWorkspace": "编辑工作区",
   "deleteWorkspace": "删除工作区",

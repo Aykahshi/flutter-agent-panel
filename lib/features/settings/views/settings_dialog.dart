@@ -7,12 +7,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:gap/gap.dart';
-import 'package:system_fonts/system_fonts.dart';
 import '../../../../core/constants/assets.dart';
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/extensions/context_extension.dart';
 import '../../../../core/services/user_config_service.dart';
 import '../../../../shared/utils/platform_utils.dart';
+import '../../../shared/utils/system_fonts.dart';
 import '../bloc/settings_bloc.dart';
 import '../models/app_settings.dart';
 import '../widgets/settings_section.dart';
@@ -43,6 +43,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   final TextEditingController _customThemeJsonController =
       TextEditingController();
   String? _customThemeError;
+  bool _fontsLoading = true;
 
   @override
   void initState() {
@@ -54,12 +55,20 @@ class _SettingsDialogState extends State<SettingsDialog> {
   }
 
   Future<void> _loadSystemFonts() async {
-    final systemFonts = SystemFonts();
-    final fonts = systemFonts.getFontList();
-    if (mounted) {
-      setState(() {
-        _uniqueFamilies = fonts..sort();
-      });
+    setState(() => _fontsLoading = true);
+    try {
+      final systemFonts = SystemFonts();
+      final fonts = await systemFonts.getFontFamilies();
+      if (mounted) {
+        setState(() {
+          _uniqueFamilies = fonts;
+          _fontsLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _fontsLoading = false);
+      }
     }
   }
 
@@ -511,19 +520,43 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   ShadSelect<String>(
                     initialValue: settings.fontSettings.fontFamily,
                     placeholder: Text(l10n.fontFamily),
-                    options: _uniqueFamilies.isEmpty
+                    options: _fontsLoading
                         ? [
                             ShadOption(
                               value: settings.fontSettings.fontFamily,
-                              child: Text(settings.fontSettings.fontFamily),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 14.w,
+                                    height: 14.w,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                  Gap(8.w),
+                                  Text(l10n.loading),
+                                ],
+                              ),
                             ),
                           ]
-                        : _uniqueFamilies
-                            .map((f) => ShadOption(value: f, child: Text(f)))
-                            .toList(),
+                        : _uniqueFamilies.isEmpty
+                            ? [
+                                ShadOption(
+                                  value: settings.fontSettings.fontFamily,
+                                  child: Text(settings.fontSettings.fontFamily),
+                                ),
+                              ]
+                            : _uniqueFamilies
+                                .map(
+                                    (f) => ShadOption(value: f, child: Text(f)))
+                                .toList(),
                     selectedOptionBuilder: (context, value) => Text(value),
-                    onChanged: (value) {
+                    onChanged: (value) async {
                       if (value != null) {
+                        // Load font first so preview updates correctly
+                        await SystemFonts().loadFont(value);
+                        if (!context.mounted) return;
                         context.read<SettingsBloc>().add(
                               UpdateFontSettings(
                                 settings.fontSettings

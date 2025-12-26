@@ -102,6 +102,7 @@
   "invalidJson": "Invalid JSON: {message}",
   "errorParsingTheme": "Error parsing theme: {message}",
   "startingTerminal": "Starting...",
+  "loading": "Loading...",
 
   "editWorkspace": "Edit Workspace",
   "deleteWorkspace": "Delete Workspace",

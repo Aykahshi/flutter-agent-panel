@@ -275,6 +275,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startingTerminal => 'Starting...';
 
   @override
+  String get loading => 'Loading...';
+
+  @override
   String get editWorkspace => 'Edit Workspace';
 
   @override

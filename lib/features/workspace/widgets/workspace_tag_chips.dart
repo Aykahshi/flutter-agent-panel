@@ -19,9 +19,6 @@ class WorkspaceTagChips extends StatelessWidget {
     Color(0xFF4CAF50), // Green
     Color(0xFF2196F3), // Blue
     Color(0xFFFF9800), // Orange
-    Color(0xFF9C27B0), // Purple
-    Color(0xFFE91E63), // Pink
-    Color(0xFF00BCD4), // Cyan
   ];
 
   Color _getTagColor(int index) {

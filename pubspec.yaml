@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.6.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -32,13 +32,13 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  xterm: any
-  flutter_pty: any
+  xterm: 
+    path: ./packages/xterm
+  flutter_pty: 
+    path: ./packages/flutter_pty
   window_manager: ^0.5.1
   path_provider: ^2.1.5
-  shared_preferences: ^2.5.4
   uuid: ^4.5.1
-  fast_immutable_collections: ^11.0.0
   flutter_screenutil: ^5.9.3
   flutter_localizations:
     sdk: flutter
@@ -48,11 +48,11 @@ dependencies:
   equatable: ^2.0.7
   file_picker: ^10.3.8
   shadcn_ui: ^0.43.0
-  system_fonts: ^1.0.1
   url_launcher: ^6.3.1
   auto_route: ^11.1.0
   gap: ^3.0.1
-  nil: ^1.1.1
+  path: ^1.9.1
+  chinese_font_library: ^1.2.0
 
 
 workspace:
