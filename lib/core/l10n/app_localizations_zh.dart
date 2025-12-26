@@ -66,6 +66,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get theme => '主题';
 
   @override
+  String get appFontFamily => 'App 字体系列';
+
+  @override
+  String get appFontFamilyDescription => '选择应用程序的全局字体系列。';
+
+  @override
+  String get defaultGeist => '默认 (Geist)';
+
+  @override
   String get terminalSettings => '终端设置';
 
   @override
@@ -368,6 +377,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get theme => '主題';
+
+  @override
+  String get appFontFamily => 'App 字型系列';
+
+  @override
+  String get appFontFamilyDescription => '選擇應用程式的全域字型系列。';
+
+  @override
+  String get defaultGeist => '預設 (Geist)';
 
   @override
   String get terminalSettings => '終端機設定';

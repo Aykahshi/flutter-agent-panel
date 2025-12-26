@@ -9,6 +9,8 @@ import 'features/workspace/bloc/workspace_bloc.dart';
 import 'features/settings/bloc/settings_bloc.dart';
 import 'features/settings/models/app_settings.dart';
 import 'features/terminal/bloc/terminal_bloc.dart';
+import 'shared/utils/system_fonts.dart';
+import 'package:chinese_font_library/chinese_font_library.dart';
 
 class App extends StatelessWidget {
   App({super.key});
@@ -28,9 +30,24 @@ class App extends StatelessWidget {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, child) {
-          return BlocBuilder<SettingsBloc, SettingsState>(
+          return BlocConsumer<SettingsBloc, SettingsState>(
+            listenWhen: (previous, current) =>
+                previous.settings.appFontFamily !=
+                current.settings.appFontFamily,
+            listener: (context, state) {
+              final fontFamily = state.settings.appFontFamily;
+              if (fontFamily != null) {
+                SystemFonts().loadFont(fontFamily);
+              }
+            },
+            buildWhen: (previous, current) =>
+                previous.settings.appTheme != current.settings.appTheme ||
+                previous.settings.appFontFamily !=
+                    current.settings.appFontFamily ||
+                previous.settings.locale != current.settings.locale,
             builder: (context, state) {
               final appTheme = state.settings.appTheme;
+              final fontFamily = state.settings.appFontFamily;
 
               return ShadApp.custom(
                 themeMode: appTheme == AppTheme.light
@@ -39,10 +56,12 @@ class App extends StatelessWidget {
                 darkTheme: ShadThemeData(
                   brightness: Brightness.dark,
                   colorScheme: _getColorScheme(appTheme),
+                  textTheme: _getTextTheme(fontFamily),
                 ),
                 theme: ShadThemeData(
                   brightness: Brightness.light,
                   colorScheme: _getColorScheme(appTheme),
+                  textTheme: _getTextTheme(fontFamily),
                 ),
                 appBuilder: (context) {
                   return MaterialApp.router(
@@ -93,4 +112,26 @@ class App extends StatelessWidget {
         AppTheme.dark => const ShadZincColorScheme.dark(),
         AppTheme.light => const ShadZincColorScheme.light(),
       };
+
+  ShadTextTheme _getTextTheme(String? fontFamily) {
+    final baseTheme = fontFamily == null
+        ? ShadTextTheme(family: 'Geist')
+        : ShadTextTheme(family: fontFamily);
+
+    return baseTheme.copyWith(
+      h1Large: baseTheme.h1Large.useSystemChineseFont(),
+      h1: baseTheme.h1.useSystemChineseFont(),
+      h2: baseTheme.h2.useSystemChineseFont(),
+      h3: baseTheme.h3.useSystemChineseFont(),
+      h4: baseTheme.h4.useSystemChineseFont(),
+      p: baseTheme.p.useSystemChineseFont(),
+      blockquote: baseTheme.blockquote.useSystemChineseFont(),
+      table: baseTheme.table.useSystemChineseFont(),
+      list: baseTheme.list.useSystemChineseFont(),
+      lead: baseTheme.lead.useSystemChineseFont(),
+      large: baseTheme.large.useSystemChineseFont(),
+      small: baseTheme.small.useSystemChineseFont(),
+      muted: baseTheme.muted.useSystemChineseFont(),
+    );
+  }
 }

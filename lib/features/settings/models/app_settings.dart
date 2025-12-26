@@ -40,6 +40,7 @@ class AppSettings extends Equatable {
     this.locale = 'en',
     this.terminalCursorBlink = true,
     this.agents = const [],
+    this.appFontFamily,
   });
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -81,6 +82,7 @@ class AppSettings extends Equatable {
       locale: json['locale'] as String? ?? 'en',
       terminalCursorBlink: json['terminalCursorBlink'] as bool? ?? true,
       agents: _mergeWithDefaults(json['agents'] as List?),
+      appFontFamily: json['appFontFamily'] as String?,
     );
   }
   final AppTheme appTheme;
@@ -93,6 +95,7 @@ class AppSettings extends Equatable {
   final String locale;
   final bool terminalCursorBlink;
   final List<AgentConfig> agents;
+  final String? appFontFamily;
 
   AppSettings copyWith({
     AppTheme? appTheme,
@@ -107,6 +110,8 @@ class AppSettings extends Equatable {
     String? locale,
     bool? terminalCursorBlink,
     List<AgentConfig>? agents,
+    String? appFontFamily,
+    bool clearAppFontFamily = false,
   }) {
     return AppSettings(
       appTheme: appTheme ?? this.appTheme,
@@ -123,6 +128,8 @@ class AppSettings extends Equatable {
       locale: locale ?? this.locale,
       terminalCursorBlink: terminalCursorBlink ?? this.terminalCursorBlink,
       agents: agents ?? this.agents,
+      appFontFamily:
+          clearAppFontFamily ? null : (appFontFamily ?? this.appFontFamily),
     );
   }
 
@@ -199,6 +206,7 @@ class AppSettings extends Equatable {
       'locale': locale,
       'terminalCursorBlink': terminalCursorBlink,
       'agents': agents.map((e) => e.toJson()).toList(),
+      'appFontFamily': appFontFamily,
     };
   }
 
@@ -237,5 +245,6 @@ class AppSettings extends Equatable {
         locale,
         terminalCursorBlink,
         agents,
+        appFontFamily,
       ];
 }

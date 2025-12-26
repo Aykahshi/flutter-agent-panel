@@ -66,6 +66,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get theme => 'Theme';
 
   @override
+  String get appFontFamily => 'App Font Family';
+
+  @override
+  String get appFontFamilyDescription =>
+      'Choose the global font family for the application.';
+
+  @override
+  String get defaultGeist => 'Default (Geist)';
+
+  @override
   String get terminalSettings => 'Terminal Settings';
 
   @override

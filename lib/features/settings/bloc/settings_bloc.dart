@@ -1,6 +1,7 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../models/app_settings.dart';
+import '../../../shared/utils/system_fonts.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
@@ -14,6 +15,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     on<UpdateAppTheme>(_onUpdateAppTheme);
     on<UpdateTerminalTheme>(_onUpdateTerminalTheme);
     on<UpdateFontSettings>(_onUpdateFontSettings);
+    on<UpdateAppFontFamily>(_onUpdateAppFontFamily);
     on<UpdateDefaultShell>(_onUpdateDefaultShell);
     on<UpdateLocale>(_onUpdateLocale);
     on<UpdateTerminalCursorBlink>(_onUpdateTerminalCursorBlink);
@@ -56,6 +58,23 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     emit(
       state.copyWith(
         settings: state.settings.copyWith(fontSettings: event.fontSettings),
+      ),
+    );
+  }
+
+  void _onUpdateAppFontFamily(
+    UpdateAppFontFamily event,
+    Emitter<SettingsState> emit,
+  ) {
+    if (event.appFontFamily != null) {
+      SystemFonts().loadFont(event.appFontFamily!);
+    }
+    emit(
+      state.copyWith(
+        settings: state.settings.copyWith(
+          appFontFamily: event.appFontFamily,
+          clearAppFontFamily: event.appFontFamily == null,
+        ),
       ),
     );
   }

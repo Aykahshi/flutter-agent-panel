@@ -65,7 +65,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
           _fontsLoading = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() => _fontsLoading = false);
       }
@@ -326,6 +326,76 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         );
                   }
                 },
+              ),
+            ),
+            Gap(24.h),
+            // App Font Family
+            SettingsSection(
+              title: l10n.appFontFamily,
+              description: l10n.appFontFamilyDescription,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShadSelect<String>(
+                    initialValue: settings.appFontFamily ?? '__default__',
+                    placeholder: Text(l10n.defaultGeist),
+                    options: _fontsLoading
+                        ? [
+                            ShadOption(
+                              value: 'loading',
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 14.w,
+                                    height: 14.w,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                  Gap(8.w),
+                                  Text(l10n.loading),
+                                ],
+                              ),
+                            ),
+                          ]
+                        : [
+                            ShadOption(
+                              value: '__default__',
+                              child: Text(l10n.defaultGeist),
+                            ),
+                            ..._uniqueFamilies.map(
+                              (f) => ShadOption(
+                                key: ValueKey(f),
+                                value: f,
+                                child: Text(f),
+                              ),
+                            ),
+                          ],
+                    selectedOptionBuilder: (context, value) {
+                      if (value == '__default__')
+                        return Text(l10n.defaultGeist);
+                      return Text(value);
+                    },
+                    onChanged: (String? value) async {
+                      if (value == 'loading') return;
+                      // value is String? in ShadSelect<T> callback usually provided as T?
+                      if (value == null) return;
+
+                      if (value != '__default__') {
+                        await SystemFonts().loadFont(value);
+                      }
+
+                      if (!context.mounted) return;
+
+                      final String? fontToSet =
+                          value == '__default__' ? null : value;
+                      context.read<SettingsBloc>().add(
+                            UpdateAppFontFamily(fontToSet),
+                          );
+                    },
+                  ),
+                ],
               ),
             ),
           ],

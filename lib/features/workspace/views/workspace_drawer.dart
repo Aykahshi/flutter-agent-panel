@@ -410,46 +410,44 @@ class _WorkspaceListItem extends StatelessWidget {
 
     // Height adjusts based on tags presence
     final hasTags = workspace.tags.isNotEmpty && !isCollapsed;
-    final itemHeight = hasTags ? 56.0 : 40.0;
 
-    return SizedBox(
-      height: itemHeight,
-      child: Stack(
-        children: [
-          // Selection highlight background (positioned behind content)
-          if (isSelected)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                ),
-              ),
-            ),
-          // Left border indicator for selection
-          if (isSelected)
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: 2,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          // Content
+    return Stack(
+      children: [
+        // Selection highlight background (positioned fill to match content size)
+        if (isSelected)
           Positioned.fill(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isCollapsed ? 0 : 12,
-                vertical: hasTags ? 6 : 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
               ),
-              child: isCollapsed
-                  ? _buildCollapsedContent(theme)
-                  : _buildExpandedContent(theme),
             ),
           ),
-        ],
-      ),
+        // Left border indicator for selection
+        if (isSelected)
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 2,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        // Content (Not positioned, dictates the size of the Stack)
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isCollapsed ? 0 : 12,
+            vertical: hasTags ? 8 : 8, // Fixed padding for consistency
+          ),
+          child: SizedBox(
+            height:
+                isCollapsed ? 40 : null, // Enforce height only when collapsed
+            child: isCollapsed
+                ? _buildCollapsedContent(theme)
+                : _buildExpandedContent(theme),
+          ),
+        ),
+      ],
     );
   }
 

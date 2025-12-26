@@ -36,6 +36,14 @@ class UpdateFontSettings extends SettingsEvent {
   List<Object?> get props => [fontSettings];
 }
 
+class UpdateAppFontFamily extends SettingsEvent {
+  const UpdateAppFontFamily(this.appFontFamily);
+  final String? appFontFamily;
+
+  @override
+  List<Object?> get props => [appFontFamily];
+}
+
 class UpdateDefaultShell extends SettingsEvent {
   const UpdateDefaultShell(this.defaultShell, {this.selectedCustomShellId});
   final ShellType defaultShell;

@@ -264,9 +264,11 @@ class SystemFonts {
     if (familyInfo == null) return null;
 
     try {
-      final bytes = await File(familyInfo.primaryPath).readAsBytes();
       final loader = FontLoader(familyName);
-      loader.addFont(Future.value(ByteData.view(bytes.buffer)));
+      for (final path in familyInfo.paths) {
+        final bytes = await File(path).readAsBytes();
+        loader.addFont(Future.value(ByteData.view(bytes.buffer)));
+      }
       await loader.load();
       _loadedFonts.add(familyName);
       return familyName;

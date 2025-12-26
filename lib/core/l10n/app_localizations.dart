@@ -213,6 +213,24 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get theme;
 
+  /// No description provided for @appFontFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'App Font Family'**
+  String get appFontFamily;
+
+  /// No description provided for @appFontFamilyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the global font family for the application.'**
+  String get appFontFamilyDescription;
+
+  /// No description provided for @defaultGeist.
+  ///
+  /// In en, this message translates to:
+  /// **'Default (Geist)'**
+  String get defaultGeist;
+
   /// No description provided for @terminalSettings.
   ///
   /// In en, this message translates to:
