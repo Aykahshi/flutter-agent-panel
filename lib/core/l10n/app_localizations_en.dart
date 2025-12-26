@@ -108,8 +108,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chineseHans => 'Simplified Chinese';
 
   @override
-  String get fontPreviewText =>
-      'Build beautiful, natively compiled applications from a single codebase.';
+  String get fontPreviewText => 'echo \"Hello World! 你好世界！\"';
 
   @override
   String get about => 'About';
@@ -200,11 +199,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customShells => 'Custom Shells';
 
   @override
-  String get customShellsDescription =>
-      'Manage custom shell configurations for external terminal apps.';
-
-  @override
-  String get manageCustomShells => 'Manage Custom Shells';
+  String get customShellsDescription => 'Manage custom shells, like fish, etc.';
 
   @override
   String get addCustomShell => 'Add Custom Shell';
@@ -219,17 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellName => 'Shell Name';
 
   @override
-  String get shellNamePlaceholder => 'e.g., Warp Terminal';
-
-  @override
-  String get shellIcon => 'Shell Icon';
-
-  @override
-  String get isExternalTerminal => 'External Terminal App';
-
-  @override
-  String get isExternalTerminalDescription =>
-      'Launch as a separate window (for apps like Warp, Windows Terminal)';
+  String get shellNamePlaceholder => 'e.g., fish';
 
   @override
   String get noCustomShells => 'No custom shells configured';
@@ -288,4 +273,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startingTerminal => 'Starting...';
+
+  @override
+  String get editWorkspace => 'Edit Workspace';
+
+  @override
+  String get deleteWorkspace => 'Delete Workspace';
+
+  @override
+  String get pinWorkspace => 'Pin Workspace';
+
+  @override
+  String get unpinWorkspace => 'Unpin Workspace';
+
+  @override
+  String get searchWorkspaces => 'Search workspaces...';
+
+  @override
+  String get workspaceName => 'Workspace Name';
+
+  @override
+  String get workspaceIcon => 'Icon';
+
+  @override
+  String get workspacePath => 'Folder Path';
+
+  @override
+  String get workspaceTags => 'Tags';
+
+  @override
+  String get tagsPlaceholder => 'Enter tags separated by commas';
+
+  @override
+  String get confirmDeleteWorkspace =>
+      'Are you sure you want to delete this workspace?';
+
+  @override
+  String get createWorkspace => 'Create Workspace';
 }

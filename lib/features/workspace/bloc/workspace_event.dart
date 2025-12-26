@@ -10,12 +10,19 @@ abstract class WorkspaceEvent extends Equatable {
 class LoadWorkspaces extends WorkspaceEvent {}
 
 class AddWorkspace extends WorkspaceEvent {
-  const AddWorkspace({required this.path, required this.name});
+  const AddWorkspace({
+    required this.path,
+    required this.name,
+    this.icon,
+    this.tags = const [],
+  });
   final String path;
   final String name;
+  final String? icon;
+  final List<String> tags;
 
   @override
-  List<Object?> get props => [path, name];
+  List<Object?> get props => [path, name, icon, tags];
 }
 
 class RemoveWorkspace extends WorkspaceEvent {
@@ -82,4 +89,40 @@ class ReorderTerminalsInWorkspace extends WorkspaceEvent {
 
   @override
   List<Object?> get props => [workspaceId, oldIndex, newIndex];
+}
+
+class UpdateWorkspace extends WorkspaceEvent {
+  const UpdateWorkspace({
+    required this.id,
+    this.name,
+    this.icon,
+    this.tags,
+  });
+  final String id;
+  final String? name;
+  final String? icon;
+  final List<String>? tags;
+
+  @override
+  List<Object?> get props => [id, name, icon, tags];
+}
+
+class TogglePinWorkspace extends WorkspaceEvent {
+  const TogglePinWorkspace(this.id);
+  final String id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class ReorderWorkspaces extends WorkspaceEvent {
+  const ReorderWorkspaces({
+    required this.oldIndex,
+    required this.newIndex,
+  });
+  final int oldIndex;
+  final int newIndex;
+
+  @override
+  List<Object?> get props => [oldIndex, newIndex];
 }

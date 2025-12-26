@@ -196,9 +196,13 @@ class TerminalTopBar extends StatelessWidget {
           key: ValueKey(activeNode!.id),
           controller: titleController..text = activeNode!.title,
           style: theme.textTheme.large,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: const ShadDecoration(
             border: ShadBorder.none,
             focusedBorder: ShadBorder.none,
+            errorBorder: ShadBorder.none,
+            secondaryBorder: ShadBorder.none,
+            secondaryFocusedBorder: ShadBorder.none,
           ),
           onSubmitted: (value) => onUpdateTitle(
             activeNode!,

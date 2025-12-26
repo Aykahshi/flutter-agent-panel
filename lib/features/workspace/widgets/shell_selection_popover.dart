@@ -129,7 +129,7 @@ class ShellSelectionPopover extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Icon(
-              _getShellIcon(shell.icon),
+              LucideIcons.terminal,
               size: 16,
             ),
             const Gap(8),

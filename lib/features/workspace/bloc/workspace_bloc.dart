@@ -15,10 +15,18 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
     on<RemoveTerminalFromWorkspace>(_onRemoveTerminal);
     on<UpdateTerminalInWorkspace>(_onUpdateTerminal);
     on<ReorderTerminalsInWorkspace>(_onReorderTerminals);
+    on<UpdateWorkspace>(_onUpdateWorkspace);
+    on<TogglePinWorkspace>(_onTogglePinWorkspace);
+    on<ReorderWorkspaces>(_onReorderWorkspaces);
   }
 
   void _onAddWorkspace(AddWorkspace event, Emitter<WorkspaceState> emit) {
-    final newWorkspace = Workspace.create(path: event.path, name: event.name);
+    final newWorkspace = Workspace.create(
+      path: event.path,
+      name: event.name,
+      icon: event.icon,
+      tags: event.tags,
+    );
     final updatedWorkspaces = List<Workspace>.from(state.workspaces)
       ..add(newWorkspace);
 
@@ -106,6 +114,59 @@ class WorkspaceBloc extends HydratedBloc<WorkspaceEvent, WorkspaceState> {
       terminals.insert(newIndex, item);
       return workspace.copyWith(terminals: terminals);
     });
+  }
+
+  void _onUpdateWorkspace(
+    UpdateWorkspace event,
+    Emitter<WorkspaceState> emit,
+  ) {
+    final index = state.workspaces.indexWhere((w) => w.id == event.id);
+    if (index == -1) return;
+
+    final workspaces = List<Workspace>.from(state.workspaces);
+    final current = workspaces[index];
+    workspaces[index] = current.copyWith(
+      name: event.name ?? current.name,
+      icon: event.icon ?? current.icon,
+      tags: event.tags ?? current.tags,
+    );
+
+    emit(state.copyWith(workspaces: workspaces));
+  }
+
+  void _onTogglePinWorkspace(
+    TogglePinWorkspace event,
+    Emitter<WorkspaceState> emit,
+  ) {
+    final index = state.workspaces.indexWhere((w) => w.id == event.id);
+    if (index == -1) return;
+
+    final workspaces = List<Workspace>.from(state.workspaces);
+    final current = workspaces[index];
+    workspaces[index] = current.copyWith(isPinned: !current.isPinned);
+
+    // Sort: pinned items first, maintain relative order within groups
+    workspaces.sort((a, b) {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return 0;
+    });
+
+    emit(state.copyWith(workspaces: workspaces));
+  }
+
+  void _onReorderWorkspaces(
+    ReorderWorkspaces event,
+    Emitter<WorkspaceState> emit,
+  ) {
+    final workspaces = List<Workspace>.from(state.workspaces);
+    var newIndex = event.newIndex;
+    if (event.oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final item = workspaces.removeAt(event.oldIndex);
+    workspaces.insert(newIndex, item);
+    emit(state.copyWith(workspaces: workspaces));
   }
 
   void _updateWorkspace(

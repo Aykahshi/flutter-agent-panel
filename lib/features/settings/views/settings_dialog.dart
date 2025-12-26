@@ -121,6 +121,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
             minHeight: 400.0.clamp(0.0, dialogHeight),
             maxHeight: dialogHeight,
           ),
+          scrollable: false,
           child: Container(
             width: dialogWidth,
             height: dialogHeight,
@@ -603,6 +604,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       border: Border.all(color: theme.colorScheme.border),
                     ),
                     child: Text(
+                      key: ValueKey(
+                        '${settings.fontSettings.fontFamily}_${settings.fontSettings.fontSize}_${settings.fontSettings.isBold}_${settings.fontSettings.isItalic}',
+                      ),
                       l10n.fontPreviewText,
                       style: TextStyle(
                         fontFamily: settings.fontSettings.fontFamily,
@@ -667,7 +671,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(_getShellIcon(shell.icon), size: 16.sp),
+                              Icon(LucideIcons.terminal, size: 16.sp),
                               Gap(8.w),
                               Text(shell.name),
                             ],
@@ -685,7 +689,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(_getShellIcon(shell.icon), size: 16.sp),
+                              Icon(LucideIcons.terminal, size: 16.sp),
                               Gap(8.w),
                               Text(shell.name),
                             ],
@@ -1304,7 +1308,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     child: Row(
                       children: [
                         Icon(
-                          _getShellIcon(shell.icon),
+                          LucideIcons.terminal,
                           size: 24.sp,
                           color: theme.colorScheme.primary,
                         ),
@@ -1376,7 +1380,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
         TextEditingController(text: existingShell?.name ?? '');
     final pathController =
         TextEditingController(text: existingShell?.path ?? '');
-    String selectedIcon = existingShell?.icon ?? 'terminal';
 
     showShadDialog(
       context: context,
@@ -1436,42 +1439,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                   ),
                   Gap(16.h),
 
-                  // Shell Icon
-                  Text(l10n.shellIcon, style: theme.textTheme.small),
-                  Gap(8.h),
-                  Wrap(
-                    spacing: 4.w,
-                    runSpacing: 4.h,
-                    children: [
-                      'terminal',
-                      'command',
-                      'server',
-                      'gitBranch',
-                      'code',
-                      'box',
-                      'zap',
-                      'monitor',
-                    ]
-                        .map(
-                          (icon) => ShadButton(
-                            padding: EdgeInsets.all(8.w),
-                            backgroundColor: selectedIcon == icon
-                                ? theme.colorScheme.primary
-                                : Colors.transparent,
-                            onPressed: () {
-                              setDialogState(() => selectedIcon = icon);
-                            },
-                            child: Icon(
-                              _getShellIcon(icon),
-                              size: 20.sp,
-                              color: selectedIcon == icon
-                                  ? theme.colorScheme.primaryForeground
-                                  : theme.colorScheme.foreground,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
                   Gap(24.h),
 
                   // Buttons
@@ -1495,7 +1462,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                     existingShell.copyWith(
                                       name: name,
                                       path: path,
-                                      icon: selectedIcon,
                                     ),
                                   ),
                                 );
@@ -1505,7 +1471,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                                     CustomShellConfig.create(
                                       name: name,
                                       path: path,
-                                      icon: selectedIcon,
                                     ),
                                   ),
                                 );

@@ -1,32 +1,31 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:xterm/xterm.dart' hide TerminalView;
-import 'dart:convert';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:gap/gap.dart';
 
-import '../widgets/main_terminal_content.dart';
-import '../widgets/terminal_top_bar.dart';
-import '../widgets/shell_selection_popover.dart';
-import '../widgets/agent_selection_popover.dart';
-
-import '../../../../shared/constants/app_colors.dart';
-import '../../../../shared/utils/platform_utils.dart';
-import '../../../core/constants/assets.dart';
 import '../../../core/extensions/context_extension.dart';
-
-import '../../terminal/models/terminal_node.dart';
-import '../../terminal/models/terminal_config.dart';
-import '../../terminal/services/isolate_pty.dart';
-import '../../terminal/widgets/glowing_icon.dart';
-import '../bloc/workspace_bloc.dart';
+import '../../../core/router/app_router.dart';
 import '../../settings/bloc/settings_bloc.dart';
-import '../models/workspace.dart';
 import '../../settings/models/app_settings.dart';
-import 'dart:io';
+import '../../terminal/bloc/terminal_bloc.dart';
+import '../../terminal/models/terminal_config.dart';
+import '../../terminal/models/terminal_node.dart';
+import '../bloc/workspace_bloc.dart';
+import '../models/workspace.dart';
+import '../widgets/terminal_top_bar.dart';
+import '../widgets/thumbnail_bar.dart';
 
+/// Main workspace page that displays terminal list and content.
+/// Uses nested routing for terminal display.
+@RoutePage()
 class WorkspaceView extends StatefulWidget {
-  const WorkspaceView({super.key});
+  const WorkspaceView({
+    super.key,
+    @pathParam required this.workspaceId,
+  });
+
+  final String workspaceId;
 
   @override
   State<WorkspaceView> createState() => _WorkspaceViewState();
@@ -38,18 +37,19 @@ class _WorkspaceViewState extends State<WorkspaceView> {
   final _iconPopoverController = ShadPopoverController();
   final _agentPopoverController = ShadPopoverController();
   String? _activeTerminalId;
-  final Map<String, TerminalNode> _terminalNodes = {};
-  final Set<String> _pendingTerminalIds = {};
-  final Set<String> _restartingIds = {}; // Track terminals currently restarting
-  String?
-      _newlyCreatedId; // Track newly added terminal to prevent selection reset race conditions
 
   @override
   void initState() {
     super.initState();
-    // Initial sync
-    final state = context.read<WorkspaceBloc>().state;
-    _syncTerminals(state);
+    _syncTerminals();
+  }
+
+  @override
+  void didUpdateWidget(covariant WorkspaceView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.workspaceId != widget.workspaceId) {
+      _syncTerminals();
+    }
   }
 
   @override
@@ -58,192 +58,48 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     _popoverController.dispose();
     _iconPopoverController.dispose();
     _agentPopoverController.dispose();
-    for (var node in _terminalNodes.values) {
-      node.dispose();
-    }
-    _terminalNodes.clear();
     super.dispose();
   }
 
-  Future<void> _syncTerminals(WorkspaceState state) async {
-    final selectedWorkspace = state.selectedWorkspace;
+  void _syncTerminals() {
+    final workspaceState = context.read<WorkspaceBloc>().state;
+    final workspace = workspaceState.workspaces
+        .where((w) => w.id == widget.workspaceId)
+        .firstOrNull;
 
-    // 1. Retention Logic: Keep terminals that exist in ANY workspace
-    final allTerminalIds =
-        state.workspaces.expand((w) => w.terminals).map((t) => t.id).toSet();
+    if (workspace == null) return;
 
-    // Remove nodes that are no longer in ANY config (deleted by user)
-    _terminalNodes.removeWhere((id, node) {
-      if (!allTerminalIds.contains(id)) {
-        node.dispose();
-        debugPrint('Disposing terminal $id (removed from config)');
-        return true;
-      }
-      return false;
-    });
+    // Get all terminal IDs across all workspaces
+    final allTerminalIds = workspaceState.workspaces
+        .expand((w) => w.terminals)
+        .map((t) => t.id)
+        .toSet();
 
-    if (selectedWorkspace == null) {
-      _activeTerminalId = null;
-      return;
-    }
+    // Sync terminals with bloc
+    context.read<TerminalBloc>().add(
+          SyncWorkspaceTerminals(
+            workspaceId: widget.workspaceId,
+            configs: workspace.terminals,
+            allTerminalIds: allTerminalIds,
+          ),
+        );
 
-    // 2. Creation Logic: Only start PTYs for the CURRENT workspace (Lazy load)
-    for (var config in selectedWorkspace.terminals) {
-      if (!_terminalNodes.containsKey(config.id) &&
-          !_pendingTerminalIds.contains(config.id)) {
-        // Yield to UI to prevent freeze and allow loading state to show
-        await Future.delayed(Duration.zero);
-        _createTerminalNode(config, selectedWorkspace.id);
-      } else {
-        // Update titles and icons if changed for existing nodes
-        final node = _terminalNodes[config.id];
-        if (node != null) {
-          if (node.title != config.title) {
-            node.title = config.title;
-          }
-          if (node.icon != config.icon) {
-            node.icon = config.icon;
-          }
-        }
-      }
-
-      // Note: We used to remove from restarting list here, but it caused races.
-      // Now we wait for actual output in _createTerminalNode.
-    }
-
-    // Maintain active selection
-    // Ensure the active terminal belongs to the SELECTED workspace
-    final selectedTerminalIds =
-        selectedWorkspace.terminals.map((t) => t.id).toSet();
-
+    // Set initial active terminal and navigate
     if (_activeTerminalId == null ||
-        !selectedTerminalIds.contains(_activeTerminalId)) {
-      // GUARD: If active ID matches the one we just created, keep it!
-      if (_activeTerminalId != null && _activeTerminalId == _newlyCreatedId) {
-        return;
-      }
-
-      if (selectedWorkspace.terminals.isNotEmpty) {
-        _activeTerminalId = selectedWorkspace.terminals.first.id;
+        !workspace.terminals.any((t) => t.id == _activeTerminalId)) {
+      if (workspace.terminals.isNotEmpty) {
+        final firstId = workspace.terminals.first.id;
+        setState(() {
+          _activeTerminalId = firstId;
+        });
+        // Defer navigation until after the widget rebuild
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            context.router.navigate(TerminalRoute(terminalId: firstId));
+          }
+        });
       } else {
         _activeTerminalId = null;
-      }
-    } else {
-      // If the newly created ID is now in the state, we can clear our tracker
-      if (_activeTerminalId == _newlyCreatedId) {
-        _newlyCreatedId = null;
-      }
-    }
-  }
-
-  Future<void> _createTerminalNode(
-    TerminalConfig config,
-    String workspaceId,
-  ) async {
-    if (_pendingTerminalIds.contains(config.id)) return;
-
-    _pendingTerminalIds.add(config.id);
-
-    try {
-      final terminal = Terminal(
-        maxLines: 10000,
-      );
-
-      // Determine shell and cwd
-      String shell;
-      List<String> ptyArgs;
-
-      if (config.agentId != null && config.agentId!.isNotEmpty) {
-        // Agent terminal: wrap command in pwsh.exe
-        shell = PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash';
-        if (PlatformUtils.isWindows) {
-          ptyArgs = [
-            '-NoLogo',
-            '-NoExit',
-            '-Command',
-            config.shellCmd,
-            ...config.args,
-          ];
-        } else {
-          ptyArgs = ['-c', config.shellCmd, ...config.args];
-        }
-      } else {
-        // Normal terminal
-        shell = config.shellCmd.isNotEmpty
-            ? config.shellCmd
-            : (PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash');
-        ptyArgs = config.args;
-      }
-
-      final cwd = config.cwd.isNotEmpty ? config.cwd : Directory.current.path;
-
-      final pty = await IsolatePty.start(
-        shell,
-        arguments: ptyArgs,
-        workingDirectory: cwd,
-        environment: {
-          'TERM': 'xterm-256color',
-          'COLORTERM': 'truecolor',
-          ...Platform.environment,
-        },
-      );
-
-      final node = TerminalNode(
-        id: config.id,
-        workspaceId: workspaceId,
-        title: config.title,
-        terminal: terminal,
-        pty: pty,
-        onStatusChanged: () {
-          if (mounted) {
-            setState(() {});
-          }
-        },
-      );
-
-      // Setup PTY -> Terminal (Output)
-      // Use utf8.decoder transform to handle multi-byte characters (mojibake fix)
-      bool outputTimerStarted = false;
-      pty.output
-          .cast<List<int>>()
-          .transform(const Utf8Decoder(allowMalformed: true))
-          .listen((data) {
-        terminal.write(data);
-        if (data.isNotEmpty) {
-          if (!node.hasOutput && !outputTimerStarted) {
-            outputTimerStarted = true;
-            // Directly show the terminal when output is received
-            if (mounted) {
-              node.hasOutput = true;
-              // Clear restarting state only when we have actual output
-              if (_restartingIds.contains(config.id)) {
-                _restartingIds.remove(config.id);
-              }
-              // Force rebuild to remove loading state
-              setState(() {});
-            }
-          }
-          node.markActivity();
-        }
-      });
-
-      // Setup Terminal -> PTY (Input)
-      terminal.onOutput = (data) {
-        pty.write(const Utf8Encoder().convert(data));
-      };
-
-      if (mounted) {
-        setState(() {
-          _terminalNodes[config.id] = node;
-        });
-      }
-    } catch (e) {
-      debugPrint('Failed to start terminal: $e');
-    } finally {
-      if (mounted) {
-        _pendingTerminalIds.remove(config.id);
-      } else {
-        _pendingTerminalIds.remove(config.id);
       }
     }
   }
@@ -260,7 +116,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     String effectiveShellCmd = shellCmd ?? settings.defaultShell.command;
     String terminalTitle = l10n.terminal;
 
-    // Handle custom shell selection with ID format (custom:${id})
+    // Handle custom shell selection
     if (shellCmd != null && shellCmd.startsWith('custom:')) {
       final shellId = shellCmd.substring(7);
       final customShell =
@@ -269,9 +125,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         effectiveShellCmd = customShell.path;
         terminalTitle = customShell.name;
       }
-    }
-    // Handle legacy 'custom' command or default custom shell selection
-    else if (shellCmd == 'custom' ||
+    } else if (shellCmd == 'custom' ||
         (shellCmd == null && settings.defaultShell == ShellType.custom)) {
       if (settings.selectedCustomShellId != null) {
         final customShell = settings.customShells
@@ -288,7 +142,6 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     if (agentId != null) {
       final agentParams = settings.agents.firstWhere((a) => a.id == agentId);
       terminalArgs = agentParams.args;
-      // Set the title to the agent's display name or custom name
       terminalTitle = agentParams.preset == AgentPreset.custom
           ? agentParams.name
           : agentParams.preset.displayName;
@@ -301,16 +154,24 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       agentId: agentId,
       args: terminalArgs,
     );
+
     context.read<WorkspaceBloc>().add(
           AddTerminalToWorkspace(
             workspaceId: workspaceId,
             config: config,
           ),
         );
+
     // Auto select new terminal
     setState(() {
-      _newlyCreatedId = config.id;
       _activeTerminalId = config.id;
+    });
+
+    // Navigate to new terminal after rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.router.navigate(TerminalRoute(terminalId: config.id));
+      }
     });
   }
 
@@ -325,331 +186,29 @@ class _WorkspaceViewState extends State<WorkspaceView> {
             terminalId: terminalId,
           ),
         );
+    context.read<TerminalBloc>().add(
+          DisposeTerminal(terminalId: terminalId),
+        );
   }
 
   void _refreshTerminal(String terminalId) {
-    if (mounted) {
-      setState(() {
-        _restartingIds.add(terminalId);
-      });
-    }
+    final workspaceState = context.read<WorkspaceBloc>().state;
+    final workspace = workspaceState.workspaces
+        .where((w) => w.id == widget.workspaceId)
+        .firstOrNull;
+    if (workspace == null) return;
 
-    // Delay slightly to show the restarting state
-    Future.delayed(const Duration(milliseconds: 500), () {
-      final node = _terminalNodes[terminalId];
-      if (node != null) {
-        // Disposing the node kills the PTY.
-        node.dispose();
-      }
+    final config =
+        workspace.terminals.where((t) => t.id == terminalId).firstOrNull;
+    if (config == null) return;
 
-      // Removing it from the map forces _syncTerminals to recreate it
-      _terminalNodes.remove(terminalId);
-
-      // Note: We do NOT remove from _restartingIds here.
-      // It will be removed in _syncTerminals when the new node is created.
-
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-
-    return BlocConsumer<WorkspaceBloc, WorkspaceState>(
-      listener: (context, state) {
-        // Sync local terminal nodes when state changes
-        _syncTerminals(state);
-      },
-      builder: (context, state) {
-        final workspace = state.selectedWorkspace;
-        final settings = context.watch<SettingsBloc>().state.settings;
-
-        if (workspace == null) {
-          final l10n = context.t;
-          return Center(
-            child: Text(
-              l10n.selectWorkspacePrompt,
-              style: theme.textTheme.muted.copyWith(
-                fontSize: 16,
-              ),
-            ),
-          );
-        }
-
-        // Initial sync check
-        if (_terminalNodes.length < workspace.terminals.length) {
-          // Check if we are missing any terminals for the current workspace
-          final missing =
-              workspace.terminals.any((t) => !_terminalNodes.containsKey(t.id));
-          if (missing) {
-            _syncTerminals(state);
-          }
-        }
-
-        final activeNode = _activeTerminalId != null
-            ? _terminalNodes[_activeTerminalId]
-            : null;
-
-        final activeConfig = _activeTerminalId != null
-            ? workspace.terminals
-                .where((t) => t.id == _activeTerminalId)
-                .firstOrNull
-            : null;
-
-        final agentConfig = activeConfig?.agentId != null
-            ? settings.agents
-                .where((a) => a.id == activeConfig!.agentId)
-                .firstOrNull
-            : null;
-
-        // Agent Color Theme
-        final agentColor =
-            agentConfig != null ? _getAgentColor(agentConfig.preset) : null;
-        final topBarColor = agentColor != null
-            ? agentColor.withValues(alpha: 0.1)
-            : theme.colorScheme.card;
-        final topBarBorderColor = agentColor ?? theme.colorScheme.border;
-
-        return Column(
-          children: [
-            // Top Bar (Active Terminal Title / Controls)
-            TerminalTopBar(
-              activeNode: activeNode,
-              agentConfig: agentConfig,
-              workspace: workspace,
-              agentColor: agentColor,
-              topBarColor: topBarColor,
-              topBarBorderColor: topBarBorderColor,
-              titleController: _titleController,
-              iconPopoverController: _iconPopoverController,
-              iconMapping: _iconMapping,
-              onRefresh: () => _refreshTerminal(activeNode?.id ?? ''),
-              onClose: () =>
-                  _closeTerminal(context, workspace.id, activeNode?.id ?? ''),
-              onUpdateTitle: _updateTitle,
-              getIconData: _getIconData,
-            ),
-
-            // Main Terminal Area (No outer padding here)
-            Expanded(
-              child: MainTerminalContent(
-                activeNode: activeNode,
-                isRestarting: _activeTerminalId != null &&
-                    _restartingIds.contains(_activeTerminalId),
-              ),
-            ),
-
-            // Bottom Thumbnail Bar
-            Container(
-              height: 120,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.card,
-                border: Border(
-                  top: BorderSide(color: theme.colorScheme.border),
-                ),
-              ),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.all(8),
-                children: [
-                  SizedBox(
-                    height: 104,
-                    child: ReorderableListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      buildDefaultDragHandles: false,
-                      itemCount: workspace.terminals.length,
-                      onReorder: (oldIndex, newIndex) {
-                        context.read<WorkspaceBloc>().add(
-                              ReorderTerminalsInWorkspace(
-                                workspaceId: workspace.id,
-                                oldIndex: oldIndex,
-                                newIndex: newIndex,
-                              ),
-                            );
-                      },
-                      itemBuilder: (context, index) {
-                        final config = workspace.terminals[index];
-                        final node = _terminalNodes[config.id];
-                        final isActive = config.id == _activeTerminalId;
-
-                        return ReorderableDragStartListener(
-                          key: ValueKey(config.id),
-                          index: index,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(
-                                () {
-                                  _activeTerminalId = config.id;
-                                },
-                              );
-                            },
-                            child: AspectRatio(
-                              aspectRatio: 1.2,
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.terminalBackground,
-                                  border: Border.all(
-                                    color: isActive
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.border,
-                                    width: isActive ? 2 : 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    // Header
-                                    Container(
-                                      color: isActive
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.card,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                        vertical: 2,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Gap(4),
-                                          Expanded(
-                                            child: Text(
-                                              config.title,
-                                              style: theme.textTheme.small
-                                                  .copyWith(
-                                                color: isActive
-                                                    ? theme.colorScheme
-                                                        .primaryForeground
-                                                    : theme
-                                                        .colorScheme.foreground,
-                                                fontSize: 11,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                          InkWell(
-                                            onTap: () => _closeTerminal(
-                                              context,
-                                              workspace.id,
-                                              config.id,
-                                            ),
-                                            child: Icon(
-                                              LucideIcons.x,
-                                              size: 12,
-                                              color: isActive
-                                                  ? theme.colorScheme
-                                                      .primaryForeground
-                                                  : theme
-                                                      .colorScheme.foreground,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Preview Area (Blurred BG + Glowing Icon)
-                                    Expanded(
-                                      child: Container(
-                                        color: theme.colorScheme.background
-                                            .withValues(alpha: 0.5),
-                                        child: Center(
-                                          child: () {
-                                            // Determine icon or SVG path
-                                            IconData? iconData;
-                                            String? svgPath;
-
-                                            if (config.agentId != null) {
-                                              final agents = context
-                                                  .read<SettingsBloc>()
-                                                  .state
-                                                  .settings
-                                                  .agents;
-                                              final agent = agents
-                                                  .where(
-                                                    (a) =>
-                                                        a.id == config.agentId,
-                                                  )
-                                                  .firstOrNull;
-                                              if (agent != null) {
-                                                svgPath = _getAgentIconPath(
-                                                  agent.preset,
-                                                  theme,
-                                                );
-                                              }
-                                            }
-
-                                            // Fallback to standard icon logic if no agent/svg
-                                            if (svgPath == null) {
-                                              iconData = _getIconData(
-                                                config.id,
-                                                workspace,
-                                              );
-                                            }
-
-                                            return GlowingIcon(
-                                              icon: iconData,
-                                              svgPath: svgPath,
-                                              status: node?.status ??
-                                                  TerminalStatus.disconnected,
-                                              size: 32,
-                                              baseColor: isActive
-                                                  ? theme.colorScheme.primary
-                                                  : null,
-                                            );
-                                          }(),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  // Shell Selection Popover
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 0),
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: ShellSelectionPopover(
-                        controller: _popoverController,
-                        workspaceId: workspace.id,
-                        onAddTerminal: _addNewTerminal,
-                      ),
-                    ),
-                  ),
-
-                  // Agent Selection Popover
-                  if (settings.agents.any((a) => a.enabled))
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: SizedBox(
-                        width: 36,
-                        height: 36,
-                        child: AgentSelectionPopover(
-                          controller: _agentPopoverController,
-                          workspaceId: workspace.id,
-                          enabledAgents:
-                              settings.agents.where((a) => a.enabled).toList(),
-                          onAddTerminal: _addNewTerminal,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+    context.read<TerminalBloc>().add(
+          RestartTerminal(
+            terminalId: terminalId,
+            config: config,
+            workspaceId: widget.workspaceId,
+          ),
         );
-      },
-    );
   }
 
   void _updateTitle(TerminalNode node, Workspace workspace) {
@@ -659,9 +218,7 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       context.read<WorkspaceBloc>().add(
             UpdateTerminalInWorkspace(
               workspaceId: workspace.id,
-              config: config.copyWith(
-                title: value,
-              ),
+              config: config.copyWith(title: value),
             ),
           );
     }
@@ -673,14 +230,9 @@ class _WorkspaceViewState extends State<WorkspaceView> {
       final iconName = config.icon;
       if (iconName == null) return LucideIcons.terminal;
 
-      // Support both current keys and potential legacy stringified IconData
       if (_iconMapping.containsKey(iconName)) {
         return _iconMapping[iconName]!;
       }
-
-      // Fallback: If it's a legacy string like 'IconData(U+0EB3A)', we can't easily map back,
-      // but we can try to find if any value in our map matches it if we had the code.
-      // For now, return terminal icon if no match.
       return LucideIcons.terminal;
     } catch (_) {
       return LucideIcons.terminal;
@@ -709,12 +261,12 @@ class _WorkspaceViewState extends State<WorkspaceView> {
     'search': LucideIcons.search,
     'settings': LucideIcons.settings,
     'zap': LucideIcons.zap,
-    // Aliases for legacy/alternative names
     'package': LucideIcons.package,
     'git-branch': LucideIcons.gitBranch,
     'flask-conical': LucideIcons.flaskConical,
     'layout-panel-left': LucideIcons.layoutPanelLeft,
   };
+
   Color? _getAgentColor(AgentPreset preset) => switch (preset) {
         AgentPreset.claude => const Color(0xFFD97757),
         AgentPreset.qwen => const Color(0xFF615CED),
@@ -724,16 +276,136 @@ class _WorkspaceViewState extends State<WorkspaceView> {
         _ => null,
       };
 
-  String? _getAgentIconPath(AgentPreset preset, ShadThemeData theme) =>
-      switch (preset) {
-        AgentPreset.claude => Assets.claudeLogo,
-        AgentPreset.gemini => Assets.geminiLogo,
-        AgentPreset.codex => Assets.chatgptLogo,
-        AgentPreset.qwen => Assets.qwenLogo,
-        AgentPreset.opencode => theme.brightness == Brightness.dark
-            ? Assets.opencodeDarkLogo
-            : Assets.opencodeLogo,
-        AgentPreset.githubCopilot => Assets.githubCopilotLogo,
-        _ => null,
-      };
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+
+    return BlocConsumer<WorkspaceBloc, WorkspaceState>(
+      listener: (context, state) {
+        _syncTerminals();
+      },
+      builder: (context, workspaceState) {
+        final workspace = workspaceState.workspaces
+            .where((w) => w.id == widget.workspaceId)
+            .firstOrNull;
+        final settings = context.watch<SettingsBloc>().state.settings;
+
+        if (workspace == null) {
+          final l10n = context.t;
+          return Center(
+            child: Text(
+              l10n.selectWorkspacePrompt,
+              style: theme.textTheme.muted.copyWith(fontSize: 16),
+            ),
+          );
+        }
+
+        return BlocBuilder<TerminalBloc, TerminalState>(
+          builder: (context, terminalState) {
+            final activeNode = _activeTerminalId != null
+                ? terminalState.terminals[_activeTerminalId]
+                : null;
+
+            final activeConfig = _activeTerminalId != null
+                ? workspace.terminals
+                    .where((t) => t.id == _activeTerminalId)
+                    .firstOrNull
+                : null;
+
+            final agentConfig = activeConfig?.agentId != null
+                ? settings.agents
+                    .where((a) => a.id == activeConfig!.agentId)
+                    .firstOrNull
+                : null;
+
+            // Agent Color Theme
+            final agentColor =
+                agentConfig != null ? _getAgentColor(agentConfig.preset) : null;
+            final topBarColor = agentColor != null
+                ? agentColor.withValues(alpha: 0.1)
+                : theme.colorScheme.card;
+            final topBarBorderColor = agentColor ?? theme.colorScheme.border;
+
+            return Column(
+              children: [
+                // Top Bar
+                TerminalTopBar(
+                  activeNode: activeNode,
+                  agentConfig: agentConfig,
+                  workspace: workspace,
+                  agentColor: agentColor,
+                  topBarColor: topBarColor,
+                  topBarBorderColor: topBarBorderColor,
+                  titleController: _titleController,
+                  iconPopoverController: _iconPopoverController,
+                  iconMapping: _iconMapping,
+                  onRefresh: () => _refreshTerminal(activeNode?.id ?? ''),
+                  onClose: () => _closeTerminal(
+                    context,
+                    workspace.id,
+                    activeNode?.id ?? '',
+                  ),
+                  onUpdateTitle: _updateTitle,
+                  getIconData: _getIconData,
+                ),
+
+                // Terminal Content (Nested Router) or Empty State
+                if (_activeTerminalId !=
+                    null) // Changed from activeNode != null
+                  const Expanded(child: AutoRouter())
+                else
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            LucideIcons.terminal,
+                            size: 64,
+                            color: theme.colorScheme.mutedForeground
+                                .withValues(alpha: 0.5),
+                          ),
+                          const Gap(16),
+                          Text(
+                            context.t.noTerminalsOpen,
+                            style: theme.textTheme.large.copyWith(
+                              color: theme.colorScheme.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Bottom Thumbnail Bar
+                ThumbnailBar(
+                  workspace: workspace,
+                  settings: settings,
+                  terminals: terminalState.terminals,
+                  activeTerminalId: _activeTerminalId,
+                  onTerminalSelected: (id) {
+                    setState(() {
+                      _activeTerminalId = id;
+                    });
+                    // Defer navigation until after rebuild
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        context.router.navigate(TerminalRoute(terminalId: id));
+                      }
+                    });
+                  },
+                  onTerminalClosed: (id) =>
+                      _closeTerminal(context, workspace.id, id),
+                  onAddTerminal: _addNewTerminal,
+                  popoverController: _popoverController,
+                  agentPopoverController: _agentPopoverController,
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
+// Removed entire _buildThumbnailBar and _buildThumbnailItem methods as they are extracted.

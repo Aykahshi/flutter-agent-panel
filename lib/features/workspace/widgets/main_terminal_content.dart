@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/extensions/context_extension.dart';
 import '../../terminal/models/terminal_node.dart';
-import '../../terminal/views/terminal_view.dart';
+import '../../terminal/views/terminal_component.dart';
 import 'package:gap/gap.dart';
 
 /// Main terminal content widget that displays the active terminal or restarting state.
@@ -21,9 +21,7 @@ class MainTerminalContent extends StatelessWidget {
     final l10n = context.t;
 
     // Show restarting state or loading state for new agent terminal
-    // We check hasOutput to see if the process has started sending data
-    final shouldShowLoading =
-        isRestarting || activeNode == null || !activeNode!.hasOutput;
+    final shouldShowLoading = isRestarting || activeNode == null;
 
     if (shouldShowLoading) {
       return Container(
@@ -35,13 +33,12 @@ class MainTerminalContent extends StatelessWidget {
               Text(
                 isRestarting
                     ? l10n.restartingTerminal
-                    : (activeNode != null && !activeNode!.hasOutput
+                    : (activeNode != null
                         ? l10n.startingTerminal
                         : l10n.noTerminalsOpen),
                 style: theme.textTheme.large,
               ),
-              if (isRestarting ||
-                  (activeNode != null && !activeNode!.hasOutput)) ...[
+              if (isRestarting || activeNode != null) ...[
                 const Gap(16),
                 CircularProgressIndicator(
                   color: theme.colorScheme.primary,
@@ -55,7 +52,7 @@ class MainTerminalContent extends StatelessWidget {
 
     // Show the terminal with RepaintBoundary to isolate repaints
     return RepaintBoundary(
-      child: TerminalView(
+      child: TerminalComponent(
         key: ValueKey(activeNode!.id),
         terminalNode: activeNode!,
         interactive: true,

@@ -300,7 +300,7 @@ abstract class AppLocalizations {
   /// No description provided for @fontPreviewText.
   ///
   /// In en, this message translates to:
-  /// **'Build beautiful, natively compiled applications from a single codebase.'**
+  /// **'echo \"Hello World! 你好世界！\"'**
   String get fontPreviewText;
 
   /// No description provided for @about.
@@ -474,14 +474,8 @@ abstract class AppLocalizations {
   /// No description provided for @customShellsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Manage custom shell configurations for external terminal apps.'**
+  /// **'Manage custom shells, like fish, etc.'**
   String get customShellsDescription;
-
-  /// No description provided for @manageCustomShells.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage Custom Shells'**
-  String get manageCustomShells;
 
   /// No description provided for @addCustomShell.
   ///
@@ -510,26 +504,8 @@ abstract class AppLocalizations {
   /// No description provided for @shellNamePlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'e.g., Warp Terminal'**
+  /// **'e.g., fish'**
   String get shellNamePlaceholder;
-
-  /// No description provided for @shellIcon.
-  ///
-  /// In en, this message translates to:
-  /// **'Shell Icon'**
-  String get shellIcon;
-
-  /// No description provided for @isExternalTerminal.
-  ///
-  /// In en, this message translates to:
-  /// **'External Terminal App'**
-  String get isExternalTerminal;
-
-  /// No description provided for @isExternalTerminalDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Launch as a separate window (for apps like Warp, Windows Terminal)'**
-  String get isExternalTerminalDescription;
 
   /// No description provided for @noCustomShells.
   ///
@@ -626,6 +602,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starting...'**
   String get startingTerminal;
+
+  /// No description provided for @editWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Workspace'**
+  String get editWorkspace;
+
+  /// No description provided for @deleteWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Workspace'**
+  String get deleteWorkspace;
+
+  /// No description provided for @pinWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin Workspace'**
+  String get pinWorkspace;
+
+  /// No description provided for @unpinWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin Workspace'**
+  String get unpinWorkspace;
+
+  /// No description provided for @searchWorkspaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Search workspaces...'**
+  String get searchWorkspaces;
+
+  /// No description provided for @workspaceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Workspace Name'**
+  String get workspaceName;
+
+  /// No description provided for @workspaceIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get workspaceIcon;
+
+  /// No description provided for @workspacePath.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder Path'**
+  String get workspacePath;
+
+  /// No description provided for @workspaceTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get workspaceTags;
+
+  /// No description provided for @tagsPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter tags separated by commas'**
+  String get tagsPlaceholder;
+
+  /// No description provided for @confirmDeleteWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this workspace?'**
+  String get confirmDeleteWorkspace;
+
+  /// No description provided for @createWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Workspace'**
+  String get createWorkspace;
 }
 
 class _AppLocalizationsDelegate

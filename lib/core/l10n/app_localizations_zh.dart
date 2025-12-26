@@ -108,8 +108,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chineseHans => '简体中文';
 
   @override
-  String get fontPreviewText =>
-      'Build beautiful, natively compiled applications from a single codebase.';
+  String get fontPreviewText => 'echo \"Hello World! 你好世界！\"';
 
   @override
   String get about => '关于';
@@ -124,10 +123,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restartingTerminal => '正在重启终端...';
 
   @override
-  String get cursorBlink => '光标闪爍';
+  String get cursorBlink => '光标闪烁';
 
   @override
-  String get cursorBlinkDescription => '允许终端光标闪爍。';
+  String get cursorBlinkDescription => '允许终端光标闪烁。';
 
   @override
   String get agents => '智能助手';
@@ -198,10 +197,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customShells => '自定义 Shell';
 
   @override
-  String get customShellsDescription => '管理自定义 Shell 配置，用于外部终端应用。';
-
-  @override
-  String get manageCustomShells => '管理自定义 Shell';
+  String get customShellsDescription => '管理自定义 Shell，像是 fish 等';
 
   @override
   String get addCustomShell => '添加自定义 Shell';
@@ -216,17 +212,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellName => 'Shell 名称';
 
   @override
-  String get shellNamePlaceholder => '例如: Warp Terminal';
-
-  @override
-  String get shellIcon => 'Shell 图标';
-
-  @override
-  String get isExternalTerminal => '外部终端应用';
-
-  @override
-  String get isExternalTerminalDescription =>
-      '作为独立窗口启动（适用于 Warp、Windows Terminal 等应用）';
+  String get shellNamePlaceholder => '例如: fish';
 
   @override
   String get noCustomShells => '尚未配置自定义 Shell';
@@ -281,6 +267,42 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get startingTerminal => '正在启动...';
+
+  @override
+  String get editWorkspace => '编辑工作区';
+
+  @override
+  String get deleteWorkspace => '删除工作区';
+
+  @override
+  String get pinWorkspace => '置顶工作区';
+
+  @override
+  String get unpinWorkspace => '取消置顶';
+
+  @override
+  String get searchWorkspaces => '搜索工作区...';
+
+  @override
+  String get workspaceName => '工作区名称';
+
+  @override
+  String get workspaceIcon => '图标';
+
+  @override
+  String get workspacePath => '文件夹路径';
+
+  @override
+  String get workspaceTags => '标签';
+
+  @override
+  String get tagsPlaceholder => '输入标签，用逗号分隔';
+
+  @override
+  String get confirmDeleteWorkspace => '确定要删除此工作区吗？';
+
+  @override
+  String get createWorkspace => '创建工作区';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -387,8 +409,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get chineseHans => '簡體中文';
 
   @override
-  String get fontPreviewText =>
-      'Build beautiful, natively compiled applications from a single codebase.';
+  String get fontPreviewText => 'echo \"Hello World! 你好世界！\"';
 
   @override
   String get about => '關於';
@@ -477,10 +498,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get customShells => '自定義 Shell';
 
   @override
-  String get customShellsDescription => '管理自定義 Shell 設定，用於外部終端機應用程式。';
-
-  @override
-  String get manageCustomShells => '管理自定義 Shell';
+  String get customShellsDescription => '管理自定義 Shell，像是 fish 等';
 
   @override
   String get addCustomShell => '新增自定義 Shell';
@@ -495,17 +513,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get shellName => 'Shell 名稱';
 
   @override
-  String get shellNamePlaceholder => '例如: Warp Terminal';
-
-  @override
-  String get shellIcon => 'Shell 圖示';
-
-  @override
-  String get isExternalTerminal => '外部終端機應用程式';
-
-  @override
-  String get isExternalTerminalDescription =>
-      '作為獨立視窗啟動（適用於 Warp、Windows Terminal 等應用程式）';
+  String get shellNamePlaceholder => '例如: fish';
 
   @override
   String get noCustomShells => '尚未設定自定義 Shell';
@@ -560,4 +568,40 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get startingTerminal => '正在啟動...';
+
+  @override
+  String get editWorkspace => '編輯工作區';
+
+  @override
+  String get deleteWorkspace => '刪除工作區';
+
+  @override
+  String get pinWorkspace => '釘選工作區';
+
+  @override
+  String get unpinWorkspace => '取消釘選';
+
+  @override
+  String get searchWorkspaces => '搜尋工作區...';
+
+  @override
+  String get workspaceName => '工作區名稱';
+
+  @override
+  String get workspaceIcon => '圖示';
+
+  @override
+  String get workspacePath => '資料夾路徑';
+
+  @override
+  String get workspaceTags => '標籤';
+
+  @override
+  String get tagsPlaceholder => '輸入標籤，以逗號分隔';
+
+  @override
+  String get confirmDeleteWorkspace => '確定要刪除此工作區嗎？';
+
+  @override
+  String get createWorkspace => '建立工作區';
 }

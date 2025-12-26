@@ -8,6 +8,7 @@ import 'core/router/app_router.dart';
 import 'features/workspace/bloc/workspace_bloc.dart';
 import 'features/settings/bloc/settings_bloc.dart';
 import 'features/settings/models/app_settings.dart';
+import 'features/terminal/bloc/terminal_bloc.dart';
 
 class App extends StatelessWidget {
   App({super.key});
@@ -20,6 +21,7 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => WorkspaceBloc()),
         BlocProvider(create: (_) => SettingsBloc()..add(const LoadSettings())),
+        BlocProvider(create: (_) => TerminalBloc()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(1280, 800),
