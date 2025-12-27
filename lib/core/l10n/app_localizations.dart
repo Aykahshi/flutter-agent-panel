@@ -776,6 +776,109 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Agent'**
   String get addAgent;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @updateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for and install application updates'**
+  String get updateDescription;
+
+  /// No description provided for @currentVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Version'**
+  String get currentVersion;
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for Updates'**
+  String get checkForUpdates;
+
+  /// No description provided for @latestVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Version'**
+  String get latestVersion;
+
+  /// No description provided for @noUpdatesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'You are using the latest version'**
+  String get noUpdatesAvailable;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is available'**
+  String get updateAvailable;
+
+  /// No description provided for @downloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading...'**
+  String get downloading;
+
+  /// No description provided for @readyToInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to Install'**
+  String get readyToInstall;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @checkingForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking...'**
+  String get checkingForUpdates;
+
+  /// No description provided for @installUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Now'**
+  String get installUpdate;
+
+  /// No description provided for @restartToInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart & Install'**
+  String get restartToInstall;
+
+  /// No description provided for @updateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get updateError;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get later;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get updateNow;
+
+  /// No description provided for @updateAvailableDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version {latestVersion} is available.\nCurrent version: {currentVersion}'**
+  String updateAvailableDescription(
+      String latestVersion, String currentVersion);
 }
 
 class _AppLocalizationsDelegate

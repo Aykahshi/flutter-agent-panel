@@ -364,4 +364,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addAgent => 'Add Agent';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get updateDescription => 'Check for and install application updates';
+
+  @override
+  String get currentVersion => 'Current Version';
+
+  @override
+  String get checkForUpdates => 'Check for Updates';
+
+  @override
+  String get latestVersion => 'Latest Version';
+
+  @override
+  String get noUpdatesAvailable => 'You are using the latest version';
+
+  @override
+  String get updateAvailable => 'A new version is available';
+
+  @override
+  String get downloading => 'Downloading...';
+
+  @override
+  String get readyToInstall => 'Ready to Install';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get checkingForUpdates => 'Checking...';
+
+  @override
+  String get installUpdate => 'Install Now';
+
+  @override
+  String get restartToInstall => 'Restart & Install';
+
+  @override
+  String get updateError => 'Error';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String updateAvailableDescription(
+      String latestVersion, String currentVersion) {
+    return 'A new version $latestVersion is available.\nCurrent version: $currentVersion';
+  }
 }

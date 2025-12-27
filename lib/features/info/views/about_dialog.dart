@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/assets.dart';
 import '../../../../core/extensions/context_extension.dart';
+import '../../../../core/services/app_version_service.dart';
 
 class AppAboutDialog extends StatelessWidget {
   const AppAboutDialog({super.key});
@@ -44,6 +45,19 @@ class AppAboutDialog extends StatelessWidget {
                 width: 120.r,
                 height: 120.r,
               ),
+            ),
+            Gap(12.h),
+            FutureBuilder<String>(
+              future: AppVersionService.instance.getFullVersion(),
+              builder: (context, snapshot) {
+                final version = snapshot.data ?? '...';
+                return Text(
+                  'v$version',
+                  style: theme.textTheme.muted.copyWith(
+                    color: theme.colorScheme.mutedForeground,
+                  ),
+                );
+              },
             ),
             Gap(16.h),
             Text(

@@ -33,6 +33,8 @@ dependencies:
   gap: ^3.0.1
   path: ^1.9.1
   chinese_font_library: ^1.2.0
+  package_info_plus: ^9.0.0
+  updat: ^1.4.0
 
 
 workspace:

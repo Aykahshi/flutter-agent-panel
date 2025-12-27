@@ -17,6 +17,7 @@ import '../widgets/settings_section.dart';
 import '../widgets/general_settings_content.dart';
 import '../widgets/custom_shells_content.dart';
 import '../widgets/agents_content.dart';
+import '../widgets/update_settings_content.dart';
 import '../../terminal/models/terminal_theme_data.dart';
 import '../../terminal/services/terminal_theme_service.dart';
 
@@ -111,6 +112,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
       {'icon': LucideIcons.terminal, 'label': l10n.terminalSettings},
       {'icon': LucideIcons.squareTerminal, 'label': l10n.customShells},
       {'icon': LucideIcons.bot, 'label': l10n.agents},
+      {'icon': LucideIcons.download, 'label': l10n.update},
     ];
 
     return BlocBuilder<SettingsBloc, SettingsState>(
@@ -815,6 +817,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
         ),
       3 => CustomShellsContent(settings: settings),
       4 => AgentsContent(settings: settings),
+      5 => const UpdateSettingsContent(),
       _ => const SizedBox.shrink(),
     };
   }

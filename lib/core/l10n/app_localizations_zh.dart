@@ -354,6 +354,60 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addAgent => '新增AI助手';
+
+  @override
+  String get update => '更新';
+
+  @override
+  String get updateDescription => '檢查並安裝應用程式更新';
+
+  @override
+  String get currentVersion => '當前版本';
+
+  @override
+  String get checkForUpdates => '檢查更新';
+
+  @override
+  String get latestVersion => '最新版本';
+
+  @override
+  String get noUpdatesAvailable => '已是最新版本';
+
+  @override
+  String get updateAvailable => '有新版本可用';
+
+  @override
+  String get downloading => '正在下載...';
+
+  @override
+  String get readyToInstall => '準備安裝';
+
+  @override
+  String get version => '版本';
+
+  @override
+  String get checkingForUpdates => '檢查中...';
+
+  @override
+  String get installUpdate => '立即安裝';
+
+  @override
+  String get restartToInstall => '重新啟動並安裝';
+
+  @override
+  String get updateError => '錯誤';
+
+  @override
+  String get later => '稍後';
+
+  @override
+  String get updateNow => '立即更新';
+
+  @override
+  String updateAvailableDescription(
+      String latestVersion, String currentVersion) {
+    return '新版本 $latestVersion 可用。\n當前版本：$currentVersion';
+  }
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -706,4 +760,58 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get addAgent => '新增AI助手';
+
+  @override
+  String get update => '更新';
+
+  @override
+  String get updateDescription => '检查并安装应用程序更新';
+
+  @override
+  String get currentVersion => '当前版本';
+
+  @override
+  String get checkForUpdates => '检查更新';
+
+  @override
+  String get latestVersion => '最新版本';
+
+  @override
+  String get noUpdatesAvailable => '已是最新版本';
+
+  @override
+  String get updateAvailable => '有新版本可用';
+
+  @override
+  String get downloading => '正在下载...';
+
+  @override
+  String get readyToInstall => '准备安装';
+
+  @override
+  String get version => '版本';
+
+  @override
+  String get checkingForUpdates => '检查中...';
+
+  @override
+  String get installUpdate => '立即安装';
+
+  @override
+  String get restartToInstall => '重新启动并安装';
+
+  @override
+  String get updateError => '错误';
+
+  @override
+  String get later => '稍后';
+
+  @override
+  String get updateNow => '立即更新';
+
+  @override
+  String updateAvailableDescription(
+      String latestVersion, String currentVersion) {
+    return '新版本 $latestVersion 可用。\n当前版本：$currentVersion';
+  }
 }

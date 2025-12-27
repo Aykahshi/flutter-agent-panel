@@ -132,6 +132,34 @@
   "terminalSearchRegex": "Use Regular Expression",
   "close": "Close",
   "addTerminal": "Add Terminal",
-  "addAgent": "Add Agent"
+  "addAgent": "Add Agent",
+
+  "update": "Update",
+  "updateDescription": "Check for and install application updates",
+  "currentVersion": "Current Version",
+  "checkForUpdates": "Check for Updates",
+  "latestVersion": "Latest Version",
+  "noUpdatesAvailable": "You are using the latest version",
+  "updateAvailable": "A new version is available",
+  "downloading": "Downloading...",
+  "readyToInstall": "Ready to Install",
+  "version": "Version",
+  "checkingForUpdates": "Checking...",
+  "installUpdate": "Install Now",
+  "restartToInstall": "Restart & Install",
+  "updateError": "Error",
+  "later": "Later",
+  "updateNow": "Update Now",
+  "updateAvailableDescription": "A new version {latestVersion} is available.\nCurrent version: {currentVersion}",
+  "@updateAvailableDescription": {
+    "placeholders": {
+        "latestVersion": {
+            "type": "String"
+        },
+        "currentVersion": {
+            "type": "String"
+        }
+    }
+  }
 }
 
