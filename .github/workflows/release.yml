@@ -3,7 +3,7 @@ name: Build & Release
 on:
   push:
     tags:
-      - "Release v*"
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
@@ -30,7 +30,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             VERSION="${{ github.event.inputs.version }}"
           else
-            VERSION=${GITHUB_REF_NAME#Release v}
+            VERSION=${GITHUB_REF_NAME#v}
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
@@ -39,8 +39,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', steps.get_version.outputs.version) || github.ref_name }}
-          name: Release v${{ steps.get_version.outputs.version }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.get_version.outputs.version) || github.ref_name }}
+          name: v${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
           generate_release_notes: true
@@ -96,13 +96,13 @@ jobs:
       - name: Upload Release Asset (EXE)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/windows/x64/runner/Release/Output/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64-setup.exe
 
       - name: Upload Release Asset (MSIX)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/windows/x64/runner/Release/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64.msix
 
   build-macos:
@@ -168,7 +168,7 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/macos/Build/Products/Release/${{ env.ASSET_NAME }}
 
   build-linux:
@@ -219,5 +219,5 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: ${{ env.ASSET_NAME }}
