@@ -103,7 +103,7 @@ class AppVersionService {
   /// Gets the download URL for the binary based on current platform.
   Future<String> getBinaryUrl(String version) async {
     final baseUrl =
-        'https://github.com/$_githubOwner/$_githubRepo/releases/download/Release%20v$version';
+        'https://github.com/$_githubOwner/$_githubRepo/releases/download/v$version';
 
     if (Platform.isWindows) {
       return '$baseUrl/flutter_agent_panel-$version-windows-x86_64-setup.exe';
