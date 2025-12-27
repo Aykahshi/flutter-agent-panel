@@ -1,0 +1,221 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "Release v*"
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF_NAME#Release v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', steps.get_version.outputs.version) || github.ref_name }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+  build-windows:
+    name: Build Windows
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Inno Setup
+        uses: dspecio/setup-inno-setup-action@v1
+
+      - name: Fetch Flutter config
+        id: fvm
+        uses: kuhnroyal/flutter-fvm-config-action@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm.outputs.FLUTTER_CHANNEL }}
+          cache: true
+          cache-key: "flutter-Windows-${{ steps.fvm.outputs.FLUTTER_VERSION }}"
+          pub-cache-key: "flutter-pub-Windows-${{ steps.fvm.outputs.FLUTTER_VERSION }}"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run lean_builder build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Create Windows Installer
+        run: iscc windows/installer.iss
+
+      - name: Create MSIX
+        run: dart run msix:create --build-windows false
+
+      - name: Rename output files with version
+        run: |
+          $version = "${{ needs.create-release.outputs.version }}"
+          Rename-Item -Path "build/windows/x64/runner/Release/Output/flutter_agent_panel_setup.exe" -NewName "flutter_agent_panel-$version-windows-x86_64-setup.exe"
+          Rename-Item -Path "build/windows/x64/runner/Release/flutter_agent_panel.msix" -NewName "flutter_agent_panel-$version-windows-x86_64.msix"
+
+      - name: Upload Release Asset (EXE)
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/windows/x64/runner/Release/Output/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64-setup.exe
+
+      - name: Upload Release Asset (MSIX)
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/windows/x64/runner/Release/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64.msix
+
+  build-macos:
+    name: Build macOS
+    needs: create-release
+    runs-on: macos-latest
+    env:
+      ASSET_NAME: flutter_agent_panel-${{ needs.create-release.outputs.version }}-macos-universal.dmg
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Fetch Flutter config
+        id: fvm
+        uses: kuhnroyal/flutter-fvm-config-action@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm.outputs.FLUTTER_CHANNEL }}
+          cache: true
+          cache-key: "flutter-macOS-${{ steps.fvm.outputs.FLUTTER_VERSION }}"
+          pub-cache-key: "flutter-pub-macOS-${{ steps.fvm.outputs.FLUTTER_VERSION }}"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run lean_builder build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build macOS
+        run: flutter build macos --release
+
+      - name: Create macOS DMG
+        run: |
+          cd build/macos/Build/Products/Release
+          i=0
+          until [[ -e "${{ env.ASSET_NAME }}" ]]; do
+            create-dmg \
+              --volname "Flutter Agent Panel" \
+              --window-pos 200 120 \
+              --window-size 800 400 \
+              --icon-size 100 \
+              --icon "flutter_agent_panel.app" 200 190 \
+              --hide-extension "flutter_agent_panel.app" \
+              --app-drop-link 600 185 \
+              "${{ env.ASSET_NAME }}" \
+              "flutter_agent_panel.app" || true
+            if [[ $i -eq 10 ]]; then
+              echo "Error: create-dmg did not succeed even after 10 tries."
+              exit 1
+            fi
+            i=$((i+1))
+          done
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/macos/Build/Products/Release/${{ env.ASSET_NAME }}
+
+  build-linux:
+    name: Build Linux
+    needs: create-release
+    runs-on: ubuntu-latest
+    env:
+      ASSET_NAME: flutter_agent_panel-${{ needs.create-release.outputs.version }}-linux-x86_64.tar.gz
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      - name: Fetch Flutter config
+        id: fvm
+        uses: kuhnroyal/flutter-fvm-config-action@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm.outputs.FLUTTER_CHANNEL }}
+          cache: true
+          cache-key: "flutter-Linux-${{ steps.fvm.outputs.FLUTTER_VERSION }}"
+          pub-cache-key: "flutter-pub-Linux-${{ steps.fvm.outputs.FLUTTER_VERSION }}"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run lean_builder build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      - name: Compress Linux Bundle
+        run: |
+          cd build/linux/x64/release/bundle
+          tar -czf "$GITHUB_WORKSPACE/${{ env.ASSET_NAME }}" *
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.ASSET_NAME }}
