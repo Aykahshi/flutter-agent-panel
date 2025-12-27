@@ -84,6 +84,8 @@ class IsolatePty {
         // We don't close the stream immediately/externally,
         // managing lifecycle is up to the consumer,
         // but we can signal exit.
+      } else if (message is _ErrorEvent) {
+        outputController.addError(message.error);
       }
     });
 
@@ -155,18 +157,29 @@ class _PtyConfig {
   final int columns;
 }
 
+class _ErrorEvent extends _PtyEvent {
+  _ErrorEvent(this.error);
+  final String error;
+}
+
 Future<void> _ptyIsolateEntryPoint(_PtyConfig config) async {
   final commandPort = ReceivePort();
   config.sendPort.send(commandPort.sendPort);
 
-  final pty = Pty.start(
-    config.executable,
-    arguments: config.arguments,
-    workingDirectory: config.workingDirectory,
-    environment: config.environment,
-    rows: config.rows,
-    columns: config.columns,
-  );
+  Pty pty;
+  try {
+    pty = Pty.start(
+      config.executable,
+      arguments: config.arguments,
+      workingDirectory: config.workingDirectory,
+      environment: config.environment,
+      rows: config.rows,
+      columns: config.columns,
+    );
+  } catch (e) {
+    config.sendPort.send(_ErrorEvent(e.toString()));
+    return;
+  }
 
   // Determine standard shell encoding handling if needed.
   // Pty.output is Stream<Uint8List>.

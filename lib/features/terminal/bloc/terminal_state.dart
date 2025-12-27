@@ -5,6 +5,7 @@ class TerminalState extends Equatable {
     this.terminals = const {},
     this.restartingIds = const {},
     this.pendingIds = const {},
+    this.errorMessage,
   });
 
   /// Map of terminal ID to TerminalNode
@@ -16,15 +17,20 @@ class TerminalState extends Equatable {
   /// Set of terminal IDs pending creation
   final Set<String> pendingIds;
 
+  /// Error message to display (e.g. via toast)
+  final String? errorMessage;
+
   TerminalState copyWith({
     Map<String, TerminalNode>? terminals,
     Set<String>? restartingIds,
     Set<String>? pendingIds,
+    String? errorMessage,
   }) {
     return TerminalState(
       terminals: terminals ?? this.terminals,
       restartingIds: restartingIds ?? this.restartingIds,
       pendingIds: pendingIds ?? this.pendingIds,
+      errorMessage: errorMessage,
     );
   }
 
@@ -33,5 +39,6 @@ class TerminalState extends Equatable {
         terminals.keys.toList(),
         restartingIds,
         pendingIds,
+        errorMessage,
       ];
 }

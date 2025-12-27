@@ -82,3 +82,17 @@ class ClearRestartingState extends TerminalEvent {
   @override
   List<Object?> get props => [terminalId];
 }
+
+/// Event fired when a terminal error occurs
+class TerminalErrorOccurred extends TerminalEvent {
+  const TerminalErrorOccurred({
+    required this.terminalId,
+    required this.message,
+  });
+
+  final String terminalId;
+  final String message;
+
+  @override
+  List<Object?> get props => [terminalId, message];
+}

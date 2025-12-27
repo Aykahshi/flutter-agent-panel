@@ -349,7 +349,21 @@ class _WorkspaceViewState extends State<WorkspaceView> {
           );
         }
 
-        return BlocBuilder<TerminalBloc, TerminalState>(
+        return BlocConsumer<TerminalBloc, TerminalState>(
+          listener: (context, state) {
+            if (state.errorMessage != null) {
+              ShadToaster.of(context).show(
+                ShadToast.destructive(
+                  title: const Text('Terminal Error'),
+                  description: Text(state.errorMessage!),
+                  action: ShadButton.outline(
+                    child: const Text('Close'),
+                    onPressed: () => ShadToaster.of(context).hide(),
+                  ),
+                ),
+              );
+            }
+          },
           builder: (context, terminalState) {
             final activeNode = _activeTerminalId != null
                 ? terminalState.terminals[_activeTerminalId]

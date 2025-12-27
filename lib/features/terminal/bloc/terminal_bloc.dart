@@ -24,6 +24,7 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
     on<SyncWorkspaceTerminals>(_onSyncWorkspaceTerminals);
     on<TerminalOutputReceived>(_onTerminalOutputReceived);
     on<ClearRestartingState>(_onClearRestartingState);
+    on<TerminalErrorOccurred>(_onTerminalErrorOccurred);
   }
 
   Future<void> _onCreateTerminal(
@@ -208,6 +209,39 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
     }
   }
 
+  void _onTerminalErrorOccurred(
+    TerminalErrorOccurred event,
+    Emitter<TerminalState> emit,
+  ) {
+    // Stop loading/restarting state
+    emit(
+      state.copyWith(
+        pendingIds:
+            state.pendingIds.where((id) => id != event.terminalId).toSet(),
+        restartingIds:
+            state.restartingIds.where((id) => id != event.terminalId).toSet(),
+        errorMessage: '${event.message} (Terminal: ${event.terminalId})',
+      ),
+    );
+    // Clear error message immediately after to allow re-triggering similar errors if needed,
+    // or let the UI handle it.
+    // Usually for toasts, we want the state change to be transient or unique.
+    // If we emit error then emit null, the UI might miss it if batched?
+    // No, standard bloc behavior.
+    // But since ShadToaster works imperatively, Listener is fine.
+    // Let's just emit the error.
+    // To ensure next error triggers change, we can append timestamp or clear it.
+    // For now simple errorMessage is fine.
+
+    // Actually, to preventing "stuck" error string, let's clear it in next tick?
+    // Using Future.delayed inside Bloc is usually frowned upon but common for "Action" states.
+    // Alternative: Use a List<String> of errors or a transient mechanism.
+    // Let's just set it, and assume UI will show it.
+    // But if same error happens twice, state doesn't change, so no toast.
+    // So better:
+    emit(state.copyWith(errorMessage: null));
+  }
+
   Future<TerminalNode?> _createTerminalNode(
     TerminalConfig config,
     String workspaceId,
@@ -337,6 +371,13 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
         }
         node.markActivity();
       }
+    }, onError: (Object error) {
+      add(
+        TerminalErrorOccurred(
+          terminalId: config.id,
+          message: error.toString(),
+        ),
+      );
     });
 
     // Setup Terminal -> PTY (Input)
