@@ -295,7 +295,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Select the shell to use when opening this agent';
 
   @override
-  String get defaultShellOption => 'Default (PowerShell)';
+  String get defaultShellOption => 'Default (Global Settings)';
 
   @override
   String get globalEnvironmentVariables => 'Global Environment Variables';

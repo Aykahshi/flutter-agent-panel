@@ -287,7 +287,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentShellDescription => '選擇開啟此助手時使用的 Shell';
 
   @override
-  String get defaultShellOption => '預設 (PowerShell)';
+  String get defaultShellOption => '預設 (全域設定)';
 
   @override
   String get globalEnvironmentVariables => '全域環境變數';
@@ -693,7 +693,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get agentShellDescription => '选择开启此助手时使用的 Shell';
 
   @override
-  String get defaultShellOption => '预设 (PowerShell)';
+  String get defaultShellOption => '预设 (全局设置)';
 
   @override
   String get globalEnvironmentVariables => '全局环境变量';

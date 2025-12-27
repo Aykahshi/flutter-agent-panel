@@ -642,7 +642,7 @@ abstract class AppLocalizations {
   /// No description provided for @defaultShellOption.
   ///
   /// In en, this message translates to:
-  /// **'Default (PowerShell)'**
+  /// **'Default (Global Settings)'**
   String get defaultShellOption;
 
   /// No description provided for @globalEnvironmentVariables.
