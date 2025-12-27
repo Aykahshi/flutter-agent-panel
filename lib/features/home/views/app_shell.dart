@@ -39,7 +39,7 @@ class _AppShellViewState extends State<AppShellView> {
           action: ShadButton.outline(
             child: Text(context.t.update),
             onPressed: () {
-              SettingsDialog.show(context);
+              SettingsDialog.show(context, initialTab: 5);
             },
           ),
         ),

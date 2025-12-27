@@ -22,12 +22,15 @@ import '../../terminal/models/terminal_theme_data.dart';
 import '../../terminal/services/terminal_theme_service.dart';
 
 class SettingsDialog extends StatefulWidget {
-  const SettingsDialog({super.key});
+  const SettingsDialog({super.key, this.initialTab = 0});
 
-  static Future<void> show(BuildContext context) {
+  /// The initial tab index to display when the dialog opens.
+  final int initialTab;
+
+  static Future<void> show(BuildContext context, {int initialTab = 0}) {
     return showShadDialog(
       context: context,
-      builder: (context) => const SettingsDialog(),
+      builder: (context) => SettingsDialog(initialTab: initialTab),
     );
   }
 
@@ -38,7 +41,7 @@ class SettingsDialog extends StatefulWidget {
 class _SettingsDialogState extends State<SettingsDialog> {
   late ScrollController _sidebarScrollController;
   List<String> _uniqueFamilies = [];
-  int _selectedIndex = 0;
+  late int _selectedIndex;
   List<TerminalThemeData> _darkThemes = [];
   List<TerminalThemeData> _lightThemes = [];
   bool _themesLoading = true;
@@ -50,6 +53,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.initialTab;
     _sidebarScrollController = ScrollController();
     _loadSystemFonts();
     TerminalThemeService.instance.clearCache();
