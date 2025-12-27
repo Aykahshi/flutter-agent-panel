@@ -5,7 +5,8 @@
 - **Type**: Flutter Application (Desktop Focus)
 - **Description**: A cross-platform terminal aggregator and AI agent panel. Features multi-workspace support, terminal emulation, and integration with AI agents.
 - **Tech Stack**:
-    - Flutter SDK `^3.6.0`
+    - Flutter SDK `^3.6.0`, currently using `3.38.4`
+    - Dart SDK depends on Flutter SDK, currently using `3.10.3`
     - State Management: `flutter_bloc`, `hydrated_bloc`
     - Navigation: `auto_route`
     - UI Components: `shadcn_ui`
@@ -13,7 +14,6 @@
     - Internal Packages: `packages/xterm`, `packages/flutter_pty`
 
 ## Coding Standards
-- **Language**: Comments and documentation must be in **Traditional Chinese**. Code itself must not contain Chinese except in string literals.
 - **Architecture**: Follow a **Feature-First** architecture.
 - **State Management**: Use the **BLoC pattern**. UI talks to BLoC, BLoC talks to Services/Repositories.
 - **UI & Layout**:
@@ -39,4 +39,3 @@ When performing code reviews, please prioritize the following:
 3. **Responsive Utilities**: Check for proper use of `flutter_screenutil` for all fixed dimensions.
 4. **Spacing**: Flag use of `SizedBox` for spacing; suggest `Gap` instead.
 5. **Localization**: Ensure new hardcoded strings are moved to ARB files.
-6. **Traditional Chinese**: Ensure comments and documentation are in Traditional Chinese.
