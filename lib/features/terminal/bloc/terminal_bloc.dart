@@ -363,22 +363,25 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
     pty.output
         .cast<List<int>>()
         .transform(const Utf8Decoder(allowMalformed: true))
-        .listen((data) {
-      terminal.write(data);
-      if (data.isNotEmpty) {
-        if (!node.hasOutput) {
-          add(TerminalOutputReceived(terminalId: config.id));
+        .listen(
+      (data) {
+        terminal.write(data);
+        if (data.isNotEmpty) {
+          if (!node.hasOutput) {
+            add(TerminalOutputReceived(terminalId: config.id));
+          }
+          node.markActivity();
         }
-        node.markActivity();
-      }
-    }, onError: (Object error) {
-      add(
-        TerminalErrorOccurred(
-          terminalId: config.id,
-          message: error.toString(),
-        ),
-      );
-    });
+      },
+      onError: (Object error) {
+        add(
+          TerminalErrorOccurred(
+            terminalId: config.id,
+            message: error.toString(),
+          ),
+        );
+      },
+    );
 
     // Setup Terminal -> PTY (Input)
     terminal.onOutput = (data) {
