@@ -53,9 +53,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Inno Setup
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
-
       - name: Fetch Flutter config
         id: fvm
         uses: kuhnroyal/flutter-fvm-config-action@v3
@@ -82,7 +79,9 @@ jobs:
         run: flutter build windows --release
 
       - name: Create Windows Installer
-        run: iscc windows/installer.iss
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: windows/installer.iss
 
       - name: Create MSIX
         run: dart run msix:create --build-windows false
