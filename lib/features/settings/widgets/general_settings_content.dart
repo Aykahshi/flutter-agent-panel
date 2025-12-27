@@ -81,13 +81,13 @@ class _GeneralSettingsContentState extends State<GeneralSettingsContent> {
             placeholder: Text(l10n.selectLanguage),
             options: [
               ShadOption(value: 'en', child: Text(l10n.english)),
-              ShadOption(value: 'zh', child: Text(l10n.chineseHans)),
-              ShadOption(value: 'zh_Hant', child: Text(l10n.chineseHant)),
+              ShadOption(value: 'zh', child: Text(l10n.chineseHant)),
+              ShadOption(value: 'zh_CN', child: Text(l10n.chineseHans)),
             ],
             selectedOptionBuilder: (context, value) {
               if (value == 'en') return Text(l10n.english);
-              if (value == 'zh') return Text(l10n.chineseHans);
-              if (value == 'zh_Hant') return Text(l10n.chineseHant);
+              if (value == 'zh') return Text(l10n.chineseHant);
+              if (value == 'zh_CN') return Text(l10n.chineseHans);
               return Text(value);
             },
             onChanged: (value) {

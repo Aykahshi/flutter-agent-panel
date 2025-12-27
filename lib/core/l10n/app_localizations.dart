@@ -96,7 +96,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('zh'),
-    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant')
+    Locale('zh', 'CN')
   ];
 
   /// No description provided for @general.
@@ -796,13 +796,13 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-  // Lookup logic when language+script codes are specified.
+  // Lookup logic when language+country codes are specified.
   switch (locale.languageCode) {
     case 'zh':
       {
-        switch (locale.scriptCode) {
-          case 'Hant':
-            return AppLocalizationsZhHant();
+        switch (locale.countryCode) {
+          case 'CN':
+            return AppLocalizationsZhCn();
         }
         break;
       }

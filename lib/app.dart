@@ -77,10 +77,7 @@ class App extends StatelessWidget {
                     supportedLocales: const [
                       Locale('en'),
                       Locale('zh'),
-                      Locale.fromSubtags(
-                        languageCode: 'zh',
-                        scriptCode: 'Hant',
-                      ),
+                      Locale('zh', 'CN'),
                     ],
                     locale: _parseLocale(state.settings.locale),
                     routerConfig: _appRouter.config(),
@@ -100,9 +97,6 @@ class App extends StatelessWidget {
   Locale _parseLocale(String localeStr) {
     if (localeStr.contains('_')) {
       final parts = localeStr.split('_');
-      if (parts.length > 1 && parts[1] == 'Hant') {
-        return Locale.fromSubtags(languageCode: parts[0], scriptCode: parts[1]);
-      }
       return Locale(parts[0], parts[1]);
     }
     return Locale(localeStr);
