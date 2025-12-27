@@ -322,17 +322,14 @@ class _WorkspaceDrawerState extends State<WorkspaceDrawer> {
                           workspace: workspace,
                           onEdit: () => _showEditDialog(context, workspace),
                           onOpen: () => _handleContextMenuOpen(workspace.id),
-                          child: ShadTooltip(
-                            builder: (context) => Text(workspace.path),
-                            child: InkWell(
-                              onTap: () =>
-                                  _selectWorkspace(context, workspace.id),
-                              child: _WorkspaceListItem(
-                                workspace: workspace,
-                                isSelected: isSelected,
-                                isCollapsed: widget.isCollapsed,
-                                icon: _getWorkspaceIcon(workspace),
-                              ),
+                          child: InkWell(
+                            onTap: () =>
+                                _selectWorkspace(context, workspace.id),
+                            child: _WorkspaceListItem(
+                              workspace: workspace,
+                              isSelected: isSelected,
+                              isCollapsed: widget.isCollapsed,
+                              icon: _getWorkspaceIcon(workspace),
                             ),
                           ),
                         ),
@@ -453,21 +450,24 @@ class _WorkspaceListItem extends StatelessWidget {
 
   Widget _buildCollapsedContent(ShadThemeData theme) {
     return Stack(
+      fit: StackFit.expand,
       alignment: Alignment.center,
       children: [
-        Text(
-          workspace.name.isNotEmpty ? workspace.name[0].toUpperCase() : '?',
-          style: theme.textTheme.small.copyWith(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.foreground,
-            fontWeight: FontWeight.bold,
+        Center(
+          child: Text(
+            workspace.name.isNotEmpty ? workspace.name[0].toUpperCase() : '?',
+            style: theme.textTheme.large.copyWith(
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.foreground,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         if (workspace.isPinned)
           Positioned(
             top: 2,
-            right: 8,
+            right: 4,
             child: Icon(
               LucideIcons.pin,
               size: 8,

@@ -117,6 +117,8 @@
   "terminalSearchCaseSensitive": "区分大小写",
   "terminalSearchRegex": "使用正则表达式",
   "close": "关闭",
+  "addTerminal": "新增终端",
+  "addAgent": "新增AI助手",
 
   "@@locale": "zh"
 }

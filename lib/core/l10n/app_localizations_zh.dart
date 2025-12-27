@@ -348,6 +348,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get close => '关闭';
+
+  @override
+  String get addTerminal => '新增终端';
+
+  @override
+  String get addAgent => '新增AI助手';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -694,4 +700,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get close => '關閉';
+
+  @override
+  String get addTerminal => '新增終端機';
+
+  @override
+  String get addAgent => '新增AI助手';
 }

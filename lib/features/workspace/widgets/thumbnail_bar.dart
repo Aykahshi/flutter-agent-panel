@@ -98,13 +98,16 @@ class ThumbnailBar extends StatelessWidget {
           // Shell Selection Popover
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 0),
-            child: SizedBox(
-              width: 36,
-              height: 36,
-              child: ShellSelectionPopover(
-                controller: popoverController,
-                workspaceId: workspace.id,
-                onAddTerminal: onAddTerminal,
+            child: ShadTooltip(
+              builder: (context) => Text(context.t.addTerminal),
+              child: SizedBox(
+                width: 36,
+                height: 36,
+                child: ShellSelectionPopover(
+                  controller: popoverController,
+                  workspaceId: workspace.id,
+                  onAddTerminal: onAddTerminal,
+                ),
               ),
             ),
           ),
@@ -112,15 +115,18 @@ class ThumbnailBar extends StatelessWidget {
           if (settings.agents.any((a) => a.enabled))
             Padding(
               padding: const EdgeInsets.only(left: 8),
-              child: SizedBox(
-                width: 36,
-                height: 36,
-                child: AgentSelectionPopover(
-                  controller: agentPopoverController,
-                  workspaceId: workspace.id,
-                  enabledAgents:
-                      settings.agents.where((a) => a.enabled).toList(),
-                  onAddTerminal: onAddTerminal,
+              child: ShadTooltip(
+                builder: (context) => Text(context.t.addAgent),
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: AgentSelectionPopover(
+                    controller: agentPopoverController,
+                    workspaceId: workspace.id,
+                    enabledAgents:
+                        settings.agents.where((a) => a.enabled).toList(),
+                    onAddTerminal: onAddTerminal,
+                  ),
                 ),
               ),
             ),

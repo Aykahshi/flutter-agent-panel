@@ -358,4 +358,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get addTerminal => 'Add Terminal';
+
+  @override
+  String get addAgent => 'Add Agent';
 }

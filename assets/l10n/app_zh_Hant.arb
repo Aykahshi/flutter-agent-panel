@@ -114,6 +114,8 @@
   "terminalSearchCaseSensitive": "區分大小寫",
   "terminalSearchRegex": "使用正規表達式",
   "close": "關閉",
+  "addTerminal": "新增終端機",
+  "addAgent": "新增AI助手",
 
   "@@locale": "zh_Hant"
 }

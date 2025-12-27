@@ -130,6 +130,8 @@
   "terminalSearchNext": "Next Match",
   "terminalSearchCaseSensitive": "Match Case",
   "terminalSearchRegex": "Use Regular Expression",
-  "close": "Close"
+  "close": "Close",
+  "addTerminal": "Add Terminal",
+  "addAgent": "Add Agent"
 }
 

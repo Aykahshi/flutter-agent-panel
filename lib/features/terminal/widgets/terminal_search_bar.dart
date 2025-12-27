@@ -231,19 +231,26 @@ class _TerminalSearchBarState extends State<TerminalSearchBar> {
     final isEnabled = onPressed != null;
 
     return ShadTooltip(
+      anchor: const ShadAnchorAuto(
+        offset: Offset(0, 60),
+        targetAnchor: Alignment.topCenter,
+        followerAnchor: Alignment.topCenter,
+      ),
       builder: (context) => Text(tooltip),
-      child: SizedBox(
-        width: 24,
-        height: 24,
-        child: IconButton(
-          onPressed: onPressed,
-          padding: EdgeInsets.zero,
-          iconSize: 14,
-          icon: Icon(
-            icon,
-            color: isEnabled
-                ? theme.colorScheme.foreground
-                : theme.colorScheme.mutedForeground,
+      child: ShadGestureDetector(
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: IconButton(
+            onPressed: onPressed,
+            padding: EdgeInsets.zero,
+            iconSize: 14,
+            icon: Icon(
+              icon,
+              color: isEnabled
+                  ? theme.colorScheme.foreground
+                  : theme.colorScheme.mutedForeground,
+            ),
           ),
         ),
       ),
@@ -259,8 +266,13 @@ class _TerminalSearchBarState extends State<TerminalSearchBar> {
     final theme = context.theme;
 
     return ShadTooltip(
+      anchor: const ShadAnchorAuto(
+        offset: Offset(0, 60),
+        targetAnchor: Alignment.topCenter,
+        followerAnchor: Alignment.topCenter,
+      ),
       builder: (context) => Text(tooltip),
-      child: GestureDetector(
+      child: ShadGestureDetector(
         onTap: onPressed,
         child: Container(
           width: 24,

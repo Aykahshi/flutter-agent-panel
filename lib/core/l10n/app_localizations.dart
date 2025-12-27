@@ -764,6 +764,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @addTerminal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Terminal'**
+  String get addTerminal;
+
+  /// No description provided for @addAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Agent'**
+  String get addAgent;
 }
 
 class _AppLocalizationsDelegate
