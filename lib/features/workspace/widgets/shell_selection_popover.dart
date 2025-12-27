@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -62,9 +64,10 @@ class ShellSelectionPopover extends StatelessWidget {
             ),
           ),
           Divider(height: 1, color: theme.colorScheme.border),
-          // Built-in shells (excluding custom type)
+          // Built-in shells (excluding custom and WSL on non-Windows)
           ...ShellType.values
               .where((s) => s != ShellType.custom)
+              .where((s) => s != ShellType.wsl || Platform.isWindows)
               .map((shell) => _buildShellItem(context, theme, shell, l10n)),
           // Custom shells from settings
           if (settings.customShells.isNotEmpty) ...[

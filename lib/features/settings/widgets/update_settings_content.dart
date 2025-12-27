@@ -18,7 +18,7 @@ class UpdateSettingsContent extends StatefulWidget {
 }
 
 class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
-  String _currentVersion = '0.0.0';
+  String? _currentVersion;
   bool _isLoading = true;
 
   @override
@@ -70,7 +70,7 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                     color: theme.colorScheme.border,
                   ),
                 ),
-                child: _isLoading
+                child: _isLoading || _currentVersion == null
                     ? SizedBox(
                         width: 16.w,
                         height: 16.w,
@@ -80,7 +80,7 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                         ),
                       )
                     : Text(
-                        'v$_currentVersion',
+                        'v${_currentVersion!}',
                         style: theme.textTheme.large.copyWith(
                           fontWeight: FontWeight.w600,
                           fontFamily: 'monospace',
@@ -108,23 +108,45 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
         SettingsSection(
           title: l10n.checkForUpdates,
           description: l10n.updateDescription,
-          child: UpdatWidget(
-            currentVersion: _currentVersion,
-            getLatestVersion: () async {
-              return await AppVersionService.instance.getLatestVersion();
-            },
-            getBinaryUrl: (latestVersion) async {
-              return await AppVersionService.instance.getBinaryUrl(
-                latestVersion ?? _currentVersion,
-              );
-            },
-            appName: 'Flutter Agent Panel',
-            updateChipBuilder: _buildUpdateChip,
-            updateDialogBuilder: _buildUpdateDialog,
-            callback: (status) {
-              // Handle update status changes if needed
-            },
-          ),
+          child: _currentVersion == null
+              ? const Center(child: ShadProgress())
+              : UpdatWidget(
+                  currentVersion: _currentVersion!,
+                  getLatestVersion: () async {
+                    return await AppVersionService.instance.getLatestVersion();
+                  },
+                  getBinaryUrl: (latestVersion) async {
+                    return await AppVersionService.instance.getBinaryUrl(
+                      latestVersion ?? _currentVersion!,
+                    );
+                  },
+                  appName: 'Flutter Agent Panel',
+                  updateChipBuilder: _buildUpdateChip,
+                  updateDialogBuilder: _buildUpdateDialog,
+                  callback: (status) {
+                    if (status == UpdatStatus.upToDate) {
+                      // Defer toast to avoid setState during build
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        ShadToaster.of(context).show(
+                          ShadToast(
+                            title: Row(
+                              spacing: 8,
+                              children: [
+                                const Icon(
+                                  LucideIcons.circleCheck,
+                                  size: 16,
+                                  color: Colors.green,
+                                ),
+                                Text(l10n.noUpdatesAvailable),
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                    }
+                  },
+                ),
         ),
       ],
     );

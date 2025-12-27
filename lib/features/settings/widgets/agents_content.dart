@@ -38,7 +38,7 @@ class _AgentsContentState extends State<AgentsContent> {
   Future<void> _verifyAgentInstallations() async {
     for (final agent in widget.settings.agents) {
       if (agent.enabled) {
-        final exists = await _checkCommandInstalled(agent.command);
+        final exists = await _checkCommandInstalled(agent.command, agent);
         if (!exists && mounted) {
           context
               .read<SettingsBloc>()
@@ -48,8 +48,21 @@ class _AgentsContentState extends State<AgentsContent> {
     }
   }
 
-  Future<bool> _checkCommandInstalled(String command) async {
+  Future<bool> _checkCommandInstalled(String command, AgentConfig agent) async {
     try {
+      final isWsl = _isWslShell(agent.shellId);
+
+      if (isWsl && Platform.isWindows) {
+        // Run check inside WSL
+        final result = await Process.run(
+          'wsl',
+          ['which', command],
+          runInShell: true,
+        );
+        return result.exitCode == 0;
+      }
+
+      // Default Windows/Unix check
       final isWindows = Platform.isWindows;
       final result = await Process.run(
         isWindows ? 'where' : 'which',
@@ -60,6 +73,11 @@ class _AgentsContentState extends State<AgentsContent> {
     } catch (e) {
       return false;
     }
+  }
+
+  bool _isWslShell(String? shellId) {
+    if (shellId == null) return false;
+    return shellId == 'wsl' || shellId == ShellType.wsl.name;
   }
 
   Future<bool> _installAgent(
@@ -106,7 +124,7 @@ class _AgentsContentState extends State<AgentsContent> {
         .read<SettingsBloc>()
         .add(UpdateAgentConfig(agent.copyWith(enabled: true)));
 
-    final exists = await _checkCommandInstalled(agent.command);
+    final exists = await _checkCommandInstalled(agent.command, agent);
     if (!mounted) return;
 
     if (exists) return;

@@ -522,15 +522,6 @@ class _WorkspaceListItem extends StatelessWidget {
                         color: theme.colorScheme.primary,
                       ),
                     ),
-                  if (isSelected)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        LucideIcons.check,
-                        size: 14,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
                 ],
               ),
               // Tags Row

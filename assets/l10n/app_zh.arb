@@ -92,7 +92,7 @@
   "loading": "載入中...",
   "agentShell": "Shell",
   "agentShellDescription": "選擇開啟此助手時使用的 Shell",
-  "defaultShellOption": "預設 (PowerShell)",
+  "defaultShellOption": "預設 (全域設定)",
   "globalEnvironmentVariables": "全域環境變數",
   "globalEnvironmentVariablesDescription": "套用至所有終端機的環境變數",
   "editWorkspace": "編輯工作區",

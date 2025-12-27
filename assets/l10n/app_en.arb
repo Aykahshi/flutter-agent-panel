@@ -108,7 +108,7 @@
   "loading": "Loading...",
   "agentShell": "Shell",
   "agentShellDescription": "Select the shell to use when opening this agent",
-  "defaultShellOption": "Default (PowerShell)",
+  "defaultShellOption": "Default (Global Settings)",
   "globalEnvironmentVariables": "Global Environment Variables",
   "globalEnvironmentVariablesDescription": "Environment variables applied to all terminals",
 

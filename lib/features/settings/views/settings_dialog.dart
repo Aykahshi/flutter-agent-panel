@@ -731,9 +731,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         : settings.defaultShell.name,
                     placeholder: Text(l10n.defaultShell),
                     options: [
-                      // Built-in shells (excluding custom)
+                      // Built-in shells (excluding custom and WSL on non-Windows)
                       ...ShellType.values
                           .where((s) => s != ShellType.custom)
+                          .where(
+                            (s) => s != ShellType.wsl || Platform.isWindows,
+                          )
                           .map(
                             (s) => ShadOption(
                               value: s.name,
@@ -822,8 +825,21 @@ class _SettingsDialogState extends State<SettingsDialog> {
     };
   }
 
-  Future<bool> _checkCommandInstalled(String command) async {
+  Future<bool> _checkCommandInstalled(String command, AgentConfig agent) async {
     try {
+      final isWsl = _isWslShell(agent.shellId);
+
+      if (isWsl && Platform.isWindows) {
+        // Run check inside WSL
+        final result = await Process.run(
+          'wsl',
+          ['which', command],
+          runInShell: true,
+        );
+        return result.exitCode == 0;
+      }
+
+      // Default Windows/Unix check
       final isWindows = Platform.isWindows;
       final result = await Process.run(
         isWindows ? 'where' : 'which',
@@ -836,11 +852,16 @@ class _SettingsDialogState extends State<SettingsDialog> {
     }
   }
 
+  bool _isWslShell(String? shellId) {
+    if (shellId == null) return false;
+    return shellId == 'wsl' || shellId == ShellType.wsl.name;
+  }
+
   Future<void> _verifyAgentInstallations() async {
     final settings = context.read<SettingsBloc>().state.settings;
     for (final agent in settings.agents) {
       if (agent.enabled) {
-        final exists = await _checkCommandInstalled(agent.command);
+        final exists = await _checkCommandInstalled(agent.command, agent);
         if (!exists) {
           if (mounted) {
             context
