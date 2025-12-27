@@ -10,7 +10,6 @@
 
 ## TL;DR
 Flutter Agent Panel is a powerful desktop application that combines a robust **terminal emulator** with **AI Agent management**. It allows you to organize your work into **Workspaces**, run multiple terminals side-by-side, and seamlessly integrate CLI-based AI agents (like Claude Code, GitHub Copilot CLI) into your workflow.
-![Overview](example/overview.png)
 
 **Why use this?**
 *   **Unified Interface**: Stop switching between your code editor's terminal and separate AI chat windows.
@@ -77,3 +76,4 @@ flutter run
 # Generate code (for updated dependencies)
 dart run lean_builder build --delete-conflicting-outputs
 ```
+
