@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "Release v*"
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       version:
@@ -39,7 +37,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', steps.get_version.outputs.version) || github.ref_name }}
           name: Release v${{ steps.get_version.outputs.version }}
@@ -56,11 +54,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Inno Setup
-        uses: dspecio/setup-inno-setup-action@v1
+        uses: Minionguyjpro/Inno-Setup-Action@v1
 
       - name: Fetch Flutter config
         id: fvm
-        uses: kuhnroyal/flutter-fvm-config-action@v2
+        uses: kuhnroyal/flutter-fvm-config-action@v3
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -96,13 +94,15 @@ jobs:
           Rename-Item -Path "build/windows/x64/runner/Release/flutter_agent_panel.msix" -NewName "flutter_agent_panel-$version-windows-x86_64.msix"
 
       - name: Upload Release Asset (EXE)
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/windows/x64/runner/Release/Output/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64-setup.exe
 
       - name: Upload Release Asset (MSIX)
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/windows/x64/runner/Release/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64.msix
 
   build-macos:
@@ -113,14 +113,14 @@ jobs:
       ASSET_NAME: flutter_agent_panel-${{ needs.create-release.outputs.version }}-macos-universal.dmg
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install create-dmg
         run: brew install create-dmg
 
       - name: Fetch Flutter config
         id: fvm
-        uses: kuhnroyal/flutter-fvm-config-action@v2
+        uses: kuhnroyal/flutter-fvm-config-action@v3
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -166,8 +166,9 @@ jobs:
           done
 
       - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/macos/Build/Products/Release/${{ env.ASSET_NAME }}
 
   build-linux:
@@ -178,7 +179,7 @@ jobs:
       ASSET_NAME: flutter_agent_panel-${{ needs.create-release.outputs.version }}-linux-x86_64.tar.gz
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Linux dependencies
         run: |
@@ -187,7 +188,7 @@ jobs:
 
       - name: Fetch Flutter config
         id: fvm
-        uses: kuhnroyal/flutter-fvm-config-action@v2
+        uses: kuhnroyal/flutter-fvm-config-action@v3
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -216,6 +217,7 @@ jobs:
           tar -czf "$GITHUB_WORKSPACE/${{ env.ASSET_NAME }}" *
 
       - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: ${{ env.ASSET_NAME }}

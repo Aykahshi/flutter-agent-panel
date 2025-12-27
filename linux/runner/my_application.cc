@@ -54,6 +54,9 @@ static void my_application_activate(GApplication* application) {
 
   gtk_window_set_default_size(window, 1280, 720);
 
+  // Set the application icon
+  gtk_window_set_icon_from_file(window, "data/flutter_assets/assets/images/app_icon.png", NULL);
+
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
       project, self->dart_entrypoint_arguments);
@@ -141,7 +144,6 @@ MyApplication* my_application_new() {
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
   g_set_prgname(APPLICATION_ID);
-  gtk_window_set_icon_from_file(GTK_WINDOW(window),"assets/images/app_icon.png",NULL);
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",
