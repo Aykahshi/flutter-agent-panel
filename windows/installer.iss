@@ -2,10 +2,10 @@
 AppId={{2A66236B-3C21-48C0-8583-049830F25835}
 AppName=Flutter Agent Panel
 AppVersion=1.0.0
-AppPublisher=Flutter Agent Panel Team
+AppPublisher=Aykahshi
 AppPublisherURL=https://github.com/Aykahshi/flutter-agent-panel
-AppSupportURL=https://github.com/Aykahshi/flutter-agent-panel
-AppUpdatesURL=https://github.com/Aykahshi/flutter-agent-panel
+AppSupportURL=https://github.com/Aykahshi/flutter-agent-panel/issues
+AppUpdatesURL=https://github.com/Aykahshi/flutter-agent-panel/releases
 DefaultDirName={autopf}\FlutterAgentPanel
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)

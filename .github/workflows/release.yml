@@ -100,6 +100,12 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
+      - name: Update installer version
+        run: |
+          $version = "${{ needs.create-release.outputs.version }}"
+          (Get-Content windows/installer.iss) -replace 'AppVersion=.*', "AppVersion=$version" | Set-Content windows/installer.iss
+          Write-Host "Updated installer.iss AppVersion to $version"
+
       - name: Create Windows Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
