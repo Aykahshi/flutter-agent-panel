@@ -77,7 +77,6 @@ class AgentSelectionPopover extends StatelessWidget {
         onAddTerminal(
           context,
           workspaceId,
-          shellCmd: agent.command,
           agentId: agent.id,
         );
       },
