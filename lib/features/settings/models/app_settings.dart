@@ -143,7 +143,7 @@ class AppSettings extends Equatable {
   }
 
   static List<AgentConfig> _mergeWithDefaults(List<dynamic>? jsonAgents) {
-    final defaults = _getDefaultAgents();
+    final defaults = getDefaultAgents();
     if (jsonAgents == null) return defaults;
 
     final loaded = jsonAgents
@@ -161,7 +161,7 @@ class AppSettings extends Equatable {
     return loaded;
   }
 
-  static List<AgentConfig> _getDefaultAgents() {
+  static List<AgentConfig> getDefaultAgents() {
     return [
       AgentConfig(
         id: 'preset_claude',

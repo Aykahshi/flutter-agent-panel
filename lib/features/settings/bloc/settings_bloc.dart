@@ -7,7 +7,12 @@ part 'settings_event.dart';
 part 'settings_state.dart';
 
 class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
-  SettingsBloc() : super(const SettingsState()) {
+  SettingsBloc()
+      : super(SettingsState(
+          settings: const AppSettings().copyWith(
+            agents: AppSettings.getDefaultAgents(),
+          ),
+        )) {
     on<LoadSettings>((event, emit) {
       // HydratedBloc handles loading automatically,
       // but we can use this to trigger additional logic if needed.
