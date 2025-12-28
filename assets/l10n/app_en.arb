@@ -148,6 +148,7 @@
   "installUpdate": "Install Now",
   "restartToInstall": "Restart & Install",
   "updateError": "Error",
+  "updateErrorMessage": "Failed to download or install update. Please try again later or download manually from the releases page.",
   "later": "Later",
   "updateNow": "Update Now",
   "updateAvailableDescription": "A new version {latestVersion} is available.\nCurrent version: {currentVersion}",

@@ -2,7 +2,7 @@ name: flutter_agent_panel
 description: "A modern multi terminal application for AI agent."
 publish_to: 'none'
 
-version: 0.0.4+1
+version: 0.0.5+1
 
 environment:
   sdk: ^3.6.0

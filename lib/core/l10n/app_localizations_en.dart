@@ -408,6 +408,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateError => 'Error';
 
   @override
+  String get updateErrorMessage =>
+      'Failed to download or install update. Please try again later or download manually from the releases page.';
+
+  @override
   String get later => 'Later';
 
   @override

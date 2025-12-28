@@ -17,6 +17,9 @@ class AppShellView extends StatefulWidget {
 }
 
 class _AppShellViewState extends State<AppShellView> {
+  /// Tracks if SettingsDialog is currently open to prevent duplicates
+  static bool _isSettingsDialogOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +42,19 @@ class _AppShellViewState extends State<AppShellView> {
           action: ShadButton.outline(
             child: Text(context.t.update),
             onPressed: () {
-              SettingsDialog.show(context, initialTab: 5);
+              // Prevent opening multiple dialogs
+              if (_isSettingsDialogOpen) return;
+
+              // Hide toast first
+              ShadToaster.of(context).hide();
+
+              // Mark dialog as open
+              _isSettingsDialogOpen = true;
+
+              // Open dialog and reset flag when closed
+              SettingsDialog.show(context, initialTab: 5).then((_) {
+                _isSettingsDialogOpen = false;
+              });
             },
           ),
         ),

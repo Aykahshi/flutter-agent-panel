@@ -26,7 +26,8 @@ class AppVersionService {
   /// Gets the current app version string (e.g., "1.0.0").
   Future<String> getVersion() async {
     final info = await getPackageInfo();
-    return info.version;
+    // Normalize: remove anything after + or -
+    return info.version.split('+')[0].split('-')[0];
   }
 
   /// Gets the current build number (e.g., "1").
@@ -128,8 +129,12 @@ class AppVersionService {
 
   bool _isVersionGreaterThan(String v1, String v2) {
     try {
-      final v1Parts = v1.split('.').map(int.parse).toList();
-      final v2Parts = v2.split('.').map(int.parse).toList();
+      // Strip build numbers or pre-release suffixes (e.g., 0.0.3+1 -> 0.0.3)
+      final cleanV1 = v1.split('+')[0].split('-')[0];
+      final cleanV2 = v2.split('+')[0].split('-')[0];
+
+      final v1Parts = cleanV1.split('.').map(int.parse).toList();
+      final v2Parts = cleanV2.split('.').map(int.parse).toList();
 
       for (var i = 0; i < v1Parts.length && i < v2Parts.length; i++) {
         if (v1Parts[i] > v2Parts[i]) return true;
@@ -139,25 +144,34 @@ class AppVersionService {
       // If lengths differ, the one with more parts is greater (e.g. 1.0.1 > 1.0)
       return v1Parts.length > v2Parts.length;
     } catch (e) {
+      AppLogger.instance.logger.e(
+        {
+          'logger': 'Update',
+          'message': 'Error comparing versions: $v1 vs $v2',
+        },
+        error: e,
+      );
       return false;
     }
   }
 
   /// Gets the download URL for the binary based on current platform.
   Future<String> getBinaryUrl(String version) async {
+    // Clean version string to ensure it matches GitHub release tag format
+    final cleanVersion = version.split('+')[0].split('-')[0];
     final baseUrl =
-        'https://github.com/$_githubOwner/$_githubRepo/releases/download/v$version';
+        'https://github.com/$_githubOwner/$_githubRepo/releases/download/v$cleanVersion';
 
     if (Platform.isWindows) {
-      return '$baseUrl/flutter_agent_panel-$version-windows-x86_64-setup.exe';
+      return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64-setup.exe';
     } else if (Platform.isMacOS) {
-      return '$baseUrl/flutter_agent_panel-$version-macos-universal.dmg';
+      return '$baseUrl/flutter_agent_panel-$cleanVersion-macos-universal.dmg';
     } else if (Platform.isLinux) {
-      return '$baseUrl/flutter_agent_panel-$version-linux-x86_64.tar.gz';
+      return '$baseUrl/flutter_agent_panel-$cleanVersion-linux-x86_64.tar.gz';
     }
 
     // Default to Windows
-    return '$baseUrl/flutter_agent_panel-$version-windows-x86_64-setup.exe';
+    return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64-setup.exe';
   }
 
   /// Gets the GitHub releases page URL.

@@ -134,6 +134,7 @@
   "installUpdate": "立即安装",
   "restartToInstall": "重新启动并安装",
   "updateError": "错误",
+  "updateErrorMessage": "下载或安装更新失败。请稍后再试，或从发行页面手动下载。",
   "later": "稍后",
   "updateNow": "立即更新",
   "updateAvailableDescription": "新版本 {latestVersion} 可用。\n当前版本：{currentVersion}",

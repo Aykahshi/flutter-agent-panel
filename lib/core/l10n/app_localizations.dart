@@ -861,6 +861,12 @@ abstract class AppLocalizations {
   /// **'Error'**
   String get updateError;
 
+  /// No description provided for @updateErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to download or install update. Please try again later or download manually from the releases page.'**
+  String get updateErrorMessage;
+
   /// No description provided for @later.
   ///
   /// In en, this message translates to:

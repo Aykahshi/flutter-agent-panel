@@ -20,6 +20,7 @@ class UpdateSettingsContent extends StatefulWidget {
 class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
   String? _currentVersion;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -28,7 +29,7 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
   }
 
   Future<void> _loadVersion() async {
-    final version = await AppVersionService.instance.getFullVersion();
+    final version = await AppVersionService.instance.getVersion();
     if (mounted) {
       setState(() {
         _currentVersion = version;
@@ -124,10 +125,13 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                   updateChipBuilder: _buildUpdateChip,
                   updateDialogBuilder: _buildUpdateDialog,
                   callback: (status) {
-                    if (status == UpdatStatus.upToDate) {
-                      // Defer toast to avoid setState during build
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (!mounted) return;
+                    // Handle status changes
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+
+                      if (status == UpdatStatus.upToDate) {
+                        // Clear any previous error
+                        setState(() => _errorMessage = null);
                         ShadToaster.of(context).show(
                           ShadToast(
                             title: Row(
@@ -143,8 +147,18 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                             ),
                           ),
                         );
-                      });
-                    }
+                      } else if (status == UpdatStatus.error) {
+                        // Set error message for display
+                        setState(() {
+                          _errorMessage = l10n.updateErrorMessage;
+                        });
+                      } else if (status == UpdatStatus.available ||
+                          status == UpdatStatus.checking ||
+                          status == UpdatStatus.downloading) {
+                        // Clear error when retrying or checking
+                        setState(() => _errorMessage = null);
+                      }
+                    });
                   },
                 ),
         ),
@@ -164,10 +178,14 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
     required Future<void> Function() launchInstaller,
   }) {
     final l10n = context.t;
+    final theme = context.theme;
 
     String label;
     IconData icon;
+    Color? iconColor;
     VoidCallback? onPressed = openDialog;
+    bool isError = false;
+    bool isDownloading = false;
 
     switch (status) {
       case UpdatStatus.idle:
@@ -188,11 +206,14 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
         label = l10n.downloading;
         icon = LucideIcons.download;
         onPressed = null;
+        isDownloading = true;
         break;
       case UpdatStatus.error:
         label = l10n.updateError;
-        icon = LucideIcons.info;
+        icon = LucideIcons.circleAlert;
+        iconColor = theme.colorScheme.destructive;
         onPressed = checkForUpdate;
+        isError = true;
         break;
       default:
         label = l10n.checkForUpdates;
@@ -200,10 +221,46 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
         onPressed = checkForUpdate;
     }
 
-    return ShadButton.outline(
-      onPressed: onPressed,
-      leading: Icon(icon, size: 16.sp),
-      child: Text(label),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            ShadButton.outline(
+              onPressed: onPressed,
+              foregroundColor: isError ? theme.colorScheme.destructive : null,
+              leading: Icon(
+                icon,
+                size: 16.sp,
+                color: iconColor,
+              ),
+              child: Text(label),
+            ),
+            if (isDownloading) ...[
+              Gap(12.w),
+              SizedBox(
+                width: 16.w,
+                height: 16.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ],
+        ),
+        // Show error message below button
+        if (_errorMessage != null && isError) ...[
+          Gap(8.h),
+          Text(
+            _errorMessage!,
+            style: theme.textTheme.small.copyWith(
+              color: theme.colorScheme.destructive,
+            ),
+          ),
+        ],
+      ],
     );
   }
 

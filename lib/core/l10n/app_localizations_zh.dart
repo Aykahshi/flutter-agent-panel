@@ -398,6 +398,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateError => '錯誤';
 
   @override
+  String get updateErrorMessage => '下載或安裝更新失敗。請稍後再試，或從發行頁面手動下載。';
+
+  @override
   String get later => '稍後';
 
   @override
@@ -802,6 +805,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get updateError => '错误';
+
+  @override
+  String get updateErrorMessage => '下载或安装更新失败。请稍后再试，或从发行页面手动下载。';
 
   @override
   String get later => '稍后';
