@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_pty/flutter_pty.dart';
 
+import '../../../core/services/crash_log_service.dart';
+
 /// Commands sent to the isolate
 sealed class _PtyCommand {}
 
@@ -40,10 +42,12 @@ class IsolatePty {
     this._isolate,
     this._commandPort,
     this._outputStream,
+    this._errorPort,
   );
   final Isolate _isolate;
   final SendPort _commandPort;
   final Stream<List<int>> _outputStream;
+  final ReceivePort _errorPort;
   final Completer<int?> _exitCompleter = Completer<int?>();
 
   /// Spawns a new PTY in a background isolate.
@@ -56,6 +60,8 @@ class IsolatePty {
     int columns = 80,
   }) async {
     final receivePort = ReceivePort();
+    final errorPort = ReceivePort();
+
     final isolate = await Isolate.spawn(
       _ptyIsolateEntryPoint,
       _PtyConfig(
@@ -67,6 +73,7 @@ class IsolatePty {
         rows: rows,
         columns: columns,
       ),
+      onError: errorPort.sendPort,
     );
 
     final broadcastStream = receivePort.asBroadcastStream();
@@ -76,6 +83,23 @@ class IsolatePty {
 
     // Filter output events for the stream
     final outputController = StreamController<List<int>>();
+
+    // Listen for isolate errors
+    // Listen for isolate errors
+    errorPort.listen((message) {
+      final error = message is List ? message[0] : message;
+      final stack = message is List && message.length > 1 ? message[1] : null;
+
+      final errorMsg = 'IsolatePty crashed: $error';
+      final stackTrace = stack != null
+          ? StackTrace.fromString(stack.toString())
+          : StackTrace.current;
+
+      // Log critical isolate error to file
+      CrashLogService.instance.logError(errorMsg, stackTrace);
+
+      outputController.addError(errorMsg, stackTrace);
+    });
 
     broadcastStream.listen((message) {
       if (message is _OutputEvent) {
@@ -98,6 +122,7 @@ class IsolatePty {
       isolate,
       commandPort,
       outputController.stream,
+      errorPort, // Store error port to close it later
     );
   }
 
@@ -135,6 +160,7 @@ class IsolatePty {
   void kill() {
     _commandPort.send(_KillCommand());
     _isolate.kill();
+    _errorPort.close();
   }
 }
 

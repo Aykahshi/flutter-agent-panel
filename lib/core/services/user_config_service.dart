@@ -40,6 +40,9 @@ class UserConfigService {
   /// Get the path to the schema folder
   String get schemaPath => '$configPath/schema';
 
+  /// Get the path to the logs folder
+  String get logsPath => '$configPath/logs';
+
   /// Ensure all required directories exist
   Future<void> ensureDirectoriesExist() async {
     final directories = [
@@ -48,6 +51,7 @@ class UserConfigService {
       darkThemesPath,
       lightThemesPath,
       schemaPath,
+      logsPath,
     ];
 
     for (final dir in directories) {
