@@ -3,10 +3,19 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app.dart';
+import 'core/services/app_bloc_observer.dart';
+import 'core/services/app_logger.dart';
 import 'core/services/user_config_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize logger first
+  AppLogger.instance.init();
+
+  // Set Bloc observer for logging
+  Bloc.observer = AppBlocObserver();
+
   await windowManager.ensureInitialized();
 
   HydratedBloc.storage = await HydratedStorage.build(
@@ -31,5 +40,9 @@ void main() async {
     await windowManager.focus();
   });
 
+  AppLogger.instance.logger.i({
+    'logger': 'App',
+    'message': 'App starting',
+  });
   runApp(App());
 }

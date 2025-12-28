@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'app_logger.dart';
+
 /// GitHub repository information for release checking.
 const String _githubOwner = 'Aykahshi';
 const String _githubRepo = 'flutter-agent-panel';
@@ -42,6 +44,10 @@ class AppVersionService {
   /// Fetches the latest version from GitHub Releases.
   /// Returns the version string without the 'v' prefix.
   Future<String> getLatestVersion() async {
+    AppLogger.instance.logger.d({
+      'logger': 'Update',
+      'message': 'Fetching latest version from GitHub...',
+    });
     try {
       final url = Uri.parse(
         'https://api.github.com/repos/$_githubOwner/$_githubRepo/releases/latest',
@@ -57,15 +63,35 @@ class AppVersionService {
         final tagName = json['tag_name'] as String?;
         if (tagName != null) {
           // Remove 'Release v' or 'v' prefix if present
-          return tagName
+          final version = tagName
               .replaceFirst('Release v', '')
               .replaceFirst('v', '')
               .trim();
+          AppLogger.instance.logger.i({
+            'logger': 'Update',
+            'action': 'latestVersionFetched',
+            'version': version,
+            'tagName': tagName,
+          });
+          return version;
         }
       }
       // Return current version if no release found
-      return await getVersion();
+      final currentVersion = await getVersion();
+      AppLogger.instance.logger.w({
+        'logger': 'Update',
+        'message': 'No release found, using current version',
+        'currentVersion': currentVersion,
+      });
+      return currentVersion;
     } catch (e) {
+      AppLogger.instance.logger.e(
+        {
+          'logger': 'Update',
+          'message': 'Error fetching latest version',
+        },
+        error: e,
+      );
       // Return current version on error
       return await getVersion();
     }
@@ -76,9 +102,26 @@ class AppVersionService {
     try {
       final currentVersion = await getVersion();
       final latestVersion = await getLatestVersion();
+      final updateAvailable =
+          _isVersionGreaterThan(latestVersion, currentVersion);
 
-      return _isVersionGreaterThan(latestVersion, currentVersion);
+      AppLogger.instance.logger.i({
+        'logger': 'Update',
+        'action': 'updateCheck',
+        'currentVersion': currentVersion,
+        'latestVersion': latestVersion,
+        'updateAvailable': updateAvailable,
+      });
+
+      return updateAvailable;
     } catch (e) {
+      AppLogger.instance.logger.e(
+        {
+          'logger': 'Update',
+          'message': 'Error checking for updates',
+        },
+        error: e,
+      );
       return false;
     }
   }

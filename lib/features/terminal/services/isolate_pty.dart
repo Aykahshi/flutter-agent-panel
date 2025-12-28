@@ -177,7 +177,13 @@ Future<void> _ptyIsolateEntryPoint(_PtyConfig config) async {
       columns: config.columns,
     );
   } catch (e) {
-    config.sendPort.send(_ErrorEvent(e.toString()));
+    final errorDetails = StringBuffer()
+      ..writeln('PTY creation failed:')
+      ..writeln('  Executable: ${config.executable}')
+      ..writeln('  Arguments: ${config.arguments}')
+      ..writeln('  Working Directory: ${config.workingDirectory}')
+      ..writeln('  Error: $e');
+    config.sendPort.send(_ErrorEvent(errorDetails.toString()));
     return;
   }
 

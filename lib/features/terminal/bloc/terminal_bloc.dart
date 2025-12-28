@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:xterm/xterm.dart';
 
+import '../../../core/services/app_logger.dart';
 import '../../../shared/utils/platform_utils.dart';
 import '../models/terminal_config.dart';
 import '../models/terminal_node.dart';
@@ -57,8 +57,13 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
           ),
         );
       }
-    } catch (e) {
-      debugPrint('Failed to create terminal: $e');
+    } catch (e, stackTrace) {
+      AppLogger.instance.logger.e(
+        'Failed to create terminal: ${config.id}',
+        error: e,
+        stackTrace: stackTrace,
+        time: DateTime.now(), // optional
+      );
       emit(
         state.copyWith(
           pendingIds: state.pendingIds.where((id) => id != config.id).toSet(),
@@ -113,8 +118,12 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
           ),
         );
       }
-    } catch (e) {
-      debugPrint('Failed to restart terminal: $e');
+    } catch (e, stackTrace) {
+      AppLogger.instance.logger.e(
+        'Failed to restart terminal: ${event.terminalId}',
+        error: e,
+        stackTrace: stackTrace,
+      );
       emit(
         state.copyWith(
           restartingIds:
@@ -136,7 +145,12 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
       if (!event.allTerminalIds.contains(id)) {
         currentTerminals[id]?.dispose();
         toRemove.add(id);
-        debugPrint('Disposing terminal $id (removed from config)');
+        AppLogger.instance.logger.i({
+          'logger': 'PTY',
+          'action': 'disposeTerminal',
+          'terminalId': id,
+          'reason': 'removedFromConfig',
+        });
       }
     }
 
@@ -338,6 +352,18 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
     }
 
     final cwd = config.cwd.isNotEmpty ? config.cwd : Directory.current.path;
+
+    // Log PTY creation details
+    AppLogger.instance.logger.i({
+      'logger': 'PTY',
+      'action': 'createPty',
+      'terminalId': config.id,
+      'shell': shell,
+      'args': ptyArgs,
+      'cwd': cwd,
+      'agentId': config.agentId,
+      'agentCommand': config.agentCommand,
+    });
 
     final pty = await IsolatePty.start(
       shell,
