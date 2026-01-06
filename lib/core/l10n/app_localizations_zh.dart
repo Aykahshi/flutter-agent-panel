@@ -475,6 +475,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get gitBash => 'Git Bash';
 
   @override
+  String get zsh => 'Zsh';
+
+  @override
+  String get bash => 'Bash';
+
+  @override
   String get appearance => '外观';
 
   @override
