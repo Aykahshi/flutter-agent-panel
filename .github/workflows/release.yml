@@ -151,7 +151,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate code
-        run: dart run lean_builder build --delete-conflicting-outputs
+        run: dart run lean_builder build
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
@@ -219,7 +219,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate code
-        run: dart run lean_builder build --delete-conflicting-outputs
+        run: dart run lean_builder build
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
