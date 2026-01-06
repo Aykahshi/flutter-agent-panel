@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:updat/updat.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,10 +29,12 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
   void initState() {
     super.initState();
     _loadVersion();
+    // _cleanupDownloadedFiles() is called inside _loadVersion()
   }
 
   Future<void> _loadVersion() async {
     final version = await AppVersionService.instance.getVersion();
+    _cleanupDownloadedFiles(); // Also cleanup when checking/loading version
     if (mounted) {
       setState(() {
         _currentVersion = version;
@@ -42,6 +47,35 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
     final url = Uri.parse(AppVersionService.instance.getReleasesPageUrl());
     if (!await launchUrl(url)) {
       throw Exception('Could not launch $url');
+    }
+  }
+
+  /// Clean up any leftover downloaded installer files in the temp directory.
+  Future<void> _cleanupDownloadedFiles() async {
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final dir = Directory(tempDir.path);
+      if (await dir.exists()) {
+        final List<FileSystemEntity> entities = await dir.list().toList();
+        for (final entity in entities) {
+          if (entity is File) {
+            final fileName = entity.path.split(Platform.pathSeparator).last;
+            // Matches: flutter_agent_panel-0.0.6-windows-x86_64-setup.exe, etc.
+            if (fileName.startsWith('flutter_agent_panel-') &&
+                (fileName.endsWith('.exe') ||
+                    fileName.endsWith('.dmg') ||
+                    fileName.endsWith('.tar.gz'))) {
+              try {
+                await entity.delete();
+              } catch (e) {
+                // File might be in use, ignore
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore cleanup errors
     }
   }
 
@@ -121,6 +155,16 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                       latestVersion ?? _currentVersion!,
                     );
                   },
+                  getDownloadFileLocation: (latestVersion) async {
+                    final url = await AppVersionService.instance.getBinaryUrl(
+                      latestVersion ?? _currentVersion!,
+                    );
+                    final fileName = url.split('/').last;
+                    // Download to temp directory instead of Downloads folder
+                    final tempDir = await getTemporaryDirectory();
+                    final file = File('${tempDir.path}/$fileName');
+                    return file;
+                  },
                   appName: 'Flutter Agent Panel',
                   updateChipBuilder: _buildUpdateChip,
                   updateDialogBuilder: _buildUpdateDialog,
@@ -130,8 +174,9 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                       if (!mounted) return;
 
                       if (status == UpdatStatus.upToDate) {
-                        // Clear any previous error
+                        // Clear any previous error and cleanup downloaded file
                         setState(() => _errorMessage = null);
+                        _cleanupDownloadedFiles();
                         ShadToaster.of(context).show(
                           ShadToast(
                             title: Row(
@@ -148,10 +193,11 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
                           ),
                         );
                       } else if (status == UpdatStatus.error) {
-                        // Set error message for display
+                        // Set error message for display and cleanup
                         setState(() {
                           _errorMessage = l10n.updateErrorMessage;
                         });
+                        _cleanupDownloadedFiles();
                       } else if (status == UpdatStatus.available ||
                           status == UpdatStatus.checking ||
                           status == UpdatStatus.downloading) {

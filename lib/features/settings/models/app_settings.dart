@@ -29,12 +29,12 @@ String? _migrateTerminalThemeName(String? oldName) {
 
 /// Application settings model
 class AppSettings extends Equatable {
-  const AppSettings({
+  AppSettings({
     this.appTheme = AppTheme.dark,
     this.terminalThemeName = 'OneDark',
     this.customTerminalThemeJson,
     this.fontSettings = const TerminalFontSettings(),
-    this.defaultShell = ShellType.pwsh7,
+    ShellType? defaultShell,
     this.customShells = const [],
     this.selectedCustomShellId,
     this.locale = 'en',
@@ -42,7 +42,7 @@ class AppSettings extends Equatable {
     this.agents = const [],
     this.appFontFamily,
     this.globalEnvironmentVariables = const {},
-  });
+  }) : defaultShell = defaultShell ?? ShellType.platformDefault;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     // Handle migration from old customShellPath to new customShells list
@@ -76,7 +76,7 @@ class AppSettings extends Equatable {
           : const TerminalFontSettings(),
       defaultShell: ShellType.values.firstWhere(
         (e) => e.name == json['defaultShell'],
-        orElse: () => ShellType.pwsh7,
+        orElse: () => ShellType.platformDefault,
       ),
       customShells: customShells,
       selectedCustomShellId: json['selectedCustomShellId'] as String?,

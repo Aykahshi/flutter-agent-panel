@@ -19,6 +19,8 @@
   "cmd": "Command Prompt",
   "wsl": "WSL",
   "gitBash": "Git Bash",
+  "zsh": "Zsh",
+  "bash": "Bash",
   "appearance": "Appearance",
   "theme": "Theme",
   "appFontFamily": "App Font Family",

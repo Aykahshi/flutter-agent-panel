@@ -2,6 +2,8 @@ analyzer:
   exclude:
     - packages/flutter_pty/**
     - packages/xterm/**
+    - lib/core/l10n/**.dart
+    - lib/core/router/**.gr.dart
 
 include: package:flutter_lints/flutter.yaml
 

@@ -55,8 +55,7 @@ jobs:
             
             | Platform | Asset | Description |
             | :--- | :--- | :--- |
-            | **Windows (Setup)** | [EXE](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.get_version.outputs.version) || github.ref_name }}/flutter_agent_panel-${{ steps.get_version.outputs.version }}-windows-x86_64-setup.exe) | Standard Windows Installer |
-            | **Windows (MSIX)** | [MSIX](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.get_version.outputs.version) || github.ref_name }}/flutter_agent_panel-${{ steps.get_version.outputs.version }}-windows-x86_64.msix) | Windows Store / Modern Package |
+            | **Windows** | [EXE](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.get_version.outputs.version) || github.ref_name }}/flutter_agent_panel-${{ steps.get_version.outputs.version }}-windows-x86_64-setup.exe) | Standard Windows Installer |
             | **macOS** | [DMG](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.get_version.outputs.version) || github.ref_name }}/flutter_agent_panel-${{ steps.get_version.outputs.version }}-macos-universal.dmg) | Universal Apple Disk Image |
             | **Linux** | [Tarball](https://github.com/${{ github.repository }}/releases/download/${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.get_version.outputs.version) || github.ref_name }}/flutter_agent_panel-${{ steps.get_version.outputs.version }}-linux-x86_64.tar.gz) | Gzipped Bundle |
             
@@ -111,26 +110,16 @@ jobs:
         with:
           path: windows/installer.iss
 
-      - name: Create MSIX
-        run: dart run msix:create --build-windows false
-
       - name: Rename output files with version
         run: |
           $version = "${{ needs.create-release.outputs.version }}"
           Rename-Item -Path "build/windows/x64/runner/Release/Output/flutter_agent_panel_setup.exe" -NewName "flutter_agent_panel-$version-windows-x86_64-setup.exe"
-          Rename-Item -Path "build/windows/x64/runner/Release/flutter_agent_panel.msix" -NewName "flutter_agent_panel-$version-windows-x86_64.msix"
 
       - name: Upload Release Asset (EXE)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', needs.create-release.outputs.version) || github.ref_name }}
           files: build/windows/x64/runner/Release/Output/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64-setup.exe
-
-      - name: Upload Release Asset (MSIX)
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', needs.create-release.outputs.version) || github.ref_name }}
-          files: build/windows/x64/runner/Release/flutter_agent_panel-${{ needs.create-release.outputs.version }}-windows-x86_64.msix
 
   build-macos:
     name: Build macOS
@@ -162,7 +151,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate code
-        run: dart run lean_builder build --delete-conflicting-outputs
+        run: dart run lean_builder build
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
@@ -230,7 +219,7 @@ jobs:
         run: flutter pub get
 
       - name: Generate code
-        run: dart run lean_builder build --delete-conflicting-outputs
+        run: dart run lean_builder build
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos

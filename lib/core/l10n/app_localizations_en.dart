@@ -60,6 +60,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gitBash => 'Git Bash';
 
   @override
+  String get zsh => 'Zsh';
+
+  @override
+  String get bash => 'Bash';
+
+  @override
   String get appearance => 'Appearance';
 
   @override

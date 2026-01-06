@@ -60,6 +60,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get gitBash => 'Git Bash';
 
   @override
+  String get zsh => 'Zsh';
+
+  @override
+  String get bash => 'Bash';
+
+  @override
   String get appearance => '外觀';
 
   @override
@@ -467,6 +473,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get gitBash => 'Git Bash';
+
+  @override
+  String get zsh => 'Zsh';
+
+  @override
+  String get bash => 'Bash';
 
   @override
   String get appearance => '外观';

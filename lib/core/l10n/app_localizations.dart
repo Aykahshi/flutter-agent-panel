@@ -201,6 +201,18 @@ abstract class AppLocalizations {
   /// **'Git Bash'**
   String get gitBash;
 
+  /// No description provided for @zsh.
+  ///
+  /// In en, this message translates to:
+  /// **'Zsh'**
+  String get zsh;
+
+  /// No description provided for @bash.
+  ///
+  /// In en, this message translates to:
+  /// **'Bash'**
+  String get bash;
+
   /// No description provided for @appearance.
   ///
   /// In en, this message translates to:

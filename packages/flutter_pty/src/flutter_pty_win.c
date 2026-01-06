@@ -7,6 +7,35 @@
 #include "include/dart_api_dl.h"
 #include "include/dart_native_api.h"
 
+/**
+ * Convert UTF-8 string to Wide Character (UTF-16) string.
+ * Uses Windows API MultiByteToWideChar for correct multi-byte handling.
+ * Caller is responsible for freeing the returned string.
+ */
+static LPWSTR utf8_to_wide(const char *utf8_str)
+{
+    if (utf8_str == NULL)
+        return NULL;
+
+    // Get required buffer size (including null terminator)
+    int wide_len = MultiByteToWideChar(CP_UTF8, 0, utf8_str, -1, NULL, 0);
+    if (wide_len == 0)
+        return NULL;
+
+    LPWSTR wide_str = malloc(wide_len * sizeof(WCHAR));
+    if (wide_str == NULL)
+        return NULL;
+
+    // Perform the conversion
+    if (MultiByteToWideChar(CP_UTF8, 0, utf8_str, -1, wide_str, wide_len) == 0)
+    {
+        free(wide_str);
+        return NULL;
+    }
+
+    return wide_str;
+}
+
 static int extra_for_quotes(char *s)
 {
     if (s == NULL)
@@ -23,6 +52,7 @@ static int extra_for_quotes(char *s)
 
 static LPWSTR build_command(char *executable, char **arguments)
 {
+    // Calculate total length needed for the UTF-8 command string
     int command_length = 0;
 
     // If arguments is provided, we assume arguments[0] is the executable name
@@ -36,8 +66,9 @@ static LPWSTR build_command(char *executable, char **arguments)
             i++;
         }
 
-        LPWSTR command = malloc((command_length + 1) * sizeof(WCHAR));
-        if (command == NULL)
+        // Build command in UTF-8 first
+        char *command_utf8 = malloc(command_length + 1);
+        if (command_utf8 == NULL)
             return NULL;
 
         int pos = 0;
@@ -45,40 +76,50 @@ static LPWSTR build_command(char *executable, char **arguments)
         while (arguments[j] != NULL)
         {
             if (j > 0)
-                command[pos++] = ' ';
+                command_utf8[pos++] = ' ';
 
-            command[pos++] = '"';
+            command_utf8[pos++] = '"';
             int k = 0;
             while (arguments[j][k] != 0)
             {
                 if (arguments[j][k] == '"')
-                    command[pos++] = '\\';
-                command[pos++] = (WCHAR)arguments[j][k++];
+                    command_utf8[pos++] = '\\';
+                command_utf8[pos++] = arguments[j][k++];
             }
-            command[pos++] = '"';
+            command_utf8[pos++] = '"';
             j++;
         }
-        command[pos] = 0;
+        command_utf8[pos] = 0;
+
+        // Convert to wide string using proper UTF-8 handling
+        LPWSTR command = utf8_to_wide(command_utf8);
+        free(command_utf8);
         return command;
     }
     else if (executable != NULL)
     {
         command_length = (int)strlen(executable) + extra_for_quotes(executable);
-        LPWSTR command = malloc((command_length + 1) * sizeof(WCHAR));
-        if (command == NULL)
+        
+        // Build command in UTF-8 first
+        char *command_utf8 = malloc(command_length + 1);
+        if (command_utf8 == NULL)
             return NULL;
 
         int pos = 0;
-        command[pos++] = '"';
+        command_utf8[pos++] = '"';
         int j = 0;
         while (executable[j] != 0)
         {
             if (executable[j] == '"')
-                command[pos++] = '\\';
-            command[pos++] = (WCHAR)executable[j++];
+                command_utf8[pos++] = '\\';
+            command_utf8[pos++] = executable[j++];
         }
-        command[pos++] = '"';
-        command[pos] = 0;
+        command_utf8[pos++] = '"';
+        command_utf8[pos] = 0;
+
+        // Convert to wide string using proper UTF-8 handling
+        LPWSTR command = utf8_to_wide(command_utf8);
+        free(command_utf8);
         return command;
     }
 
@@ -87,48 +128,62 @@ static LPWSTR build_command(char *executable, char **arguments)
 
 static LPWSTR build_environment(char **environment)
 {
-    LPWSTR environment_block = NULL;
-    int environment_block_length = 0;
+    if (environment == NULL)
+        return NULL;
 
-    if (environment != NULL)
+    // First pass: calculate total wide character length needed
+    int total_wide_len = 0;
+    int i = 0;
+    while (environment[i] != NULL)
     {
-        int i = 0;
-
-        while (environment[i] != NULL)
-        {
-            environment_block_length += (int)strlen(environment[i]) + 1;
-            i++;
-        }
+        // Get wide char length for each environment variable
+        int wide_len = MultiByteToWideChar(CP_UTF8, 0, environment[i], -1, NULL, 0);
+        if (wide_len > 0)
+            total_wide_len += wide_len; // includes null terminator for each
+        i++;
     }
 
-    environment_block = malloc((environment_block_length + 1) * sizeof(WCHAR));
+    if (total_wide_len == 0)
+        return NULL;
 
-    if (environment_block != NULL)
+    // Allocate environment block (+1 for final double-null terminator)
+    LPWSTR environment_block = malloc((total_wide_len + 1) * sizeof(WCHAR));
+    if (environment_block == NULL)
+        return NULL;
+
+    // Second pass: convert and copy each environment variable
+    int pos = 0;
+    i = 0;
+    while (environment[i] != NULL)
     {
-        int i = 0;
+        // Calculate remaining space in the buffer
+        int remaining = total_wide_len + 1 - pos;
+        if (remaining <= 0) break;
 
-        if (environment != NULL)
+        int converted = MultiByteToWideChar(CP_UTF8, 0, environment[i], -1, 
+                                             &environment_block[pos], remaining);
+        if (converted > 0)
         {
-            int j = 0;
-
-            while (environment[j] != NULL)
-            {
-                int k = 0;
-
-                while (environment[j][k] != 0)
-                {
-                    environment_block[i] = (WCHAR)environment[j][k];
-                    i++;
-                    k++;
-                }
-
-                environment_block[i++] = 0;
-
-                j++;
-            }
+            pos += converted; // includes null terminator
         }
+        else
+        {
+            // If conversion fails, something is wrong with the input.
+            // But we must ensure the block remains valid (null terminated).
+            // For now, we skip this entry, but stay safe.
+        }
+        i++;
+    }
 
-        environment_block[i] = 0;
+    // Add final null terminator for double-null terminated block
+    if (pos <= total_wide_len)
+    {
+        environment_block[pos] = 0;
+    }
+    else
+    {
+        // Should not happen, but for absolute safety
+        environment_block[total_wide_len] = 0;
     }
 
     return environment_block;
@@ -136,30 +191,8 @@ static LPWSTR build_environment(char **environment)
 
 static LPWSTR build_working_directory(char *working_directory)
 {
-    if (working_directory == NULL)
-    {
-        return NULL;
-    }
-
-    int working_directory_length = (int)strlen(working_directory);
-
-    LPWSTR working_directory_block = malloc((working_directory_length + 1) * sizeof(WCHAR));
-
-    if (working_directory_block == NULL)
-    {
-        return NULL;
-    }
-
-    int i = 0;
-
-    while (working_directory[i] != 0)
-    {
-        working_directory_block[i] = (WCHAR)working_directory[i++];
-    }
-
-    working_directory_block[i] = 0;
-
-    return working_directory_block;
+    // Use utf8_to_wide for proper UTF-8 to Wide Char conversion
+    return utf8_to_wide(working_directory);
 }
 
 typedef struct ReadLoopOptions
