@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# Pre-push hook for Flutter project
+# Runs dart analyze and dart format before pushing
+#
+
+echo "🔍 Running pre-push checks..."
+
+# Get the project root directory
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+cd "$PROJECT_ROOT" || exit 1
+
+# Run dart analyze
+echo ""
+echo "📊 Running dart analyze..."
+flutter analyze
+ANALYZE_EXIT_CODE=$?
+
+if [ $ANALYZE_EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "❌ dart analyze failed! Please fix the issues above before pushing."
+    exit 1
+fi
+
+echo "✅ dart analyze passed!"
+
+# Run dart format check
+echo ""
+echo "📝 Checking dart format..."
+dart format --set-exit-if-changed lib/
+
+FORMAT_EXIT_CODE=$?
+
+if [ $FORMAT_EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "❌ dart format check failed! Some files are not properly formatted."
+    echo "💡 Run 'dart format lib/' to fix formatting issues."
+    exit 1
+fi
+
+echo "✅ dart format check passed!"
+
+echo ""
+echo "🎉 All pre-push checks passed! Proceeding with push..."
+exit 0
