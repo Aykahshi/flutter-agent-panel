@@ -156,16 +156,35 @@ static LPWSTR build_environment(char **environment)
     i = 0;
     while (environment[i] != NULL)
     {
+        // Calculate remaining space in the buffer
         int remaining = total_wide_len + 1 - pos;
+        if (remaining <= 0) break;
+
         int converted = MultiByteToWideChar(CP_UTF8, 0, environment[i], -1, 
                                              &environment_block[pos], remaining);
         if (converted > 0)
+        {
             pos += converted; // includes null terminator
+        }
+        else
+        {
+            // If conversion fails, something is wrong with the input.
+            // But we must ensure the block remains valid (null terminated).
+            // For now, we skip this entry, but stay safe.
+        }
         i++;
     }
 
     // Add final null terminator for double-null terminated block
-    environment_block[pos] = 0;
+    if (pos <= total_wide_len)
+    {
+        environment_block[pos] = 0;
+    }
+    else
+    {
+        // Should not happen, but for absolute safety
+        environment_block[total_wide_len] = 0;
+    }
 
     return environment_block;
 }

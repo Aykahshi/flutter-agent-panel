@@ -29,7 +29,7 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
   void initState() {
     super.initState();
     _loadVersion();
-    _cleanupDownloadedFiles(); // Cleanup any leftover installers on startup
+    // _cleanupDownloadedFiles() is called inside _loadVersion()
   }
 
   Future<void> _loadVersion() async {
@@ -60,8 +60,7 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
         for (final entity in entities) {
           if (entity is File) {
             final fileName = entity.path.split(Platform.pathSeparator).last;
-            // Matches: flutter_agent_panel-0.0.6-windows-x86_64.msix,
-            //          flutter_agent_panel-0.0.6-windows-x86_64-setup.exe, etc.
+            // Matches: flutter_agent_panel-0.0.6-windows-x86_64-setup.exe, etc.
             if (fileName.startsWith('flutter_agent_panel-') &&
                 (fileName.endsWith('.exe') ||
                     fileName.endsWith('.dmg') ||

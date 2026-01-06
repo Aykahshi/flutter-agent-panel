@@ -14,7 +14,7 @@ part of 'app_router.dart';
 /// [AppShellView]
 class AppShellRoute extends PageRouteInfo<void> {
   const AppShellRoute({List<PageRouteInfo>? children})
-    : super(AppShellRoute.name, initialChildren: children);
+      : super(AppShellRoute.name, initialChildren: children);
 
   static const String name = 'AppShellRoute';
 
@@ -34,11 +34,11 @@ class TerminalRoute extends PageRouteInfo<TerminalRouteArgs> {
     required String terminalId,
     List<PageRouteInfo>? children,
   }) : super(
-         TerminalRoute.name,
-         args: TerminalRouteArgs(key: key, terminalId: terminalId),
-         rawPathParams: {'terminalId': terminalId},
-         initialChildren: children,
-       );
+          TerminalRoute.name,
+          args: TerminalRouteArgs(key: key, terminalId: terminalId),
+          rawPathParams: {'terminalId': terminalId},
+          initialChildren: children,
+        );
 
   static const String name = 'TerminalRoute';
 
@@ -86,11 +86,11 @@ class WorkspaceRoute extends PageRouteInfo<WorkspaceRouteArgs> {
     required String workspaceId,
     List<PageRouteInfo>? children,
   }) : super(
-         WorkspaceRoute.name,
-         args: WorkspaceRouteArgs(key: key, workspaceId: workspaceId),
-         rawPathParams: {'workspaceId': workspaceId},
-         initialChildren: children,
-       );
+          WorkspaceRoute.name,
+          args: WorkspaceRouteArgs(key: key, workspaceId: workspaceId),
+          rawPathParams: {'workspaceId': workspaceId},
+          initialChildren: children,
+        );
 
   static const String name = 'WorkspaceRoute';
 
@@ -135,7 +135,7 @@ class WorkspaceRouteArgs {
 /// [WorkspaceWrapperView]
 class WorkspaceWrapperRoute extends PageRouteInfo<void> {
   const WorkspaceWrapperRoute({List<PageRouteInfo>? children})
-    : super(WorkspaceWrapperRoute.name, initialChildren: children);
+      : super(WorkspaceWrapperRoute.name, initialChildren: children);
 
   static const String name = 'WorkspaceWrapperRoute';
 

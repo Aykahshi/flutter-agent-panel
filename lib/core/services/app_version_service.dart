@@ -160,7 +160,12 @@ class AppVersionService {
   /// Gets the download URL for the binary based on current platform.
   Future<String> getBinaryUrl(String version) async {
     // If we have cached release info, try to find the best asset
-    if (_latestReleaseJson != null) {
+    // Verify that the cached release tag matches the requested version
+    final cachedTag = _latestReleaseJson?['tag_name'] as String?;
+    final cleanCachedTag =
+        cachedTag?.replaceFirst('Release v', '').replaceFirst('v', '').trim();
+
+    if (_latestReleaseJson != null && cleanCachedTag == version) {
       final assets = _latestReleaseJson!['assets'] as List<dynamic>?;
       if (assets != null) {
         final assetUrls =

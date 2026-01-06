@@ -99,8 +99,9 @@ enum ShellType {
   /// Check if a command is available in the system PATH.
   static Future<bool> _isCommandAvailable(String command) async {
     try {
+      final checkCmd = Platform.isWindows ? 'where' : 'which';
       final result = await Process.run(
-        'where',
+        checkCmd,
         [command],
         runInShell: true,
       );
