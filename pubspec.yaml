@@ -51,7 +51,6 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   lean_builder: ^0.1.6
   auto_route_generator: ^10.4.0
-  msix: ^3.16.12
 
 flutter:
   uses-material-design: true
@@ -72,15 +71,6 @@ flutter_launcher_icons:
   macos:
     generate: true
     image_path: "assets/images/app_icon.png"
-
-msix_config:
-  display_name: Flutter Agent Panel
-  publisher_display_name: Flutter Agent Panel Team
-  identity_name: dev.aykahshi.flutteragentpanel
-  logo_path: assets/images/app_icon.png
-  capabilities: internetClient
-  output_name: flutter_agent_panel
-  install_certificate: false
 
 
 

@@ -166,23 +166,20 @@ class AppVersionService {
         final assetUrls =
             assets.map((a) => a['browser_download_url'] as String).toList();
 
-        if (Platform.isWindows) {
-          // Priority: -setup.exe > .msix
-          final setupExe =
-              assetUrls.where((url) => url.contains('-setup.exe')).firstOrNull;
-          if (setupExe != null) return setupExe;
-
-          final msix =
-              assetUrls.where((url) => url.endsWith('.msix')).firstOrNull;
-          if (msix != null) return msix;
-        } else if (Platform.isMacOS) {
-          final dmg =
-              assetUrls.where((url) => url.endsWith('.dmg')).firstOrNull;
-          if (dmg != null) return dmg;
-        } else if (Platform.isLinux) {
-          final tarGz =
-              assetUrls.where((url) => url.endsWith('.tar.gz')).firstOrNull;
-          if (tarGz != null) return tarGz;
+        switch (Platform.operatingSystem) {
+          case 'windows':
+            final setupExe = assetUrls
+                .where((url) => url.endsWith('-setup.exe'))
+                .firstOrNull;
+            if (setupExe != null) return setupExe;
+          case 'macos':
+            final dmg =
+                assetUrls.where((url) => url.endsWith('.dmg')).firstOrNull;
+            if (dmg != null) return dmg;
+          case 'linux':
+            final tarGz =
+                assetUrls.where((url) => url.endsWith('.tar.gz')).firstOrNull;
+            if (tarGz != null) return tarGz;
         }
       }
     }
@@ -193,14 +190,14 @@ class AppVersionService {
         'https://github.com/$_githubOwner/$_githubRepo/releases/download/v$cleanVersion';
 
     if (Platform.isWindows) {
-      return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64.msix';
+      return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64-setup.exe';
     } else if (Platform.isMacOS) {
       return '$baseUrl/flutter_agent_panel-$cleanVersion-macos-universal.dmg';
     } else if (Platform.isLinux) {
       return '$baseUrl/flutter_agent_panel-$cleanVersion-linux-x86_64.tar.gz';
     }
 
-    return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64.msix';
+    return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64-setup.exe';
   }
 
   /// Gets the GitHub releases page URL.

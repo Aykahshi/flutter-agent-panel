@@ -64,7 +64,6 @@ class _UpdateSettingsContentState extends State<UpdateSettingsContent> {
             //          flutter_agent_panel-0.0.6-windows-x86_64-setup.exe, etc.
             if (fileName.startsWith('flutter_agent_panel-') &&
                 (fileName.endsWith('.exe') ||
-                    fileName.endsWith('.msix') ||
                     fileName.endsWith('.dmg') ||
                     fileName.endsWith('.tar.gz'))) {
               try {
