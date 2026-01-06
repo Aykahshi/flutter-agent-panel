@@ -71,9 +71,9 @@ Flutter Agent Panel 是一個結合**強大終端機模擬器**與 **AI Agent �
 # 下載依賴套件
 flutter pub get
 
+# 生成 auto_route 程式碼
+dart run lean_builder build
+
 # 執行 App
 flutter run
-
-# 產生程式碼 (若有更動 core/settings 相關)
-dart run lean_builder build --delete-conflicting-outputs
 ```

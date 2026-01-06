@@ -70,10 +70,10 @@ To build and run this project locally:
 # Get dependencies
 flutter pub get
 
+# Generate code for auto_route
+dart run lean_builder build
+
 # Run the app
 flutter run
-
-# Generate code (for updated dependencies)
-dart run lean_builder build --delete-conflicting-outputs
 ```
 
