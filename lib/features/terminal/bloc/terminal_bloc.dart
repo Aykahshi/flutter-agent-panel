@@ -6,7 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:xterm/xterm.dart';
 
 import '../../../core/services/app_logger.dart';
-import '../../../shared/utils/platform_utils.dart';
+import '../../settings/models/app_settings.dart';
+import '../../settings/models/shell_type.dart';
 import '../models/terminal_config.dart';
 import '../models/terminal_node.dart';
 import '../services/isolate_pty.dart';
@@ -269,7 +270,12 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
     // Resolve shell path and handle spaces
     shell = config.shellCmd.isNotEmpty
         ? config.shellCmd
-        : (PlatformUtils.isWindows ? 'pwsh.exe' : '/bin/bash');
+        : ShellType.platformDefault.command;
+
+    // Apply Windows fallback if needed
+    if (Platform.isWindows) {
+      shell = ShellType.resolveWindowsCommand(shell);
+    }
 
     // Quote shell path if it contains spaces and is not already quoted
     // REMOVED: Dart's Process.start handles executable paths with spaces correctly.

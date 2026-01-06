@@ -10,7 +10,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
   SettingsBloc()
       : super(
           SettingsState(
-            settings: const AppSettings().copyWith(
+            settings: AppSettings().copyWith(
               agents: AppSettings.getDefaultAgents(),
             ),
           ),

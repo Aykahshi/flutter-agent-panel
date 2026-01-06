@@ -13,6 +13,8 @@ String getAppThemeLocalizedName(AppTheme theme, AppLocalizations l10n) =>
 /// Get localized name for shell type
 String getShellTypeLocalizedName(ShellType shell, AppLocalizations l10n) =>
     switch (shell) {
+      ShellType.zsh => l10n.zsh,
+      ShellType.bash => l10n.bash,
       ShellType.pwsh7 => l10n.pwsh7,
       ShellType.powershell => l10n.powershell,
       ShellType.cmd => l10n.cmd,

@@ -35,6 +35,8 @@
   "cmd": "命令提示字元",
   "wsl": "WSL",
   "gitBash": "Git Bash",
+  "zsh": "Zsh",
+  "bash": "Bash",
   "appearance": "外觀",
   "theme": "主題",
   "appFontFamily": "App 字型系列",

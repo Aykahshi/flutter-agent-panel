@@ -16,6 +16,7 @@ class AppVersionService {
   static final AppVersionService instance = AppVersionService._();
 
   PackageInfo? _packageInfo;
+  Map<String, dynamic>? _latestReleaseJson;
 
   /// Gets the package info (cached after first call).
   Future<PackageInfo> getPackageInfo() async {
@@ -61,6 +62,7 @@ class AppVersionService {
       if (response.statusCode == 200) {
         final body = await response.transform(utf8.decoder).join();
         final json = jsonDecode(body) as Map<String, dynamic>;
+        _latestReleaseJson = json;
         final tagName = json['tag_name'] as String?;
         if (tagName != null) {
           // Remove 'Release v' or 'v' prefix if present
@@ -157,21 +159,48 @@ class AppVersionService {
 
   /// Gets the download URL for the binary based on current platform.
   Future<String> getBinaryUrl(String version) async {
-    // Clean version string to ensure it matches GitHub release tag format
+    // If we have cached release info, try to find the best asset
+    if (_latestReleaseJson != null) {
+      final assets = _latestReleaseJson!['assets'] as List<dynamic>?;
+      if (assets != null) {
+        final assetUrls =
+            assets.map((a) => a['browser_download_url'] as String).toList();
+
+        if (Platform.isWindows) {
+          // Priority: -setup.exe > .msix
+          final setupExe =
+              assetUrls.where((url) => url.contains('-setup.exe')).firstOrNull;
+          if (setupExe != null) return setupExe;
+
+          final msix =
+              assetUrls.where((url) => url.endsWith('.msix')).firstOrNull;
+          if (msix != null) return msix;
+        } else if (Platform.isMacOS) {
+          final dmg =
+              assetUrls.where((url) => url.endsWith('.dmg')).firstOrNull;
+          if (dmg != null) return dmg;
+        } else if (Platform.isLinux) {
+          final tarGz =
+              assetUrls.where((url) => url.endsWith('.tar.gz')).firstOrNull;
+          if (tarGz != null) return tarGz;
+        }
+      }
+    }
+
+    // Fallback if no assets found or no cache
     final cleanVersion = version.split('+')[0].split('-')[0];
     final baseUrl =
         'https://github.com/$_githubOwner/$_githubRepo/releases/download/v$cleanVersion';
 
     if (Platform.isWindows) {
-      return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64-setup.exe';
+      return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64.msix';
     } else if (Platform.isMacOS) {
       return '$baseUrl/flutter_agent_panel-$cleanVersion-macos-universal.dmg';
     } else if (Platform.isLinux) {
       return '$baseUrl/flutter_agent_panel-$cleanVersion-linux-x86_64.tar.gz';
     }
 
-    // Default to Windows
-    return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64-setup.exe';
+    return '$baseUrl/flutter_agent_panel-$cleanVersion-windows-x86_64.msix';
   }
 
   /// Gets the GitHub releases page URL.
