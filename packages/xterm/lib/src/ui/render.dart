@@ -172,6 +172,7 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
 
   void _onTerminalChange() {
     markNeedsLayout();
+    markNeedsPaint();
     _notifyEditableRect();
   }
 
@@ -452,7 +453,16 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
   void _paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
     final lines = _terminal.buffer.lines;
+    // Use the integer cell height for consistent line positioning
     final charHeight = _painter.cellSize.height;
+
+    // Paint background for the entire visible terminal area to prevent
+    // gaps between lines on first frame before TUI apps fill the buffer.
+    // Disable anti-aliasing to prevent edge artifacts.
+    final bgPaint = Paint()
+      ..color = _painter.theme.background
+      ..isAntiAlias = false;
+    canvas.drawRect(offset & size, bgPaint);
 
     final firstLineOffset = _scrollOffset - _padding.top;
     final lastLineOffset = _scrollOffset + size.height - _padding.bottom;
@@ -479,10 +489,14 @@ class RenderTerminal extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
       );
     }
 
+    // Calculate base Y offset once, then use integer multiples of charHeight
+    // to ensure consecutive lines have no gaps between them.
+    final baseY = _lineOffset.floorToDouble();
     for (var i = effectFirstLine; i <= effectLastLine; i++) {
+      final lineY = (baseY + i * charHeight).floorToDouble();
       _painter.paintLine(
         canvas,
-        offset.translate(0, (i * charHeight + _lineOffset).truncateToDouble()),
+        offset.translate(0, lineY),
         lines[i],
       );
     }
