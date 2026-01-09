@@ -3,7 +3,7 @@
   "mcp": {
     "dart": {
       "type": "local",
-      "command": ["dart", "mcp-server"],
+      "command": ["dart", "mcp-server"]
     }
   }
 }

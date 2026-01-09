@@ -66,9 +66,18 @@ class TerminalPainter {
     final paragraph = builder.build();
     paragraph.layout(ParagraphConstraints(width: double.infinity));
 
-    // Use floor for width to prevent characters from being too wide,
-    // which causes horizontal stretching in ASCII art compared to native terminals.
-    // Use ceil for height to prevent gaps between lines.
+    // Cell size calculation strategy:
+    // - Width: floorToDouble() prevents horizontal stretching in ASCII art.
+    //   Monospaced fonts in terminals are expected to align perfectly, and
+    //   rounding up would cause cumulative errors that misalign box-drawing
+    //   characters and ASCII art across wide terminal windows.
+    // - Height: ceilToDouble() prevents vertical gaps between lines.
+    //   Rounding up ensures that consecutive lines overlap slightly rather
+    //   than leaving sub-pixel gaps, which is less visually jarring than
+    //   misaligned horizontal content.
+    // This asymmetry is intentional: horizontal precision is critical for
+    // terminal content alignment, while vertical gaps are more noticeable
+    // than slight height increases.
     final rawWidth = paragraph.maxIntrinsicWidth / test.length;
     final rawHeight = paragraph.height;
 
@@ -152,17 +161,6 @@ class TerminalPainter {
   ) {
     final cellData = CellData.empty();
     final cellWidth = _cellSize.width;
-
-    // First, paint a full-width background strip for this line with 1px overlap
-    // to prevent sub-pixel gaps between consecutive lines.
-    final lineWidth = line.length * cellWidth;
-    final lineBgPaint = Paint()
-      ..color = _theme.background
-      ..isAntiAlias = false;
-    canvas.drawRect(
-      Rect.fromLTWH(offset.dx, offset.dy, lineWidth, _cellSize.height + 1),
-      lineBgPaint,
-    );
 
     for (var i = 0; i < line.length; i++) {
       line.getCellData(i, cellData);

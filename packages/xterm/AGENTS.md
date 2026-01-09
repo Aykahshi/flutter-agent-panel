@@ -32,7 +32,7 @@ lib/src/
 
 ## ANTI-PATTERNS
 - **Manual Mocks**: NEVER edit `*.mocks.dart` files manually.
-- **Sub-pixel coordinates**: Avoid floating point offsets in `Painter`; use `roundToDouble()` for crispness.
+- **Sub-pixel coordinates**: Avoid arbitrary sub-pixel offsets in `Painter`. Use `floorToDouble()` for Y-coordinates to ensure pixel-aligned rows without gaps (at the cost of slight positioning differences versus rounding).
 
 ## NOTES
 - **Performance**: Designed for 60fps; avoid tree rebuilds, use `isRepaintBoundary = true`.
