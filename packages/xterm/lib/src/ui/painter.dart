@@ -66,9 +66,24 @@ class TerminalPainter {
     final paragraph = builder.build();
     paragraph.layout(ParagraphConstraints(width: double.infinity));
 
+    // Cell size calculation strategy:
+    // - Width: floorToDouble() prevents horizontal stretching in ASCII art.
+    //   Monospaced fonts in terminals are expected to align perfectly, and
+    //   rounding up would cause cumulative errors that misalign box-drawing
+    //   characters and ASCII art across wide terminal windows.
+    // - Height: ceilToDouble() prevents vertical gaps between lines.
+    //   Rounding up ensures that consecutive lines overlap slightly rather
+    //   than leaving sub-pixel gaps, which is less visually jarring than
+    //   misaligned horizontal content.
+    // This asymmetry is intentional: horizontal precision is critical for
+    // terminal content alignment, while vertical gaps are more noticeable
+    // than slight height increases.
+    final rawWidth = paragraph.maxIntrinsicWidth / test.length;
+    final rawHeight = paragraph.height;
+
     final result = Size(
-      paragraph.maxIntrinsicWidth / test.length,
-      paragraph.height,
+      rawWidth.floorToDouble(),
+      rawHeight.ceilToDouble(),
     );
 
     paragraph.dispose();
@@ -227,15 +242,20 @@ class TerminalPainter {
     if (cellData.flags & CellFlags.inverse != 0) {
       color = resolveForegroundColor(cellData.foreground);
     } else if (colorType == CellColor.normal) {
-      return;
+      // Always paint background for normal cells to prevent gaps.
+      // Previously this returned early, leaving gaps between lines.
+      color = _theme.background;
     } else {
       color = resolveBackgroundColor(cellData.background);
     }
 
-    final paint = Paint()..color = color;
+    final paint = Paint()
+      ..color = color
+      ..isAntiAlias = false;
     final doubleWidth = cellData.content >> CellContent.widthShift == 2;
     final widthScale = doubleWidth ? 2 : 1;
-    final size = Size(_cellSize.width * widthScale + 1, _cellSize.height);
+    // Use exact cell size - extra height is already added in _measureCharSize
+    final size = Size(_cellSize.width * widthScale, _cellSize.height);
     canvas.drawRect(offset & size, paint);
   }
 

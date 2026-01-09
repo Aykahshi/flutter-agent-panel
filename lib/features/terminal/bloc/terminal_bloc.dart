@@ -420,6 +420,12 @@ class TerminalBloc extends Bloc<TerminalEvent, TerminalState> {
       pty.write(const Utf8Encoder().convert(data));
     };
 
+    // Setup Terminal -> PTY (Resize)
+    // This is called by xterm's RenderTerminal when autoResize is enabled
+    terminal.onResize = (width, height, pixelWidth, pixelHeight) {
+      node.resize(width, height);
+    };
+
     return node;
   }
 

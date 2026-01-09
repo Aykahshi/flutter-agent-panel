@@ -31,14 +31,13 @@ class _TerminalComponentState extends State<TerminalComponent> {
   late final xterm_ui.TerminalController _terminalController;
   xterm_ui.TerminalSearchController? _searchController;
 
-  int? _lastCols;
-  int? _lastRows;
   xterm.TerminalTheme? _cachedTheme;
   String? _lastThemeName;
   String? _lastCustomJson;
   Brightness? _lastBrightness;
 
   bool _showSearchBar = false;
+  bool _themeInitialized = false;
 
   @override
   void initState() {
@@ -53,6 +52,22 @@ class _TerminalComponentState extends State<TerminalComponent> {
           _focusNode.requestFocus();
         }
       });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-load theme on first build to avoid flash of default theme
+    if (!_themeInitialized) {
+      _themeInitialized = true;
+      final settings = context.read<SettingsBloc>().state.settings;
+      final brightness = Theme.of(context).brightness;
+      _loadTheme(
+        settings.terminalThemeName,
+        settings.customTerminalThemeJson,
+        brightness,
+      );
     }
   }
 
@@ -125,13 +140,14 @@ class _TerminalComponentState extends State<TerminalComponent> {
         final settings = state.settings;
         final fontSettings = settings.fontSettings;
 
+        // Use height: 1.2 (default) to provide space for descenders (y, p, g, etc.)
+        // height: 1.0 causes descenders to be clipped by the next line
         final terminalStyle = xterm.TerminalStyle(
           fontFamily: fontSettings.fontFamily,
           fontSize: fontSettings.fontSize,
           fontWeight: fontSettings.isBold ? FontWeight.bold : FontWeight.normal,
           fontStyle:
               fontSettings.isItalic ? FontStyle.italic : FontStyle.normal,
-          height: 1.0,
         );
 
         // Check if we need to reload the theme
@@ -160,22 +176,8 @@ class _TerminalComponentState extends State<TerminalComponent> {
               .setCursorBlinkMode(settings.terminalCursorBlink);
         }
 
-        if (widget.interactive) {
-          Future.delayed(const Duration(milliseconds: 200), () {
-            if (mounted) {
-              final terminal = widget.terminalNode.terminal;
-              if (terminal.viewWidth > 0 && terminal.viewHeight > 0) {
-                if (_lastCols != terminal.viewWidth ||
-                    _lastRows != terminal.viewHeight) {
-                  _lastCols = terminal.viewWidth;
-                  _lastRows = terminal.viewHeight;
-                  widget.terminalNode
-                      .resize(terminal.viewWidth, terminal.viewHeight);
-                }
-              }
-            }
-          });
-        }
+        // PTY resize is now handled automatically via terminal.onResize callback
+        // which is set in TerminalBloc._createTerminalNode()
 
         // Non-interactive (thumbnail) mode - minimal rendering
         if (!widget.interactive) {
@@ -194,22 +196,19 @@ class _TerminalComponentState extends State<TerminalComponent> {
           onKeyEvent: _handleKeyEvent,
           child: Stack(
             children: [
-              Container(
-                color: xtermTheme.background,
-                padding: const EdgeInsets.all(5),
-                child: GestureDetector(
-                  onTap: () => _focusNode.requestFocus(),
-                  child: xterm.TerminalView(
-                    widget.terminalNode.terminal,
-                    controller: _terminalController,
-                    autofocus: true,
-                    autoResize: true,
-                    focusNode: _focusNode,
-                    hardwareKeyboardOnly: false,
-                    keyboardType: TextInputType.text,
-                    textStyle: terminalStyle,
-                    theme: xtermTheme,
-                  ),
+              GestureDetector(
+                onTap: () => _focusNode.requestFocus(),
+                child: xterm.TerminalView(
+                  widget.terminalNode.terminal,
+                  controller: _terminalController,
+                  autofocus: true,
+                  autoResize: true,
+                  focusNode: _focusNode,
+                  hardwareKeyboardOnly: false,
+                  keyboardType: TextInputType.text,
+                  textStyle: terminalStyle,
+                  theme: xtermTheme,
+                  padding: const EdgeInsets.all(5),
                 ),
               ),
               // Search bar overlay
