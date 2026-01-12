@@ -242,9 +242,7 @@ class TerminalPainter {
     if (cellData.flags & CellFlags.inverse != 0) {
       color = resolveForegroundColor(cellData.foreground);
     } else if (colorType == CellColor.normal) {
-      // Always paint background for normal cells to prevent gaps.
-      // Previously this returned early, leaving gaps between lines.
-      color = _theme.background;
+      return;
     } else {
       color = resolveBackgroundColor(cellData.background);
     }
